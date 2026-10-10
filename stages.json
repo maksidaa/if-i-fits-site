@@ -1,0 +1,308 @@
+{
+  "chapters" : [
+    {
+      "night" : false,
+      "room" : "kitchen",
+      "stages" : [
+        {
+          "seats" : 8,
+          "seed" : 1470562031,
+          "startStep" : 0
+        },
+        {
+          "seats" : 8,
+          "seed" : 1470569950,
+          "startStep" : 1
+        },
+        {
+          "seats" : 8,
+          "seed" : 1470577869,
+          "startStep" : 2
+        },
+        {
+          "seats" : 8,
+          "seed" : 1470585788,
+          "startStep" : 3
+        },
+        {
+          "seats" : 8,
+          "seed" : 1470593707,
+          "startStep" : 4
+        },
+        {
+          "seats" : 8,
+          "seed" : 1470601626,
+          "startStep" : 6
+        }
+      ],
+      "title" : "the kitchen"
+    },
+    {
+      "night" : false,
+      "room" : "livingRoom",
+      "stages" : [
+        {
+          "seats" : 8,
+          "seed" : 1470609545,
+          "startStep" : 7
+        },
+        {
+          "seats" : 8,
+          "seed" : 1470617464,
+          "startStep" : 8
+        },
+        {
+          "seats" : 8,
+          "seed" : 1470625383,
+          "startStep" : 9
+        },
+        {
+          "seats" : 8,
+          "seed" : 1470633302,
+          "startStep" : 10
+        },
+        {
+          "seats" : 8,
+          "seed" : 1470641221,
+          "startStep" : 11
+        },
+        {
+          "seats" : 8,
+          "seed" : 1470649140,
+          "startStep" : 12
+        }
+      ],
+      "title" : "the living room"
+    },
+    {
+      "night" : false,
+      "room" : "bedroom",
+      "stages" : [
+        {
+          "seats" : 10,
+          "seed" : 1470657059,
+          "startStep" : 13
+        },
+        {
+          "seats" : 10,
+          "seed" : 1470664978,
+          "startStep" : 14
+        },
+        {
+          "seats" : 10,
+          "seed" : 1470672897,
+          "startStep" : 15
+        },
+        {
+          "seats" : 10,
+          "seed" : 1470680816,
+          "startStep" : 17
+        },
+        {
+          "seats" : 10,
+          "seed" : 1470688735,
+          "startStep" : 18
+        },
+        {
+          "seats" : 10,
+          "seed" : 1470696654,
+          "startStep" : 19
+        }
+      ],
+      "title" : "the bedroom"
+    },
+    {
+      "night" : false,
+      "room" : "bathroom",
+      "stages" : [
+        {
+          "seats" : 10,
+          "seed" : 1470704573,
+          "startStep" : 20
+        },
+        {
+          "seats" : 10,
+          "seed" : 1470712492,
+          "startStep" : 21
+        },
+        {
+          "seats" : 10,
+          "seed" : 1470720411,
+          "startStep" : 22
+        },
+        {
+          "seats" : 10,
+          "seed" : 1470728330,
+          "startStep" : 23
+        },
+        {
+          "seats" : 10,
+          "seed" : 1470736249,
+          "startStep" : 24
+        },
+        {
+          "seats" : 10,
+          "seed" : 1470744168,
+          "startStep" : 25
+        }
+      ],
+      "title" : "the bathroom"
+    },
+    {
+      "night" : false,
+      "room" : "office",
+      "stages" : [
+        {
+          "seats" : 10,
+          "seed" : 1470752087,
+          "startStep" : 26
+        },
+        {
+          "seats" : 10,
+          "seed" : 1470760006,
+          "startStep" : 28
+        },
+        {
+          "seats" : 10,
+          "seed" : 1470767925,
+          "startStep" : 29
+        },
+        {
+          "seats" : 10,
+          "seed" : 1470775844,
+          "startStep" : 30
+        },
+        {
+          "seats" : 10,
+          "seed" : 1470783763,
+          "startStep" : 31
+        },
+        {
+          "seats" : 10,
+          "seed" : 1470791682,
+          "startStep" : 32
+        }
+      ],
+      "title" : "the office"
+    },
+    {
+      "night" : false,
+      "room" : "backyard",
+      "stages" : [
+        {
+          "seats" : 12,
+          "seed" : 1470799601,
+          "startStep" : 33
+        },
+        {
+          "seats" : 12,
+          "seed" : 1470807520,
+          "startStep" : 34
+        },
+        {
+          "seats" : 12,
+          "seed" : 1470815439,
+          "startStep" : 35
+        },
+        {
+          "seats" : 12,
+          "seed" : 1470823358,
+          "startStep" : 36
+        },
+        {
+          "seats" : 12,
+          "seed" : 1470831277,
+          "startStep" : 37
+        },
+        {
+          "seats" : 12,
+          "seed" : 1470839196,
+          "startStep" : 39
+        }
+      ],
+      "title" : "the backyard"
+    },
+    {
+      "night" : false,
+      "room" : "street",
+      "stages" : [
+        {
+          "seats" : 12,
+          "seed" : 1470847115,
+          "startStep" : 40
+        },
+        {
+          "seats" : 12,
+          "seed" : 1470855034,
+          "startStep" : 41
+        },
+        {
+          "seats" : 12,
+          "seed" : 1470862953,
+          "startStep" : 42
+        },
+        {
+          "seats" : 12,
+          "seed" : 1470870872,
+          "startStep" : 43
+        },
+        {
+          "seats" : 12,
+          "seed" : 1470878791,
+          "startStep" : 44
+        },
+        {
+          "seats" : 12,
+          "seed" : 1470886710,
+          "startStep" : 45
+        }
+      ],
+      "title" : "the street"
+    },
+    {
+      "night" : true,
+      "room" : "kitchen",
+      "stages" : [
+        {
+          "room" : "kitchen",
+          "seats" : 12,
+          "seed" : 1470894629,
+          "startStep" : 46
+        },
+        {
+          "room" : "livingRoom",
+          "seats" : 12,
+          "seed" : 1470902548,
+          "startStep" : 47
+        },
+        {
+          "room" : "bedroom",
+          "seats" : 12,
+          "seed" : 1470910467,
+          "startStep" : 48
+        },
+        {
+          "room" : "bathroom",
+          "seats" : 12,
+          "seed" : 1470918386,
+          "startStep" : 50
+        },
+        {
+          "room" : "office",
+          "seats" : 12,
+          "seed" : 1470926305,
+          "startStep" : 51
+        },
+        {
+          "room" : "backyard",
+          "seats" : 12,
+          "seed" : 1470934224,
+          "startStep" : 52
+        }
+      ],
+      "title" : "the night shift"
+    }
+  ],
+  "format" : 1,
+  "version" : 1
+}
