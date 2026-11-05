@@ -41,6 +41,9 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: var(--wall);
 #lineup canvas { width: 28px; height: 28px; display: block; transition: opacity .2s, transform .2s; }
 #lineup canvas.used { opacity: 0.25; transform: scale(0.8); }
 #lineup canvas.now { transform: scale(1.18); }
+#lineup.tight { gap: 1px; padding: 2px 6px; }
+#lineup.tight canvas { width: 21px; height: 21px; }
+#lineup .more { font-weight: 900; font-size: 13px; padding-left: 3px; white-space: nowrap; }
 #spotsHud { display: flex; gap: 3px; align-items: center; flex: none; }
 #spotsHud svg { width: 32px; height: 28px; display: block; }
 
@@ -205,6 +208,19 @@ body.attract #hud, body.attract #hint { display: none; }
   .cl-item.top.locked { background: #F3EEDF; }
   .cl-item.top.locked canvas { opacity: 0.45; }
   .goal.prize .bar { width: 96px; }
+  /* teh end, and the postcards */
+  #scrEnd { background: #FBF1DC; padding: 0; display: block; overflow: hidden; }
+  #endCv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .end-skip { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 10px); right: max(14px, env(safe-area-inset-right, 0px)); z-index: 2; }
+  .end-card { position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); top: 50%; transform: translateY(-50%); width: min(340px, 46vw); max-height: calc(100% - 24px); overflow-y: auto; }
+  .end-card .title { font-size: 40px; }
+  .end-stats { margin: 0; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap; }
+  .end-stats b { color: var(--red); }
+  .end-stats svg { width: 18px; height: 18px; }
+  .level-card.end-lvl { background: #FFF6DA; border-color: #B8892E; }
+  .postcard-card { max-width: 640px; gap: 10px; }
+  #pcCv { width: min(100%, calc((100vh - 150px) * 2)); aspect-ratio: 2 / 1; margin: 0 auto; display: block; border-radius: 14px; box-shadow: 0 3px 0 rgba(46,58,53,0.25); }
+  .postcard-card .sub { margin: 0; }
 </style>
 
 <canvas id="game" aria-label="the kitchen. pull back on the screen to aim the cat, let go to leap."></canvas>
@@ -212,6 +228,9 @@ body.attract #hud, body.attract #hint { display: none; }
 <div id="hud">
   <button class="round-btn" id="menuBtn" aria-label="menu">
     <svg width="16" height="16" viewBox="0 0 18 16" aria-hidden="true"><rect x="2" y="1" width="4" height="14" rx="2" fill="#2E3A35"/><rect x="11" y="1" width="4" height="14" rx="2" fill="#2E3A35"/></svg>
+  </button>
+  <button class="round-btn" id="retryBtn" aria-label="start over">
+    <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M16.2 7.2 A6.8 6.8 0 1 0 16.6 12" fill="none" stroke="#2E3A35" stroke-width="2.6" stroke-linecap="round"/><path d="M16.9 2.8 L16.5 7.6 L11.8 6.8" fill="none" stroke="#2E3A35" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </button>
   <div id="lvlLabel"></div>
   <div id="lineup" aria-label="cats"></div>
@@ -231,6 +250,7 @@ body.attract #hud, body.attract #hint { display: none; }
       <div class="closet-right">
         <p class="closet-next" id="clNext"></p>
         <div class="closet-goal" id="clGoal"></div>
+        <div class="closet-label" id="clChonkLbl" hidden>megachonk's line</div><div class="closet-items" id="clChonk" hidden></div>
         <div class="closet-label">top shelf</div><div class="closet-top" id="clTop"></div>
         <div class="closet-label">hats</div><div class="closet-items" id="clHats"></div>
         <div class="closet-label">neck</div><div class="closet-items" id="clNeck"></div>
@@ -347,6 +367,25 @@ body.attract #hud, body.attract #hint { display: none; }
   </div>
 </div>
 
+<div class="overlay" id="scrEnd" hidden>
+  <canvas id="endCv" aria-label="teh end: the cats come home"></canvas>
+  <button class="btn small end-skip" id="endSkip">skip</button>
+  <div class="card end-card" id="endCard" hidden>
+    <h2 class="title">teh end</h2>
+    <p class="sub">thx 4 playin. ur da best hooman.</p>
+    <p class="end-stats" id="endStats"></p>
+    <div class="btn-row"><button class="btn" id="endAgain">watch again</button><button class="btn go" id="endDone">keep playing</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="scrCard" hidden>
+  <div class="card wide postcard-card">
+    <canvas id="pcCv" aria-label="a postcard from the world u finished"></canvas>
+    <p class="sub tip" id="pcLine"></p>
+    <button class="btn go" id="pcNext">next</button>
+  </div>
+</div>
+
 <script>
 /*!
  * matter-js 0.19.0 by @liabru
@@ -367,7 +406,7 @@ const FITS = (() => {
   // the catapult is the same size everywhere (Adam, Nov 4: the arm "needs to be longer", then "the catapult is too big. A
   // smaller catapult will emphasize his size"): its pivot is 26 above the floor, its arm 140 long, so the top of its swing
   // is here; the cat post stays (Adam: "the original cat post should not disappear")
-  const CATA_L = 140, CATA_DX = -174;   // it parks just behind the cat post, on its left (Adam, Nov 4: "the catapult should stop rolling sooner")
+  const CATA_L = 140, CATA_DX = -174, MOCHI = { rx: 48, ry: 43 };   // (MOCHI: megachonk balled up after he lands)   // it parks just behind the cat post, on its left (Adam, Nov 4: "the catapult should stop rolling sooner")
   const CATA_TOP = FLOOR - 26 - CATA_L - 10;
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
@@ -1274,7 +1313,7 @@ const FITS = (() => {
       if (cat && this.state === 'fly') this.track(cat);
       for (const c of this.cats) {
         if (c.state === 'dazed' && c.body) this.settle(c.body, true);
-        if (c.state === 'dazed' && c.body && !c.pushed && c.dazeT === c.dazeStart - 18) this.guiltyPush(c);   // bonked or not, it gets up for this (early, so it's all settled before the next cat)
+        if (c.state === 'dazed' && c.body && !c.pushed && !c.mochi && c.dazeT === c.dazeStart - 18) this.guiltyPush(c);   // bonked or not, it gets up for this (early, so it's all settled before the next cat)
         if (c.state === 'knocked' && c.body) this.knockTrack(c);
         if (c.state === 'idle' && c.body) { this.settle(c.body, false); if (this.tick % 3 === 0) this.maybeSit(c); }
         if (c.state === 'dazed' && --c.dazeT <= 0) {
@@ -1586,8 +1625,25 @@ const FITS = (() => {
       }
     }
 
-    // Once it has touched down, a cat stops sliding and rocking, and rights itself if it can.
+    // After the THOOM megachonk balls up into a mochi (Adam, Nov 5: "when he lands he could roll easily to one side or the
+    // other if he's on an edge or slope or uneven surface. And then he just stops rolling in whatever position he stops in and
+    // stays that way"): a round body that rolls off edges and down slopes, never rights himself, and stops wherever he stops.
+    // (Its sides are a 20-gon's flats, so on the level he comes to rest; it takes a slope of about 9 degrees to keep him going.)
+    toMochi(c) {
+      const M = this.M, old = c.body, verts = [];
+      for (let i = 0; i < 20; i++) { const a = i / 20 * Math.PI * 2; verts.push({ x: Math.cos(a) * MOCHI.rx, y: Math.sin(a) * MOCHI.ry }); }
+      const body = M.Bodies.fromVertices(old.position.x, old.bounds.max.y - MOCHI.ry - 0.5, [verts], { density: c.def.density, friction: 0.9, frictionStatic: 1.1,
+        restitution: 0.02, frictionAir: 0.012, label: 'cat', sleepThreshold: 1e9 });
+      body.plugin = { cat: c };
+      M.Composite.remove(this.world, old); M.Composite.add(this.world, body);
+      M.Body.setVelocity(body, { x: old.velocity.x, y: 0 });
+      Object.assign(c, { body, mochi: true, rest: 0 });
+    }
+    // Once it has touched down, a cat stops sliding and rocking, and rights itself if it can (megachonk's mochi just rolls,
+    // slowing to a stop on the flat).
     settle(b, strong) {
+      const mc = b.plugin && b.plugin.cat;
+      if (mc && mc.mochi) { if (b.speed < 0.8) this.M.Body.setAngularVelocity(b, b.angularVelocity * 0.92); return; }
       const M = this.M, a = wrapAngle(b.angle);
       if (Math.abs(a) < 1.2) M.Body.setAngularVelocity(b, b.angularVelocity * (strong ? 0.5 : 0.6) - a * 0.06);
       else M.Body.setAngularVelocity(b, b.angularVelocity * 0.6);
@@ -1846,6 +1902,7 @@ const FITS = (() => {
       }
       if (big) {   // megachonk lands like a sack of potatoes: no bounce, he just stops (and settles like the others now)
         M.Body.setVelocity(b, { x: b.velocity.x * 0.15, y: 0 }); M.Body.setAngularVelocity(b, 0); b.frictionAir = this.grav ? Math.max(0.03, this.air) : this.air;
+        if (this.grav && !this.spots.some(s => !s.filled && this.inZone(s, b.position, c) && this.fits(s, c))) this.toMochi(c);
       } else {   // the unit bounces back up off its own BONK and lets the junk fly past it for a moment
         M.Body.setVelocity(b, { x: b.velocity.x * 0.3, y: -7 });
         b.collisionFilter.mask = 0xFFFFFFFF & ~0x0002; c.ghostT = 30;
@@ -1964,6 +2021,7 @@ const FITS = (() => {
       const b = c.body, p = b.position, bb = b.bounds, P = this.level.perch;
       if (p.x < -40 || p.x > this.level.w + 40 || p.y > H + 60) return true;
       if (bb.max.x > P.x - 70 && bb.min.x < P.x + 70 && bb.max.y < P.top + 8 && bb.max.y > P.top - 120) return true;
+      if (c.mochi) return false;   // megachonk stays where he stops (Adam, Nov 5: "kind of clog up the area, that's another cost of using him")
       return this.spots.some(s => !s.filled && (s.side
         ? bb.max.x > s.ix0 - 80 && bb.min.x < s.ix1 && p.y > s.rim - 40 && p.y < s.floor + 40
         : bb.max.x > s.ix0 - 6 && bb.min.x < s.ix1 + 6 && bb.max.y < s.floor + 2 && bb.max.y > s.rim - 120));
@@ -2091,7 +2149,7 @@ const FITS = (() => {
     }
   }
 
-  return { HISS_T, H, FLOOR, CATA_TOP, CATA_L, CATA_DX, DT, G, MAXV, speedOf, MINANG, MAXANG, CATS, ITEMS, SPOT, LEVELS, Sim, clamp, dims, stack, pyramid, roofFort, glassWall, heavyLid, hang, pots, laundry, seesaw, seesawEnd, SCARE };
+  return { HISS_T, H, FLOOR, CATA_TOP, CATA_L, CATA_DX, MOCHI, DT, G, MAXV, speedOf, MINANG, MAXANG, CATS, ITEMS, SPOT, LEVELS, Sim, clamp, dims, stack, pyramid, roofFort, glassWall, heavyLid, hang, pots, laundry, seesaw, seesawEnd, SCARE };
 })();
 </script>
 
@@ -2555,6 +2613,25 @@ const CLOSET = [
   { id: 'bling', slot: 'neck', name: 'bling', at: 25000, price: 15000 },
   { id: 'crown', slot: 'hat', name: 'crown', at: 30000, price: 30000 },
 ];
+// Megachonk's own line (Adam, Nov 5: "He definitely needs his own closet looks too. A whole clothing line and accessories just
+// for him"): only he wears these, with places on him the others don't have: goggles on his face, something round his body, a
+// cape on his back, and a paint job for his cat-a-pult. Priced like the rest of the arcade.
+const CHONK_LINE = [
+  { id: 'duck', slot: 'hat', name: 'a rubber duck', price: 25 },
+  { id: 'tinyhat', slot: 'hat', name: 'teeny tiny hat', price: 60 },
+  { id: 'bib', slot: 'neck', name: 'a bib', price: 90 },
+  { id: 'goggles', slot: 'face', name: 'flight goggles', price: 250 },
+  { id: 'floatie', slot: 'body', name: 'donut floatie', price: 300 },
+  { id: 'sweater', slot: 'body', name: 'chonky sweater', price: 450 },
+  { id: 'nightcap', slot: 'hat', name: 'nap tiem nightcap', price: 500 },
+  { id: 'helmet', slot: 'hat', name: 'crash helmet', price: 700 },
+  { id: 'tutu', slot: 'body', name: 'tutu', price: 800 },
+  { id: 'cape', slot: 'back', name: 'super cape', price: 1200 },
+  { id: 'flames', slot: 'cata', name: 'hot rod flames', price: 1500 },
+  { id: 'belt', slot: 'body', name: 'champ belt', price: 2500 },
+  { id: 'goldpult', slot: 'cata', name: 'golden cat-a-pult', price: 6000 },
+];
+const cataSkin = () => ((store.d.wear || {}).chonk || {}).cata || null;   // his cat-a-pult's paint job
 const BIG_PRIZE = 3000, TOP_SHELF = 15000;   // the big prizes (a progress bar to the next one), the top shelf
 const nextBigPrize = () => CLOSET.filter(c => c.price >= BIG_PRIZE && !owns(c.id)).sort((x, y) => x.price - y.price)[0] || null;
 const wearOf = d => (store.d.wear && store.d.wear[d.id]) || {};
@@ -2564,7 +2641,7 @@ const CHONK_COST = 100;   // megachonk's catapult, off the bill
 const money = n => '$' + Math.round(n).toLocaleString('en-US');
 function flower(x, y, r, col) { for (let k = 0; k < 5; k++) { const a = k * 1.2566; ell(x + Math.cos(a) * r * 0.7, y + Math.sin(a) * r * 0.7, r * 0.55, r * 0.55); fs(col, INK, 0.9); } ell(x, y, r * 0.42, r * 0.42); fs(GOLD, INK, 0.8); }
 function drawWear(id, side) {
-  const it = CLOSET.find(c => c.id === id); if (!it) return;
+  const it = CLOSET.find(c => c.id === id) || CHONK_LINE.find(c => c.id === id); if (!it) return;
   ctx.save();
   if (side) { if (it.slot === 'hat') ctx.translate(-5, 0); else { ctx.translate(9, 0); ctx.scale(0.72, 1); } }
   const BLACK = '#2B2B30';
@@ -2588,6 +2665,15 @@ function drawWear(id, side) {
     case 'hairtie': { for (let i = 0; i <= 8; i++) { const x = -18 + i * 4.5; ell(x, 22 + (1 - (x / 18) ** 2) * 5, 4.4, 3.4); fs(i % 2 ? '#F56E99' : '#F78BB0', INK, 1); } break; }
     case 'string': { ctx.beginPath(); ctx.moveTo(-19, 20); ctx.quadraticCurveTo(0, 32, 19, 20); fs(null, '#D0453B', 2.2); ell(2, 25.5, 4, 2.6, -0.4); fs(null, '#D0453B', 1.8); ell(10, 25.5, 4, 2.6, 0.4); fs(null, '#D0453B', 1.8); line([6, 26, 4, 32], '#D0453B', 1.6); line([6, 26, 9, 32], '#D0453B', 1.6); break; }
     case 'bottlecap': { poly([-9, 19, -3, 19, 1, 29, -3, 30]); fs('#63B0ED', INK, 1.2); poly([9, 19, 3, 19, -1, 29, 3, 30]); fs('#4F8FC6', INK, 1.2); ctx.beginPath(); for (let k = 0; k < 20; k++) { const a = k * Math.PI / 10, r = k % 2 ? 6 : 7.2; ctx.lineTo(Math.cos(a) * r, 34 + Math.sin(a) * r); } ctx.closePath(); fs('#D0453B', INK, 1.2); ell(0, 34, 4.2, 4.2); fs('#E8695E', null); starPath(0, 34, 2.6); fs(GOLD, null); break; }
+    case 'duck': { ctx.save(); ctx.translate(4, -24); ell(0, 0, 12, 8); fs(GOLD, INK, 1.8); ell(9, -9, 7, 7); fs(GOLD, INK, 1.8); poly([14, -9, 21, -7, 14, -5]); fs('#F08A3A', INK, 1.2); ell(10.5, -11, 1.4, 1.4); fs(INK, null); ell(-4, -2, 5, 3, -0.3); fs('#F2C23A', null); ctx.restore(); break; }
+    case 'tinyhat': { ctx.save(); ctx.translate(9, -22); ctx.rotate(0.22); ell(0, 0, 9, 2.2); fs('#2B2B30', INK, 1.4); ctx.beginPath(); ctx.arc(0, -1, 5.5, Math.PI, 0); ctx.closePath(); fs('#2B2B30', INK, 1.4); ctx.fillStyle = RED; ctx.fillRect(-5.5, -2.6, 11, 1.8); ctx.restore(); break; }
+    case 'nightcap': { ctx.save(); ctx.translate(0, -19); const cap = () => { ctx.beginPath(); ctx.moveTo(-22, 0); ctx.quadraticCurveTo(-14, -30, 10, -34); ctx.quadraticCurveTo(30, -36, 38, -14); ctx.quadraticCurveTo(26, -24, 14, -20); ctx.quadraticCurveTo(22, -10, 22, 0); ctx.closePath(); };
+      cap(); fs('#7FA7D8', null); ctx.save(); cap(); ctx.clip(); for (let i = -2; i < 7; i++) { ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.save(); ctx.rotate(-0.6); ctx.fillRect(-40 + i * 12, -60, 5, 90); ctx.restore(); } ctx.restore(); cap(); fs(null, INK, 1.8);
+      rrect(-24, -4, 48, 8, 4); fs('#FFFDF6', INK, 1.6); ell(39, -12, 6, 6); fs('#FFFDF6', INK, 1.6); ctx.restore(); break; }
+    case 'helmet': { ctx.beginPath(); ctx.arc(0, -6, 30, Math.PI, 0); ctx.closePath(); fs(RED, INK, 2.2); ctx.save(); ctx.beginPath(); ctx.arc(0, -6, 30, Math.PI, 0); ctx.closePath(); ctx.clip(); ctx.fillStyle = '#FFFDF6'; ctx.fillRect(-4, -40, 8, 36); ctx.restore();
+      rrect(-31, -9, 62, 6, 3); fs('#8E2A24', INK, 1.6); ell(-14, -26, 7, 3.5, -0.5); fs('rgba(255,255,255,0.35)', null); break; }
+    case 'bib': { ctx.beginPath(); ctx.moveTo(-20, 18); ctx.quadraticCurveTo(0, 24, 20, 18); ctx.lineTo(17, 34); ctx.quadraticCurveTo(0, 46, -17, 34); ctx.closePath(); fs('#FFFDF6', RED, 2.2);
+      ctx.save(); ctx.translate(0, 31); ell(-1, 0, 6, 3.6); fs('#7FB6E0', null); poly([4, 0, 9, -3.5, 9, 3.5]); fs('#7FB6E0', null); ctx.restore(); break; }
     case 'bandana': { poly([-20, 18, 20, 18, 0, 36]); fs(RED, INK, 1.8); for (const [x, y] of [[-9, 22], [6, 23], [-1, 29], [10, 20]]) { ell(x, y, 1.4, 1.4); fs('#fff', null); } break; }
     case 'bell': { rrect(-20, 19, 40, 7, 3.5); fs('#63B0ED', INK, 1.6); ell(0, 30, 5.2, 5.2); fs(GOLD, INK, 1.4); line([-3, 31, 3, 31], INK, 1.2); ell(-1.6, 28.4, 1.2, 1.2); fs('#fff', null); break; }
     case 'scarf': { rrect(8, 22, 10, 17, 3); fs('#F56E75', INK, 1.6); for (const y of [27, 32]) line([8, y, 18, y], '#fff', 2); rrect(-22, 18, 44, 9, 4.5); fs('#F56E75', INK, 1.8); for (const x of [-12, 0, 12]) line([x, 18.5, x, 26.5], '#fff', 2.2); break; }
@@ -3026,7 +3112,7 @@ function chonkEye(x, y, r, kind, d, s, t, lid, look) {
   }
   ctx.restore();
 }
-function chonkMouth(kind) {   // nose and mouth, the nose at (0, -1)
+function chonkMouth(kind, t = 0) {   // nose and mouth, the nose at (0, -1)
   poly([-3.8, -2.6, 3.8, -2.6, 0, 1.6]); fs(CH.NOSE, INK, 1.2);
   if (kind === 'wide') {   // really wide open: AAAAAA
     const path = () => { ctx.beginPath(); ctx.moveTo(-13, 4); ctx.quadraticCurveTo(-6, 7, 0, 4); ctx.quadraticCurveTo(6, 7, 13, 4); ctx.bezierCurveTo(17, 15, 10, 29, 0, 29); ctx.bezierCurveTo(-10, 29, -17, 15, -13, 4); ctx.closePath(); };
@@ -3037,6 +3123,14 @@ function chonkMouth(kind) {   // nose and mouth, the nose at (0, -1)
   else if (kind === 'smile') { ctx.beginPath(); ctx.moveTo(-7.5, 3.5); ctx.quadraticCurveTo(0, 14, 7.5, 3.5); ctx.closePath(); fs(CH.MOUTH, INK, 1.8); }
   else if (kind === 'frown') { ctx.beginPath(); ctx.moveTo(-6.5, 8); ctx.quadraticCurveTo(0, 2.5, 6.5, 8); fs(null, INK, 2); }
   else if (kind === 'flat') line([-5.5, 5, 5.5, 5], INK, 2);
+  else if (kind === 'blep') {   // asleep, his tongue hanging out the side of his mouth (Adam, Nov 5), swaying as he breathes
+    const L = 12.5 + 1.8 * Math.sin(t * 2.4), r = 5.3;
+    ctx.save(); ctx.translate(5.2, 4.6); ctx.rotate(-0.5 + 0.1 * Math.sin(t * 1.3));
+    ctx.beginPath(); ctx.moveTo(-r, 0); ctx.lineTo(-r, L - r); ctx.arc(0, L - r, r, Math.PI, 0, true); ctx.lineTo(r, 0); ctx.closePath(); fs(CH.TONGUE, INK, 1.6);
+    line([0, 1.6, 0, L - 4], 'rgba(90,42,51,0.45)', 1.2); ell(-1.8, L - 3.4, 1.4, 1, -0.4); fs('rgba(255,255,255,0.45)', null);
+    ctx.restore();
+    ctx.beginPath(); ctx.moveTo(-6.5, 3.2); ctx.quadraticCurveTo(-3.2, 7.6, 0, 3.2); ctx.quadraticCurveTo(3.2, 7.6, 6.5, 3.2); fs(null, INK, 2.1);
+  }
   else if (kind === 'wobble') { ctx.beginPath(); ctx.moveTo(-8, 7); for (let k = 1; k <= 8; k++) ctx.lineTo(-8 + k * 2, 7 + (k % 2 ? -2 : 2)); fs(null, INK, 2); }
   else {   // the chibi w (and a fang, or the tongue out)
     ctx.beginPath(); ctx.moveTo(-6.5, 3.2); ctx.quadraticCurveTo(-3.2, 7.6, 0, 3.2); ctx.quadraticCurveTo(3.2, 7.6, 6.5, 3.2); fs(null, INK, 2.1);
@@ -3045,14 +3139,14 @@ function chonkMouth(kind) {   // nose and mouth, the nose at (0, -1)
 }
 // his face from the game's faces: 'open' is his heavy-lidded look; 'wide' goes huge, 'yell' goes really wide
 const CHONK_EYES = { open: 'open', wide: 'huge', closed: 'closed', happy: 'happy', smug: 'open', googly: 'googly', swirl: 'swirl', dizzy: 'dizzy', squint: 'squint', scrunch: 'squint', huge: 'huge' };
-const CHONK_MOUTH = { w: 'w', o: 'o', yell: 'wide', wide: 'wide', smile: 'smile', frown: 'frown', flat: 'flat', tongue: 'tongue', wobble: 'wobble' };
+const CHONK_MOUTH = { w: 'w', o: 'o', yell: 'wide', wide: 'wide', smile: 'smile', frown: 'frown', flat: 'flat', tongue: 'tongue', wobble: 'wobble', blep: 'blep' };
 function chonkFace(d, face, o, t) {
   let e = CHONK_EYES[face.eyes] || 'open'; const m = CHONK_MOUTH[face.mouth] || 'w';
   if (e === 'open' && (o.blink || 0) >= 0.85) e = 'closed';
   const lid = Math.max(face.eyes === 'smug' ? 0.66 : 0.58, o.blink || 0), ex = CH.ex, look = o.look || null;
   for (const s of [-1, 1]) { ell(s * (ex + 10), 13, 9.5, 4.8); fs(CH.BLUSH, null); }
   for (const s of [-1, 1]) chonkEye(s * ex, 0, 13.4, e, d, s, t, lid, look);
-  ctx.save(); ctx.translate(0, 10); chonkMouth(m); ctx.restore();
+  ctx.save(); ctx.translate(0, 10); chonkMouth(m, t); ctx.restore();
   for (const s of [-1, 1]) { line([s * (ex + 15), 9, s * (ex + 31), 6], INK, 1.6); line([s * (ex + 15), 14, s * (ex + 31), 15.5], INK, 1.6); }
 }
 function chonkHead(d, face, o, t) {   // the mochi head, centred; ears, tabby stripes, the white muzzle, the face, anything from teh closet
@@ -3073,19 +3167,45 @@ function chonkHead(d, face, o, t) {   // the mochi head, centred; ears, tabby st
   ctx.save(); ctx.translate(0, H.h * 0.12); chonkFace(d, face, o, t); ctx.restore();
   if (o.faceOnly) return;
   const wr = o.wear || wearOf(d);
+  if (wr.face === 'goggles') {
+    const up = face.eyes === 'closed' || face.eyes === 'happy', gy = up ? -H.h * 0.3 : H.h * 0.12, ex = CH.ex, r = up ? 11 : 15.5;
+    rrect(-H.w * 0.49, gy - 4, H.w * 0.98, 8, 4); fs('#8B5A2B', INK, 1.6);
+    for (const sx of [-1, 1]) { ell(sx * ex, gy, r + 3.5, r + 3.5); fs('#B07A45', INK, 2); ell(sx * ex, gy, r, r); fs('rgba(160,215,242,0.28)', INK, 1.4); ell(sx * ex - r * 0.35, gy - r * 0.35, r * 0.28, r * 0.18, -0.6); fs('rgba(255,255,255,0.8)', null); }
+    rrect(-4, gy - 3, 8, 6, 2); fs('#8B5A2B', INK, 1.2);
+  }
   if (wr.neck) { ctx.save(); ctx.translate(0, 6.6); ctx.scale(1.3, 1.3); drawWear(wr.neck); ctx.restore(); }
   if (wr.hat) { ctx.save(); ctx.translate(0, -8.7); ctx.scale(1.3, 1.3); drawWear(wr.hat); ctx.restore(); }
 }
-function chonkBody(d) {   // the mochi body, centred: a white tummy, tabby stripes down his sides
-  const { w, h } = CH.body;
-  chonkMochi(w, h); fs(d.fur, null);
+function chonkBody(d, wr = {}) {   // the mochi body, centred: a white tummy, tabby stripes down his sides (and whatever he's wearing round it)
+  const { w, h } = CH.body, it = wr.body;
+  chonkMochi(w, h); fs(it === 'sweater' ? '#6FB99A' : d.fur, null);
   ctx.save(); chonkMochi(w, h); ctx.clip();
-  ell(0, h * 0.3, w * 0.34, h * 0.34); fs(d.light, null);
-  for (const s of [-1, 1]) for (const y of [-0.2, 0, 0.18]) line([s * w * 0.56, y * h, s * (w * 0.56 - 16), y * h + 3], d.stripe, 3.2);
+  if (it === 'sweater') {   // a chonky knit: ribbing, a band of little fish
+    for (let y = -h * 0.5; y < h * 0.5; y += 7) line([-w * 0.6, y, w * 0.6, y], 'rgba(46,58,53,0.08)', 2);
+    ctx.fillStyle = '#FFF4E2'; ctx.fillRect(-w * 0.6, -h * 0.08, w * 1.2, h * 0.24);
+    for (let x = -w * 0.5; x <= w * 0.5; x += 22) { ell(x, h * 0.04, 6, 3.6); fs('#E2574C', null); poly([x + 5, h * 0.04, x + 10, h * 0.04 - 3.5, x + 10, h * 0.04 + 3.5]); fs('#E2574C', null); }
+    ctx.fillStyle = '#4E9A7A'; ctx.fillRect(-w * 0.6, h * 0.34, w * 1.2, h * 0.2); for (let x = -w * 0.56; x < w * 0.56; x += 6) line([x, h * 0.35, x, h * 0.52], 'rgba(255,255,255,0.25)', 1.6);
+  } else {
+    ell(0, h * 0.3, w * 0.34, h * 0.34); fs(d.light, null);
+    for (const s of [-1, 1]) for (const y of [-0.2, 0, 0.18]) line([s * w * 0.56, y * h, s * (w * 0.56 - 16), y * h + 3], d.stripe, 3.2);
+  }
+  if (it === 'belt') {   // the champ belt
+    ctx.fillStyle = '#2B2B30'; ctx.fillRect(-w * 0.6, h * 0.02, w * 1.2, 13); for (let x = -w * 0.5; x < w * 0.5; x += 12) { ell(x, h * 0.02 + 6.5, 1.6, 1.6); fs(GOLD, null); }
+  }
   ell(-w * 0.24, -h * 0.3, w * 0.16, h * 0.09, -0.4); fs('rgba(255,255,255,0.22)', null);
   ell(0, h * 0.45, w * 0.45, h * 0.1); fs('rgba(46,58,53,0.08)', null);
   ctx.restore();
   chonkMochi(w, h); fs(null, INK, 2.9);
+  if (it === 'belt') { rrect(-18, h * 0.02 - 6, 36, 25, 6); fs(GOLD, INK, 2); ell(0, h * 0.02 + 6.5, 8, 8); fs('#FFF3B8', INK, 1.2); starPath(0, h * 0.02 + 6.5, 5.5); fs(RED, null); }
+  else if (it === 'floatie') {   // a donut pool floatie round his middle: pink icing, sprinkles
+    ctx.save(); ctx.translate(0, -h * 0.04);
+    ctx.beginPath(); ctx.ellipse(0, 0, w * 0.64, h * 0.24, 0, -0.15, Math.PI + 0.15); fs(null, INK, 21); ctx.beginPath(); ctx.ellipse(0, 0, w * 0.64, h * 0.24, 0, -0.15, Math.PI + 0.15); fs(null, '#E7B47A', 17);
+    ctx.beginPath(); ctx.ellipse(0, -2, w * 0.64, h * 0.24, 0, -0.1, Math.PI + 0.1); fs(null, '#F59AC0', 10);
+    for (let k = 0; k < 9; k++) { const a = 0.15 + k / 8 * (Math.PI - 0.3), x = Math.cos(a) * w * 0.64, y = Math.sin(a) * h * 0.24 - 2; line([x - 2, y - 1, x + 2, y + 1], RAINBOW[k % 6], 2); }
+    ctx.restore();
+  } else if (it === 'tutu') {   // a pink tutu, ruffles round his bottom
+    for (const [row, col] of [[0, '#F48CB6'], [1, '#F7B3D0']]) for (let k = 0; k < 9; k++) { const x = -w * 0.56 + k * w * 0.14, y = h * 0.14 + row * 7; ctx.beginPath(); ctx.ellipse(x, y, w * 0.1, 11, 0, 0, Math.PI); fs(col, INK, 1.4); }
+  }
 }
 function chonkTail(d, pts, w = 15) {   // thick, striped, a white tip
   ctx.beginPath(); ctx.moveTo(pts[0], pts[1]); ctx.bezierCurveTo(pts[2], pts[3], pts[4], pts[5], pts[6], pts[7]); ctx.lineCap = 'round';
@@ -3104,7 +3224,15 @@ const chonkRim = a => ({ x: Math.cos(a) * (CH.body.w / 2 - 14), y: Math.sin(a) *
 // body and head, the head in its own frame (P.head: x, y, rot; P.body: rot, sx, sy)
 function chonkGroup(d, face, o, t, P = {}) {
   const B = Object.assign({ rot: 0, sx: 1, sy: 1 }, P.body), Hd = Object.assign({ x: CH.head.x + (o.headX || 0), y: CH.head.y + (o.headY || 0), rot: o.headTilt || 0 }, P.head);
-  ctx.save(); ctx.rotate(B.rot); ctx.scale(B.sx, B.sy); chonkBody(d); ctx.restore();
+  const wr = o.wear || wearOf(d);
+  if (wr.back === 'cape') {   // a super cape, behind him: hanging down, or streaming out behind when he flies
+    const fl = o.capeFly || 0, sw = Math.sin(t * (fl ? 18 : 2.4)) * (fl ? 6 : 2.5), cw = CH.body.w;
+    ctx.beginPath(); ctx.moveTo(-cw * 0.28, -CH.body.h * 0.42);
+    ctx.quadraticCurveTo(-cw * 0.62 - fl * 30, 4 - fl * 20, -cw * 0.6 - fl * 70, CH.body.h * 0.48 - fl * 34 + sw);
+    ctx.quadraticCurveTo(-fl * 40, CH.body.h * 0.62 - fl * 10 - sw, cw * 0.6 - fl * 60, CH.body.h * 0.48 - fl * 4 + sw);
+    ctx.quadraticCurveTo(cw * 0.62 - fl * 20, 4, cw * 0.28, -CH.body.h * 0.42); ctx.closePath(); fs('#D63A35', INK, 2.4);
+  }
+  ctx.save(); ctx.rotate(B.rot); ctx.scale(B.sx, B.sy); chonkBody(d, wr); ctx.restore();
   ctx.save(); ctx.translate(Hd.x, Hd.y); ctx.rotate(Hd.rot); chonkHead(d, face, o, t); ctx.restore();
 }
 // sitting in the catapult's bowl, in the bowl's own frame (its rim along y 0, on the end of the arm): upright,
@@ -3112,6 +3240,7 @@ function chonkGroup(d, face, o, t, P = {}) {
 // small enough to fit inside it ("make the chonk cat fit into the shape of the catapult bowl"), his bottom down in it,
 // the tail curling up beside him
 const CHONK_IN_BOWL = 0.7;
+const MOCHI_DRAW = { s: 0.9, headY: 30, dy: 24 };   // balled up on the ground: head tucked down, drawn centred on his round body (FITS.MOCHI)
 function drawChonkBasket(d, face, o) {
   const t = o.t || 0, { w, h } = CH.body, R = BOWL_R, cx = BOWL_CX, b = h * 0.47;
   ctx.save(); ctx.beginPath(); ctx.rect(-600, -800, 1200, 800); ctx.moveTo(cx + R, 0); ctx.ellipse(cx, 0, R, R * BOWL_D, 0, 0, Math.PI); ctx.closePath(); ctx.clip();   // above the rim, or in the bowl
@@ -3127,6 +3256,7 @@ function drawChonk(d, pose, face, o) {
   if (pose === 'fly' || pose === 'drop') {   // in the air: eyes huge, mouth really wide
     const f = { eyes: face.eyes === 'wide' || face.eyes === 'open' ? 'huge' : face.eyes, mouth: face.mouth === 'o' || face.mouth === 'w' ? 'wide' : face.mouth };
     ctx.scale(Q, Q); ctx.translate(0, 22);
+    o = Object.assign({}, o, { capeFly: 1 });
     if (o.up) {   // just launched: stretched out, the tiny legs everywhere, the tail streaming behind
       chonkTail(d, [-w * 0.3, h * 0.35, -w * 0.5, h * 0.7, -w * 0.75, h * 0.72, -w * 0.92, h * 0.95], 14);
       for (const [a, l] of [[Math.PI + 0.35, 22], [-0.35, 22], [2.2, 20], [0.95, 20]]) { const q = chonkRim(a); chonkLeg(d, q.x, q.y, a + Math.sin(t * 30 + a * 3) * 0.15, l, 14, true); }
@@ -3650,6 +3780,32 @@ function drawFurniture(f) {
 // right where a cat sits on the cat tree, so the throw is the same physics; the page lets the arm swing (CATA_SWING) and
 // then throws him.
 const CATA_SWING = 0.14, CATA_ROLL = 7, CATA_WHEEL = 32, CATA_TRAVEL = 400;
+// The arm swings exactly as fast as he's thrown (Adam, Nov 5: "when the catapult arm launches he doesn't come out of the
+// catapult with the same speed of the arm launch... is it?" It was: the swing always took 0.14 s, the bowl moving about
+// 2,200 px a second at the top while he flew off at 270 to 1,080). Now the bowl reaches the top moving at his launch speed,
+// so he carries straight on out of it: a soft pull swings it gently, a full pull whips it. The THWONK is the crossbar.
+// Leaving the bowl (Adam, Nov 5: "there's still something off about the catapult arm motion. I'm not sure what"; slowed
+// down, he jumped in one frame from small and sideways in the bowl to full size, upright and higher up, and turned from the
+// bowl's sideways swing to straight up). So for a quarter second he's drawn carrying on from the bowl: from where he was in
+// it, as big as he was there and turned the same way, moving with it, and he curves smoothly into his real flight. Only the
+// drawing: where he goes is the physics, as before.
+const HANDOFF = 0.26;
+function cataHandoff() {   // his middle, size and turn in the bowl, and the bowl's velocity (px a second), at the top of the swing
+  const A = catapultArm(sim.level.perch), b = CH.body.h * 0.47, lx = BOWL_CX, ly = BOWL_R * BOWL_D * 0.5 - CHONK_IN_BOWL * (b + 4);
+  const c = { x: A.S.x + lx * Math.cos(A.rot) - ly * Math.sin(A.rot), y: A.S.y + lx * Math.sin(A.rot) + ly * Math.cos(A.rot) };
+  const w = (Math.PI / 2 - 0.03) * 2 / (fx.cata.T || CATA_SWING);   // the arm's spin at the top
+  return { c, v: { x: -(c.y - A.P.y) * w, y: (c.x - A.P.x) * w }, rot: A.rot, scale: CHONK_IN_BOWL / (CATS.chonk.k * STYLE.body * CH.Q) };
+}
+function handOff(from) {
+  const cat = sim.active; if (!cat || !cat.body) return;
+  const b = cat.body, gy = 22 * CH.Q * cat.def.k * STYLE.body;   // (in flight his middle is drawn this far below the body's)
+  fx.hand = { cat, t: 0, off: { x: from.c.x - b.position.x, y: from.c.y - (b.position.y + gy) }, dv: { x: from.v.x - b.velocity.x * 1000 / DT, y: from.v.y - b.velocity.y * 1000 / DT }, rot: from.rot, scale: from.scale };
+}
+function cataSwingT(shot) {
+  const d = sim.current.def, v = sim.launchVel(clamp(shot.angle, 35 * Math.PI / 180, 80 * Math.PI / 180), shot.power, d), sp = Math.hypot(v.x, v.y) * 1000 / DT;   // his speed, px a second
+  const L = (FLOOR - 64) - (FITS.CATA_TOP + 10), sweep = Math.PI / 2 - 0.03;   // (catapultArm's arm: its length; cocked flat to straight up)
+  return clamp(2 * L * sweep / Math.max(sp, 1), 0.16, 1.0);   // the swing eases in (t^2), so the bowl's top speed is 2 L sweep / T
+}
 // When he's called in, the catapult rolls in from the left with him already in the basket, asleep (Adam, Nov 4: "it
 // should roll in with the fat cat already in the basket sleeping, with zzzzz coming out of it and then the player
 // launches it and it wakes up"), slowly, in heaves, creaking ("it should roll in slowly cuz the cat is sooo heavy").
@@ -3665,15 +3821,16 @@ function catapultArm(p) {
   const P = { x: p.x + FITS.CATA_DX + cataRoll(), y: FLOOR - 64 }, L = P.y - (FITS.CATA_TOP + 10), aRest = -Math.PI + 0.03, aUp = -Math.PI / 2;
   let sw = 0;   // 0 at rest, 1 up against the crossbar
   if (fx.cata) {
-    const t = fx.cata.t;
-    if (t < CATA_SWING) sw = (t / CATA_SWING) ** 2;
-    else if (t < 1.3) sw = 1 - 0.05 * Math.sin((t - CATA_SWING) * 30) * Math.exp(-(t - CATA_SWING) * 6);   // thwonk, a little rebound
-    else sw = Math.max(0, 1 - (t - 1.3) / 1.1);   // then it eases back down
+    const t = fx.cata.t, T = fx.cata.T || CATA_SWING;   // (T: this throw's swing, cataSwingT)
+    if (t < T) sw = (t / T) ** 2;
+    else if (t < T + 1.16) sw = 1 - 0.05 * Math.sin((t - T) * 30) * Math.exp(-(t - T) * 6);   // thwonk, a little rebound
+    else sw = Math.max(0, 1 - (t - T - 1.16) / 1.1);   // then it eases back down
   }
-  const c = sim && sim.current, load = c && c.def.catapult && c.state === 'perch' ? 1 - sw : 0;   // he's in it: weighed down
+  const c = sim && sim.current, load = c && c.def.catapult && c.state === 'perch' ? 1 : 0;   // he's in it: weighed down (the whole way up)
+  const ft = fx.cata ? fx.cata.t - (fx.cata.T || CATA_SWING) : -1, twang = !load && ft > 0 && ft < 0.6 ? Math.sin(ft * 38) * Math.exp(-ft * 7) : 0;   // and once he's gone, it twangs straight
   const a = aRest + (aUp - aRest) * sw;
   const heave = fx.roll ? Math.abs(Math.sin(cataRollK() * Math.PI * 12)) * 2 : 0;
-  return { P, L, a, rot: a + Math.PI, sw, load, S: { x: P.x + Math.cos(a) * L, y: P.y + Math.sin(a) * L + heave } };
+  return { P, L, a, rot: a + Math.PI, sw, load, flex: load + twang * 0.9, S: { x: P.x + Math.cos(a) * L, y: P.y + Math.sin(a) * L + heave } };
 }
 // The bowl on the end of the arm, like a big wooden spoon (Adam, Nov 4, with a picture: "the basket on the catapult is
 // still not parallel to the arm. And it should be a bowl shape"): fixed to the arm, its rim along it; the arm goes into
@@ -3681,7 +3838,7 @@ function catapultArm(p) {
 const BASKET = '#C98F4E', BOWL_R = 50, BOWL_CX = -0.55 * 50, BOWL_D = 0.62;
 function bowlPath() { ctx.beginPath(); ctx.moveTo(BOWL_CX + BOWL_R, 0); ctx.ellipse(BOWL_CX, 0, BOWL_R, BOWL_R * BOWL_D, 0, 0, Math.PI); ctx.closePath(); }
 function basketPart(p, front) {
-  const A = catapultArm(p), R = BOWL_R, cx = BOWL_CX;
+  const A = catapultArm(p), R = BOWL_R, cx = BOWL_CX, BASKET = cataSkin() === 'goldpult' ? '#EAB93C' : '#C98F4E';
   ctx.save(); ctx.translate(A.S.x, A.S.y); ctx.rotate(A.rot);
   if (!front) {
     ell(cx, 0, R, R * 0.2); fs('#8F5E2E', INK, 2.4);   // the inside, over the far rim
@@ -3700,7 +3857,7 @@ function basketPart(p, front) {
   ctx.restore();
 }
 function drawCatapult(p, t) {
-  const WOOD = '#D4A15C', DARK = '#A8743C', A = catapultArm(p), P = A.P, L = A.L, H = 92;
+  const skin = cataSkin(), gold = skin === 'goldpult', WOOD = gold ? '#F0C850' : '#D4A15C', DARK = gold ? '#C9962B' : '#A8743C', WHEEL = gold ? '#E8B83A' : '#B5372F', A = catapultArm(p), P = A.P, L = A.L, H = 92;
   const WR = CATA_WHEEL, by = FLOOR - WR - 6, x0 = P.x - L - 88, x1 = P.x + L * 0.6 + 52;   // the cart: a beam at the wheels' axles, from just behind the bowl at rest
   // the frame: two legs and an upright post, a padded crossbar on top where the arm stops
   const post = { x: P.x + 16, top: by - H };
@@ -3710,19 +3867,23 @@ function drawCatapult(p, t) {
   // the cart: one beam on two little wheels, squashed under him
   rrect(x0, by, x1 - x0, 12, 5); fs(WOOD, INK, 2.4);
   for (let x = x0 + 18; x < x1 - 8; x += 20) line([x, by + 2, x, by + 10], 'rgba(46,58,53,0.22)', 1.8);
+  if (skin === 'flames') for (let x = x0 + 10; x < x1 - 30; x += 46) {   // hot rod flames down the cart
+    ctx.beginPath(); ctx.moveTo(x, by + 11); ctx.quadraticCurveTo(x + 14, by + 1, x + 30, by + 3); ctx.quadraticCurveTo(x + 18, by + 5, x + 22, by + 8); ctx.quadraticCurveTo(x + 34, by + 6, x + 40, by + 9); ctx.quadraticCurveTo(x + 20, by + 13, x, by + 11); ctx.closePath(); fs('#F0A63A', '#C2412F', 1.4);
+  }
+  if (gold) { line([x0 + 6, by + 3, x1 - 6, by + 3], 'rgba(255,255,255,0.55)', 2); for (const sx of [x0 + 24, x1 - 40]) { starPath(sx, by - 8 + Math.sin(t * 3 + sx) * 2, 4 + Math.abs(Math.sin(t * 2 + sx)) * 2); fs('#FFF3B8', null); } }
   // the block the arm pivots on
   rrect(P.x - 10, P.y - 5, 20, by - P.y + 5, 4); fs(DARK, INK, 2.2);
   // two big wheels in front of the beam, squashed under him
   const spin = cataRoll() / WR, sq = 1 - 0.1 * A.load;
   for (const x of [P.x - 58, P.x + 76]) {   // (the back one forward of the bowl, so it shows)
     ctx.save(); ctx.translate(x, FLOOR - WR * sq); ctx.scale(1 + 0.05 * A.load, sq);
-    ell(0, 0, WR, WR); fs('#B5372F', INK, 2.8); ell(0, 0, WR - 6, WR - 6); fs(null, 'rgba(46,58,53,0.25)', 1.8);
+    ell(0, 0, WR, WR); fs(WHEEL, INK, 2.8); ell(0, 0, WR - 6, WR - 6); fs(null, 'rgba(46,58,53,0.25)', 1.8);
     for (const a of [spin, spin + Math.PI / 3, spin + 2 * Math.PI / 3]) line([-Math.cos(a) * (WR - 7), -Math.sin(a) * (WR - 7), Math.cos(a) * (WR - 7), Math.sin(a) * (WR - 7)], 'rgba(46,58,53,0.5)', 3);
     ell(0, 0, 7, 7); fs('#7A7F86', INK, 2); ell(-2, -2, 2.4, 2.4); fs('rgba(255,255,255,0.6)', null);
     ctx.restore();
   }
   // the arm, pivoting on the cart under the frame, bowing under his weight
-  const mx = (P.x + A.S.x) / 2, my = (P.y + A.S.y) / 2 + A.load * 9;
+  const mx = (P.x + A.S.x) / 2 + Math.sin(A.a) * 0, my = (P.y + A.S.y) / 2 + A.flex * 9;
   for (const [col, w] of [[INK, 14], [DARK, 9]]) { ctx.beginPath(); ctx.moveTo(P.x, P.y); ctx.quadraticCurveTo(mx, my, A.S.x, A.S.y); ctx.strokeStyle = col; ctx.lineWidth = w * STYLE.ink; ctx.lineCap = 'round'; ctx.stroke(); }
   ell(P.x, P.y, 5, 5); fs(INK, null);
   // the rope (the spring) from the top of the post to the arm, and the rope holding the basket down while it's cocked
@@ -3737,7 +3898,7 @@ function drawCatTree(p, t) {
   rrect(p.x - 9, p.top + 10, 18, FLOOR - p.top - 24, 3); fs('#D8C08E', INK, 2.2);
   for (let y = p.top + 16; y < FLOOR - 18; y += 7) line([p.x - 8, y, p.x + 8, y + 3], 'rgba(120,90,40,0.45)', 1.4);
   rrect(p.x - 52, p.top, 104, 14, 6); fs('#B9C7BE', INK, 2.4);
-  const sw = Math.sin(t * 2.2) * 0.25;
+  const sw = Math.sin(t * 2.2) * 0.25 + (fx.wob || 0) * 0.7 * Math.sin(t * 15);   // (swings harder while the cat-a-pult heaves in)
   ctx.save(); ctx.translate(p.x + 40, p.top + 12); ctx.rotate(sw); line([0, 0, 0, 34], INK, 1.6); ell(0, 40, 7, 7); fs('#F56E75', INK, 1.8); ctx.restore();
 }
 function flowers(x0, x1, y, squash) {   // a row of flowers poking up out of a window box (flattened by a sitting cat)
@@ -4128,7 +4289,7 @@ let sim = null, levelIdx = 0, paused = true, acc = 0, lastT = performance.now(),
 let aim = null, lastTrail = [], demo = null, firstShot = true, hintTimer = 0;
 // After two losses on a level, paw prints show a throw that works (the solver's path). Aim close to it and the throw
 // snaps to it exactly, so the next cat's paw prints stay right too. Throw somewhere else and they go away for this try.
-let hint = null, resExtra = false;
+let hint = null, resExtra = false, resThen = null;   // (resThen: a postcard or teh end, after the result)
 const hintNow = () => hint && hint.ok && sim && !sim.extraCats && sim.catIdx < hint.path.length ? hint.path[sim.catIdx] : null;
 const nearHint = (shot, h) => Math.abs(shot.angle - h.a * Math.PI / 180) < 5 * Math.PI / 180 && Math.abs(shot.power - h.p) < 0.07;
 function hintTick() {
@@ -4143,6 +4304,7 @@ function layout() {
   cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr);
   const top = ($('hud').offsetHeight || 44) + 2;
   view = { cw, ch, dpr, top, availH: Math.max(140, ch - top - 4) };
+  if (sim) fitLineup();
   checkRotate();
 }
 window.addEventListener('resize', layout);
@@ -4160,9 +4322,12 @@ function contentTop() {
   for (const f of sim.level.furniture) top = Math.min(top, f.top != null ? f.top : FLOOR);
   return (sim._top = Math.max(0, top - 130));
 }
+// While megachonk's cat-a-pult is out it's in the picture too (Adam, Nov 5: "mega chonk sometimes doesn't roll all the way
+// onto the screen"): it parks left of the cat post, past the level's left wall on most levels, which a narrow screen cut off.
 function fitCam() {
-  const L = sim.level, z = Math.min(view.cw / (L.w + 20), view.availH / (FLOOR + 40 - contentTop()));
-  return { z, x: L.w / 2, y: FLOOR + 36 - view.availH / 2 / z };
+  const L = sim.level, x0 = sim.current && sim.current.def.catapult ? Math.min(-10, L.perch.x + FITS.CATA_DX - 215) : -10, x1 = L.w + 10;
+  const z = Math.min(view.cw / (x1 - x0), view.availH / (FLOOR + 40 - contentTop()));
+  return { z, x: (x0 + x1) / 2, y: FLOOR + 36 - view.availH / 2 / z };
 }
 function followCam(p) {
   const f = fitCam(), L = sim.level;
@@ -4184,7 +4349,7 @@ function updateCam(dt) {
     return;
   }
   const c = sim.active;
-  if (c && c.body) { cam.hold = 0.7; tgt = followCam(c.body.position); rate = 5; }
+  if (c && c.body) { const cata = c.def.catapult && c.flyT < 70; cam.hold = 0.7; tgt = cata && c.flyT < 18 ? fitCam() : followCam(c.body.position); rate = cata ? 2.2 : 5; }   // (out of the cat-a-pult: a beat, then it eases in after him)
   else if (cam.hold > 0) { cam.hold -= dt; return; }
   else tgt = fitCam();
   const k = 1 - Math.exp(-dt * rate);
@@ -4222,31 +4387,34 @@ function buildHud() {
 // Megachonk on call (Adam, Nov 4: "the user could click the megachonk button for any level... players could find ways to
 // use him from an earlier stage"): from kitchen 4 on, once a level, tap him while you aim and he goes next.
 const CHONK_FROM = 3;   // kitchen 4
-function chonkReady() { return !!(sim && !attract && levelIdx >= CHONK_FROM && !sim.calledIn && sim.state === 'aim' && sim.current && !sim.current.def.catapult); }
-const chonkAfford = () => (store.d.bill || 0) >= CHONK_COST;
+// In nap mode (Adam, Nov 5: "On nap mode you can't call megachonk") he's free, like everything there, and comes again
+// whenever u call him (the cats keep coming there too).
+function chonkReady() { return !!(sim && !attract && levelIdx >= CHONK_FROM && (sim._nap || !sim.calledIn) && sim.state === 'aim' && sim.current && !sim.current.def.catapult); }
+const chonkAfford = () => !!(sim && sim._nap) || (store.d.bill || 0) >= CHONK_COST;
 function syncChonk() {
-  const b = $('chonkBtn'), show = !!(sim && !attract && !sim._nap && levelIdx >= CHONK_FROM && !sim.calledIn);
+  const nap = !!(sim && sim._nap), b = $('chonkBtn'), show = !!(sim && !attract && levelIdx >= CHONK_FROM && (nap || !sim.calledIn));
   b.hidden = !show; b.disabled = !chonkReady(); b.style.opacity = chonkReady() && chonkAfford() ? '1' : '0.5';
-  if (show && !b.firstChild) { b.appendChild(makeFace('chonk', 40)); const tag = document.createElement('span'); tag.className = 'price'; tag.textContent = money(CHONK_COST); b.appendChild(tag); }
+  if (show && !b.firstChild) { b.appendChild(makeFace('chonk', 40)); const tag = document.createElement('span'); tag.className = 'price'; b.appendChild(tag); }
+  const tag = b.querySelector('.price'); if (tag) tag.textContent = nap ? 'free' : money(CHONK_COST);
   b.classList.toggle('new', show && !store.d.chonkMet);
   // what you've saved up, right by his button, live (Adam, Nov 5: "make sure it's easy and obvious to see how much a player
   // has to spend on a mega chonk"): green when he's affordable, red with what he needs when not
-  const bank = $('chonkBank'); bank.hidden = !show;
+  const bank = $('chonkBank'); bank.hidden = !show || nap;   // (nap mode: no money either way)
   if (show) { $('chonkBankVal').textContent = money(store.d.bill || 0); bank.classList.toggle('ok', chonkAfford()); bank.classList.toggle('short', !chonkAfford()); }
 }
 $('chonkBtn').addEventListener('click', e => {
   e.stopPropagation(); Snd.init();
   if (!chonkReady()) return;
   if (!chonkAfford()) { Snd.fx('bonk', 0.4); showTextHint(`megachonk costz ${money(CHONK_COST)}. u haz ${money(store.d.bill || 0)} saved up. break moar stuff!`, 'chonk'); hintTimer = 3500; return; }   // (saved up: the whole bill, every level)
+  const nap = !!sim._nap; if (nap) sim.calledIn = null;   // (nap mode: again and again)
   if (!sim.callIn('chonk')) return;
-  tallyBill(); store.d.bill = (store.d.bill || 0) - CHONK_COST; if (store.d.billShown != null) store.d.billShown = Math.max(0, store.d.billShown - CHONK_COST); sim.chonkPaid = CHONK_COST; store.save();   // his catapult, off the bill
-  Snd.fx('coins', 0.8);
+  if (!nap) { tallyBill(); store.d.bill = (store.d.bill || 0) - CHONK_COST; if (store.d.billShown != null) store.d.billShown = Math.max(0, store.d.billShown - CHONK_COST); sim.chonkPaid = CHONK_COST; store.save(); Snd.fx('coins', 0.8); }   // his catapult, off the bill
   if (hint) { hint.ok = false; hint.cur = null; }
   aim = null; demo = null;
   if (!store.d.chonkMet) { store.d.chonkMet = true; store.save(); }
   Snd.fx('slam', 0.5); Snd.voice('mraow', CATS.chonk.pitch, 0.8); buzz('bonk', 0.6); fx.shake = Math.max(fx.shake, 5);
   buildHud(); drain(); syncChonk();
-  showTextHint(`-${money(CHONK_COST)} 4 megachonk's cat-a-pult. ${money(store.d.bill || 0)} left`, 'chonk'); hintTimer = 3000;   // (after the turn change, which clears hints)
+  showTextHint(nap ? 'nap mode: megachonk iz free. THOOM tiem' : `-${money(CHONK_COST)} 4 megachonk's cat-a-pult. ${money(store.d.bill || 0)} left`, 'chonk'); hintTimer = 3000;   // (after the turn change, which clears hints)
 });
 function updateHud() {
   if (!sim) return;
@@ -4258,8 +4426,21 @@ function updateHud() {
     f.classList.toggle('now', live);
   });
   $('spotsHud').innerHTML = sim.spots.map(s => spotIcon(s.kind, !!s.filled)).join('');
+  fitLineup();
 }
-const SCREENS = ['scrTitle', 'scrLevels', 'scrIntro', 'scrPause', 'scrResult', 'scrUnlock', 'scrCloset'];
+// A long lineup (moon 9 has 13 cats) squeezes to fit the top bar on a phone: smaller faces, then the thrown ones go, then
+// the last ones become "+3" (the top bar ran off the right edge there, megachonk's button and the $ with it)
+function fitLineup() {
+  const hud = $('hud'), lu = $('lineup'), over = () => hud.scrollWidth > hud.clientWidth + 1;
+  lu.classList.remove('tight'); const more = lu.querySelector('.more'); if (more) more.remove();
+  const faces = [...lu.querySelectorAll('canvas')]; faces.forEach(f => { f.hidden = false; });
+  if (!over()) return;
+  lu.classList.add('tight'); if (!over()) return;
+  faces.forEach(f => { if (f.classList.contains('used')) f.hidden = true; }); if (!over()) return;
+  const left = faces.filter(f => !f.hidden), tag = document.createElement('span'); tag.className = 'more'; lu.appendChild(tag);
+  for (let k = left.length - 1; k > 0 && over(); k--) { left[k].hidden = true; tag.textContent = '+' + (left.length - k); }
+}
+const SCREENS = ['scrTitle', 'scrLevels', 'scrIntro', 'scrPause', 'scrResult', 'scrUnlock', 'scrCloset', 'scrEnd', 'scrCard'];
 function anyScreen() { return SCREENS.some(s => !$(s).hidden) || !$('scrRotate').hidden; }
 function showScreen(id) { if (id !== 'scrTitle') stopAttract(); for (const s of SCREENS) $(s).hidden = s !== id; paused = anyScreen(); if (!paused) acc = 0; }
 const isLocked = i => !unlock.owned && LEVELS[i] && LEVELS[i].world !== FREE_WORLD;
@@ -4298,7 +4479,7 @@ function startLevel(i) {
   const g = gate(i); if (g) { if ($('scrLevels').hidden) showLevels(); showGate(i, g); return; }
   Snd.purrStopAll(0.1); buzz('purrStopAll');
   levelIdx = i; sim = new Sim(LEVELS[i], Matter);
-  fx.parts = []; fx.decals = []; fx.texts = []; fx.walkers = []; fx.rings = []; fx.stinks = []; fx.hop = null; fx.cata = null; fx.roll = null;
+  fx.parts = []; fx.decals = []; fx.texts = []; fx.walkers = []; fx.rings = []; fx.stinks = []; fx.hop = null; fx.cata = null; fx.roll = null; fx.hand = null;
   aim = null; lastTrail = []; firstShot = true; demo = null; seenHint.clear();
   const hp = typeof HINTS !== 'undefined' && HINTS[LEVELS[i].id];
   hint = hp && (store.d.fails[LEVELS[i].id] || 0) >= 2 ? { path: hp, ok: true, cur: null, pendingAb: false, shown: false } : null;
@@ -4310,7 +4491,7 @@ function startLevel(i) {
 // Nap mode (ASMR, Nov 5), on the wreck-its: no goals and nothing on the bill, the cats keep coming, everything a bit slower
 // and softer, the room's sound up. Leave from the menu.
 function startNap() {
-  sim._nap = true; napRefill(); document.body.classList.add('nap');
+  sim._nap = true; napRefill(); syncChonk(); document.body.classList.add('nap');
   if (Snd.master) Snd.master.gain.value = 0.5; Snd.ambSet(1.7);
   showTextHint('nap mode: no goalz, no bill. just break stuff n chill'); hintTimer = 4000;
 }
@@ -4365,6 +4546,13 @@ function showLevels() {
     b.addEventListener('click', () => { Snd.init(); Snd.fx('pop'); startLevel(i); });
     list.appendChild(b);
   });
+  if (store.d.stars[END_LEVEL] || !NATIVE) {   // teh end, to watch again (in the browser test page, always)
+    const b = document.createElement('button'); b.className = 'level-card end-lvl'; b.id = 'lvl-end';
+    b.innerHTML = '<span class="newtag">teh end</span><span class="name">the end</span><span class="what">watch it again</span><span class="faces"></span>';
+    const faces = b.querySelector('.faces'); CAT_ORDER.forEach(t => faces.appendChild(makeFace(t, 22)));
+    b.addEventListener('click', () => { Snd.init(); Snd.fx('pop'); showEnding(); });
+    list.appendChild(b);
+  }
   $('lvlBill').innerHTML = `u owes da hooman <b>${money(store.d.bill || 0)}</b>`;
   $('closetDot').hidden = affordable() <= (store.d.closetSeen || 0);   // something new u can buy
   if (NATIVE) $('lvlEyebrow').textContent = unlock.owned ? 'teh whole game' : 'teh kitchen iz free';
@@ -4407,6 +4595,14 @@ for (const id of ['tglAmb', 'tglAmb2']) $(id).addEventListener('click', () => { 
 $('introGo').addEventListener('click', () => { Snd.init(); showScreen(null); checkRotate(); if (!paused) startIntroPan(); Snd.ambSet(1); });
 $('introNap').addEventListener('click', () => { Snd.init(); startNap(); showScreen(null); checkRotate(); if (!paused) startIntroPan(); });
 $('rotateAnyway').addEventListener('click', () => { rotateOk = true; checkRotate(); });
+$('retryBtn').addEventListener('click', () => { if (!sim || anyScreen() || attract) return; quickRestart(); });
+function quickRestart() {   // (Adam, Nov 5: "next to the pause button we need a restart/try again button")
+  const nap = !!sim._nap;
+  startLevel(levelIdx); if ($('scrIntro').hidden) return;
+  showScreen(null); checkRotate(); Object.assign(cam, fitCam()); cam.mode = 'auto'; Snd.ambSet(1);
+  if (nap) startNap();
+  Snd.fx('whoosh', 0.6);
+}
 $('menuBtn').addEventListener('click', () => { if (!sim || anyScreen()) return; $('pauseName').textContent = sim.level.name; syncToggles(); showScreen('scrPause'); Snd.ambSet(0.45); });
 $('pResume').addEventListener('click', () => { showScreen(null); Snd.ambSet(sim && sim._nap ? 1.7 : 1); });
 $('pRetry').addEventListener('click', () => startLevel(levelIdx));
@@ -4423,7 +4619,7 @@ function countUp(el, from, to, ms, delay, done) {
   requestAnimationFrame(tick);
   if (to - from >= 20) setTimeout(() => Snd.fx('coins', 0.5), delay);
 }
-$('resMain').addEventListener('click', () => { if (resExtra) { resExtra = false; giveExtraCat(); return; } const r = sim && sim.result(); if (r && r.won && levelIdx + 1 < LEVELS.length) startLevel(levelIdx + 1); else if (r && r.won) showLevels(); else startLevel(levelIdx); });
+$('resMain').addEventListener('click', () => { if (resExtra) { resExtra = false; giveExtraCat(); return; } if (resThen) { const f = resThen; resThen = null; f(); return; } const r = sim && sim.result(); if (r && r.won && levelIdx + 1 < LEVELS.length) startLevel(levelIdx + 1); else if (r && r.won) showLevels(); else startLevel(levelIdx); });
 
 function drawResultCat(won) {
   const c = $('resCat'), g = c.getContext('2d');
@@ -4460,6 +4656,8 @@ function showResult(r) {
   if (!attract) tallyBill();
   const billFrom = store.d.billShown != null ? store.d.billShown : store.d.bill, billTo = store.d.bill, fresh = CLOSET.filter(c => !owns(c.id) && c.price > billFrom && c.price <= billTo);
   store.d.billShown = billTo;
+  const prevStars = store.d.stars[L.id] || 0; resThen = null;
+  if (r.won && !sim._nap) { if (L.id === END_LEVEL && !store.d.endSeen) resThen = () => showEnding(); else if (!prevStars && lastOfWorld(L) && POSTCARD[L.world]) { const next = levelIdx + 1; resThen = () => showPostcard(L.world, () => (next < LEVELS.length ? startLevel(next) : showLevels())); } }
   if (sim._nap) {} else if (r.won) { const prev = store.d.stars[L.id] || 0; if (r.stars > prev) { store.d.stars[L.id] = r.stars; } store.d.fails[L.id] = 0; maybeAskReview(r, L, !prev); }
   else if (!r.wreck) store.d.fails[L.id] = (store.d.fails[L.id] || 0) + 1;
   if (r.wreck && !sim._nap) store.d.best[L.id] = Math.max(store.d.best[L.id] || 0, r.mess);
@@ -4512,7 +4710,7 @@ function startAttract(i) {
   const D = ATTRACT[i % ATTRACT.length], L = LEVELS.find(l => l.id === D.level);
   Snd.purrStopAll(0.2);
   sim = new Sim(Object.assign({}, L, { lineup: [D.cat] }), Matter); levelIdx = -1;
-  fx.parts = []; fx.decals = []; fx.texts = []; fx.walkers = []; fx.rings = []; fx.stinks = []; fx.hop = null; fx.cata = null; fx.roll = null;
+  fx.parts = []; fx.decals = []; fx.texts = []; fx.walkers = []; fx.rings = []; fx.stinks = []; fx.hop = null; fx.cata = null; fx.roll = null; fx.hand = null;
   aim = null; lastTrail = []; firstShot = false; demo = null; hint = null; seenHint.add(D.cat); setHint(null);
   Object.assign(cam, fitCam()); cam.mode = 'auto';
   attract = { i, D, ticks: 0, thrown: false, end: null, t: 0 }; attractNext = i + 1; Snd.ambPlay(AMB_OF[L.world]); Snd.ambSet(0.8);
@@ -4528,7 +4726,7 @@ function stopAttract() {
 // once a frame step: throw when the cat is up on the tree, and do the trick right on its frame
 function attractStep() {
   const A = attract; A.ticks++;
-  if (sim.state === 'aim' && !A.thrown && A.ticks > 50 && !fx.roll) { A.thrown = true; if (sim.current.def.catapult) { fx.cata = { t: 0, shot: { angle: A.D.a * Math.PI / 180, power: A.D.p } }; Snd.fx('thwonk'); } else sim.launch(A.D.a * Math.PI / 180, A.D.p); }
+  if (sim.state === 'aim' && !A.thrown && A.ticks > 50 && !fx.roll) { A.thrown = true; if (sim.current.def.catapult) { fx.cata = { t: 0, shot: { angle: A.D.a * Math.PI / 180, power: A.D.p } }; fx.cata.T = cataSwingT(fx.cata.shot); Snd.fx('creak', 0.8); } else sim.launch(A.D.a * Math.PI / 180, A.D.p); }
   if (sim.state === 'fly' && A.D.ab != null && sim.active && sim.active.flyT === A.D.ab && !sim.active.abilityUsed) sim.ability();
 }
 function attractTick(dt) {
@@ -4559,9 +4757,15 @@ function metCats() {   // toast, and every cat in a level you've won
   const met = new Set(['toast']); if (allOpen) CAT_ORDER.forEach(c => met.add(c));
   LEVELS.forEach(L => { if (store.d.stars[L.id]) L.lineup.forEach(t => met.add(t)); }); if (store.d.chonkMet) met.add('chonk'); return met;
 }
-function makeWearIcon(type, wear, size) {   // the cat's head wearing it
+function makeWearIcon(type, wear, size) {   // the cat's head wearing it (megachonk's own things: all of him, or his cat-a-pult)
   const c = document.createElement('canvas'), dpr = Math.min(devicePixelRatio || 1, 3); c.width = c.height = Math.round(size * dpr);
-  withCtx(c.getContext('2d'), () => { ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.translate(size / 2, size * 0.64); const k = size / 110; ctx.scale(k, k); drawHead(CATS[type], { eyes: 'open', mouth: 'w' }, { faceOnly: true, wear }); });
+  const slot = Object.keys(wear || {})[0];
+  withCtx(c.getContext('2d'), () => { ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (type !== 'chonk') { ctx.translate(size / 2, size * 0.64); const k = size / 110; ctx.scale(k, k); drawHead(CATS[type], { eyes: 'open', mouth: 'w' }, { faceOnly: true, wear }); return; }
+    if (slot === 'cata') { ctx.translate(size * 0.62, size * 0.95); const k = size / 350; ctx.scale(k, k); ctx.translate(0, -FLOOR); const keep = store.d.wear.chonk; store.d.wear.chonk = Object.assign({}, keep, wear); try { endCatapult(174, 1, null, false, null, 0); } finally { store.d.wear.chonk = keep; } return; }
+    if (slot === 'body' || slot === 'back') { ctx.translate(size / 2, size * 0.8); const k = size / 150; ctx.scale(k, k); drawCat(CATS.chonk, 'sit', { eyes: 'open', mouth: 'w' }, { t: 0, wear }); return; }
+    ctx.translate(size / 2, size * 0.68); const k = size / 136; ctx.scale(k, k); chonkHead(CATS.chonk, { eyes: 'open', mouth: 'w' }, { wear });
+  });
   return c;
 }
 function showCloset() {
@@ -4586,7 +4790,7 @@ function renderCloset() {
   const big = nextBigPrize();
   $('clGoal').innerHTML = !big ? '<span>u got all da big prizes. legend.</span>' : bill >= big.price ? `<span>u can buy da ${big.name}! (${money(big.price)})</span><span class="bar"><i style="width:100%"></i></span>` : `<span>${money(bill)} of ${money(big.price)} 4 da ${big.name}</span><span class="bar"><i style="width:${(bill / big.price * 100).toFixed(1)}%"></i></span>`;
   const itemBtn = (it, slot, size, top) => {
-    const have = owns(it.id), on = (wr[slot] || null) === it.id, can = !have && it.price <= bill, buying = closetBuy === it.id;
+    const have = owns(it.id), on = (wr[slot] || null) === it.id, can = !have && it.price <= bill, buying = closetBuy === it.id, line = CHONK_LINE.includes(it);
     const b = document.createElement('button'); b.className = 'cl-item' + (top ? ' top' : '') + (on ? ' on' : '') + (have ? '' : can ? ' forsale' : ' locked') + (buying ? ' buying' : '');
     b.setAttribute('aria-label', have ? it.name : `${it.name}, ${money(it.price)}`);
     b.appendChild(makeWearIcon(closetCat, it.id ? { [slot]: it.id } : {}, size));
@@ -4600,7 +4804,7 @@ function renderCloset() {
         store.d.bill = bill - it.price; store.d.billShown = store.d.bill; store.d.owned = [...ownedSet(), it.id]; closetBuy = null;
         Snd.fx('coins'); Snd.fx('star'); Snd.voice('mrrp', CATS[closetCat].pitch, 0.8); if (it.price >= BIG_PRIZE) Snd.fx('win', 0.6);
       }
-      const w = Object.assign({}, store.d.wear[closetCat] || {}); if (it.id) w[slot] = it.id; else delete w[slot];
+      const w = Object.assign({}, store.d.wear[closetCat] || {}); if (it.id && !(line && have && on)) w[slot] = it.id; else delete w[slot];   // (his line: tap it again to take it off)
       store.d.wear[closetCat] = w; store.save(); if (have) { Snd.fx('pop'); Snd.voice(Math.random() < 0.5 ? 'mrrp' : 'meow', CATS[closetCat].pitch, 0.7); } renderCloset();
       if (!have) $('clNext').textContent = it.price >= TOP_SHELF ? `u got da ${it.name}!!! from da top shelf. legend.` : `u bought da ${it.name}! lookin gud`;
     });
@@ -4609,6 +4813,8 @@ function renderCloset() {
   // the top shelf: the grand prizes, bigger, each with how far u are
   const topEl = $('clTop'); topEl.innerHTML = '';
   for (const it of CLOSET.filter(c => c.price >= TOP_SHELF).sort((x, y) => x.price - y.price)) topEl.appendChild(itemBtn(it, it.slot, 64, true));
+  const mine = closetCat === 'chonk'; $('clChonkLbl').hidden = $('clChonk').hidden = !mine;
+  if (mine) { const el = $('clChonk'); el.innerHTML = ''; for (const it of CHONK_LINE.slice().sort((x, y) => x.price - y.price)) el.appendChild(itemBtn(it, it.slot, 52, false)); }
   for (const [slot, box] of [['hat', 'clHats'], ['neck', 'clNeck']]) {
     const el = $(box); el.innerHTML = '';
     for (const it of [{ id: null, name: 'none', price: 0 }].concat(CLOSET.filter(c => c.slot === slot && c.price < TOP_SHELF).sort((x, y) => x.price - y.price))) el.appendChild(itemBtn(it, slot, 52, false));
@@ -4621,7 +4827,7 @@ function startClosetPreview() {
   const loop = now => {
     if ($('scrCloset').hidden) return;
     const t = (now - t0) / 1000;
-    withCtx(g, () => { ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h); const sc = Math.min(w, h) / 118; ctx.translate(w / 2, h * 0.66); ctx.scale(sc, sc);
+    withCtx(g, () => { ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h); const big = closetCat === 'chonk', sc = Math.min(w, h) / (big ? 172 : 118); ctx.translate(w / 2, h * (big ? 0.8 : 0.66)); ctx.scale(sc, sc);   // (megachonk's twice as big)
       drawCat(CATS[closetCat], 'sit', { eyes: 'open', mouth: 'w' }, { t, blink: (t % 3.6) > 3.45 ? 1 : 0, wiggle: 0.15 }); });
     closetRaf = requestAnimationFrame(loop);
   };
@@ -4784,7 +4990,7 @@ function drain() {
         if (e.cat.def.ability && !seenHint.has(e.cat.type)) { seenHint.add(e.cat.type); setHint(e.cat.type, 0); } else setHint(null);
         break; }
       case 'aim': updateHud();
-        if (chonkReady() && !store.d.chonkMet && !hintNow()) { showTextHint(`megachonk iz here! tap him 2 call him. he costz ${money(CHONK_COST)}`, 'chonk'); hintTimer = 4000; }
+        if (chonkReady() && !store.d.chonkMet && !hintNow()) { showTextHint(sim._nap ? 'megachonk iz free in nap mode. tap him!' : `megachonk iz here! tap him 2 call him. he costz ${money(CHONK_COST)}`, 'chonk'); hintTimer = 4000; }
         if (hint) hint.cur = null;
         if (hintNow() && !hint.shown) { hint.shown = true; showTextHint('psst. follow da paws.'); hintTimer = 3500; }
         break;
@@ -4856,7 +5062,7 @@ function drain() {
       case 'mess': if (!e.free) addText('$' + e.value, e.x, e.y - 20, RED, 18); updateHud(); break;   // (megachonk's don't count)
       case 'break': {
         breakFx(e); buzz('break', 0.6);
-        for (const c of nearCats(e.x, e.y, 200)) { const rx = RX(c); if (rx.spook <= 0) { rx.spook = 0.7; if (c.state === 'sit' || c.state === 'queue') Snd.hiss(0.5); } }
+        if (!(sim.active && sim.active.def.pound)) for (const c of nearCats(e.x, e.y, 200)) { const rx = RX(c); if (rx.spook <= 0) { rx.spook = 0.7; if (c.state === 'sit' || c.state === 'queue') Snd.hiss(0.5); } }   // (megachonk's smashes: they're too busy cheering)
         const ac = sim.current; if (ac && (ac.state === 'dazed' || ac.state === 'sit' || (ac.state === 'fly' && ac.body && ac.body.speed < 1))) RX(ac).stare = 1.4;
         break; }
       case 'spill': {
@@ -4916,7 +5122,7 @@ function drain() {
         if (e.why === 'yeet') Snd.fx('slide');
         else if (e.bonked) Snd.fx('slide', 0.7);
         if (e.blocked) rx.anger = 1.6;
-        sim.cats.filter(c => c.state === 'queue').forEach(c => { RX(c).sad = 1.2; });
+        if (!e.cat.def.pound) sim.cats.filter(c => c.state === 'queue').forEach(c => { RX(c).sad = 1.2; });   // (megachonk not in a box isn't sad: he's having a nap)
         updateHud(); break; }
       case 'leave': {
         const c = e.cat;
@@ -4929,9 +5135,12 @@ function drain() {
           buzz('shock'); addText('THOOM', e.x, e.y - 90, INK, 46); Snd.fx('thoom'); Snd.fx('rumble'); fx.shake = Math.max(fx.shake, 18);
           burst(e.x, e.y - 8, 26, ['#E9DCC4', '#D9C6A5', '#FFFFFF', '#CDBB9A'], { g: -20, speed: 260, life: 0.9, shape: 'cloud', size: 16, drag: 2, spread: Math.PI * 2 });
           for (const r of [10, 4, 0]) fx.rings.push({ x: e.x, y: e.y - 4, r, life: 0.55 - r * 0.02 });
-          const rc = RX(e.cat); rc.squish = 1; rc.sqAng = Math.PI / 2;
-          for (const c of sim.cats) if (c !== e.cat && ['queue', 'sit', 'idle', 'dazed'].includes(c.state)) { const r2 = RX(c); r2.spook = 0.7; r2.anger = 1.2; }
-          laughAt(e.cat); break;
+          const rc = RX(e.cat); rc.squish = 1; rc.sqAng = Math.PI / 2; rc.thoomT = performance.now() / 1000;
+          // everyone else gets bounced up by it, and loves it (Adam, Nov 5: "I don't want the other cats to be afraid of him. But
+          // they could have some fun cute reactions")
+          for (const c of sim.cats) if (c !== e.cat && ['queue', 'sit', 'idle', 'dazed'].includes(c.state)) { const r2 = RX(c); r2.cheer = 1.8; r2.spook = 0; r2.anger = 0; }
+          if (Snd.ok('yay', 900)) for (let i = 0; i < 3; i++) Snd.voice(i % 2 ? 'mrrp' : 'mew', 1.15 + i * 0.12, 0.45, 0.35 + i * 0.14);
+          break;
         }
         buzz('shock'); addText('BONK!', e.x, e.y - 60, INK, 30); Snd.fx('slam'); fx.shake = Math.max(fx.shake, 9);
         burst(e.x, e.y - 6, 14, ['#E9DCC4', '#D9C6A5', '#FFFFFF'], { g: 0, speed: 230, life: 0.5, shape: 'dot', size: 12, dir: 0, spread: Math.PI * 2 });
@@ -5061,7 +5270,7 @@ cv.addEventListener('pointerup', e => {
   const h = hintNow();
   if (h && nearHint(shot, h)) { shot = { angle: h.a * Math.PI / 180, power: h.p }; hint.cur = h; hint.pendingAb = false; }
   else if (hint) { hint.ok = false; hint.cur = null; }
-  if (sim.current && sim.current.def.catapult) { if (!fx.cata) { fx.cata = { t: 0, shot }; Snd.fx('thwonk'); } }   // the arm swings up, then he goes (frame)
+  if (sim.current && sim.current.def.catapult) { if (!fx.cata) { fx.cata = { t: 0, shot, T: cataSwingT(shot) }; Snd.fx('creak', 0.8); } }   // the arm swings up, then he goes (frame)
   else { sim.launch(shot.angle, shot.power); drain(); }
 });
 cv.addEventListener('pointercancel', () => { aim = null; });
@@ -5098,7 +5307,8 @@ function drawSimCat(c, t) {
     const face = spook ? { eyes: 'wide', mouth: 'o' } : stink ? { eyes: 'squint', mouth: 'frown' } : mad ? { eyes: 'squint', mouth: 'frown' } : laugh ? { eyes: 'happy', mouth: 'smile' } : hatLook ? { eyes: 'wide', mouth: 'o' } : hatSmug ? { eyes: 'smug', mouth: 'w' }
       : rx.stare > 0 ? { eyes: 'smug', mouth: 'flat' } : cheer ? { eyes: 'happy', mouth: 'smile' } : blep ? { eyes: 'open', mouth: 'tongue' } : { eyes: 'closed', mouth: 'w' };
     if (rx.squish > 0) ctx.scale(fitW ? 1 : 1 + 0.3 * rx.squish, 1 - 0.3 * rx.squish);
-    drawCat(d, 'sit', face, { t, scale: sv, squash: sq, fitW, knead: purring && !mad && !spook, purr: (purring || laugh) && !mad, puff: spook || mad, tailPuff: spook || mad, earsBack: mad ? 0.9 : 0, pawOut: rx.swipe > 0, pawUp: stink || (laugh && Math.sin(t * 9) > -0.2), headY: laugh ? -Math.abs(Math.sin(t * 22)) * 2.5 : 0, headTilt: laugh ? Math.sin(t * 11) * 0.12 : 0, look: hatLook ? { x: 0, y: -1 } : (rx.stare > 0 || hatSmug || blep) ? { x: 0, y: 0 } : null, blink: 0 });
+    const chonkNap = d.id === 'chonk' && face.eyes === 'closed' && face.mouth === 'w' && rx.sitT > 1.2;
+    drawCat(d, 'sit', chonkNap ? { eyes: 'closed', mouth: 'blep' } : face, { t, scale: sv, squash: sq, fitW, knead: purring && !mad && !spook, purr: (purring || laugh) && !mad, puff: spook || mad, tailPuff: spook || mad, earsBack: mad ? 0.9 : 0, pawOut: rx.swipe > 0, pawUp: stink || (laugh && Math.sin(t * 9) > -0.2), headY: laugh ? -Math.abs(Math.sin(t * 22)) * 2.5 : 0, headTilt: laugh ? Math.sin(t * 11) * 0.12 : 0, look: hatLook ? { x: 0, y: -1 } : (rx.stare > 0 || hatSmug || blep) ? { x: 0, y: 0 } : null, blink: 0 });
     if (c.hat) { const it = c.hat; drawItem(Object.assign(Object.create(it), { body: { position: { x: 8 * K * STYLE.body, y: POSE_PIN.sit[1] * K * (1 - STYLE.body) + (22 - 44 * sq) * K * STYLE.body - 18 * K * STYLE.head - it.h / 2 + 3 }, angle: 0.14 } }), t); }
     ctx.restore();
     const topY = d.id === 'chonk' ? baseY - 40 : baseY - headOff - 32 * K * STYLE.head + 62 * K;   // so the !, anger, stink and z float just over the ears (his are higher)
@@ -5108,6 +5318,22 @@ function drawSimCat(c, t) {
     // purring until the next throw, then nap tiem (z)
     if (purring && !spook && !mad && !stink) purrLines(b.position.x, baseY - headOff + 4, t, 34 * K * STYLE.head + 6, Math.min(1, (rx.sitT - 0.6) * 3, (PURR_SHOW - rx.sitT) * 3));
     else if (!purring && rx.sitT > 1 && !spook && !mad && !stink) { const k = ((t * 0.5) + c.idx * 0.3) % 1; symbol('z', b.position.x + fl * (16 + k * 12), topY - 60 * K - k * 30, 0.7 + k * 0.4, Math.sin(k * Math.PI)); }
+    return;
+  }
+  // Megachonk after the THOOM, balled up (head tucked down) and turned however the mochi has rolled (Adam, Nov 5: "he just
+  // stops rolling in whatever position he stops in and stays that way"): a dizzy beat, a big yawn, then asleep right where he
+  // ended up ("I do like him falling asleep again"): z's and the blep (the snot bubble went: Adam, "I don't know that the snot bubble really works"). He stays there for the rest of the level.
+  if (c.mochi) {
+    const th = rx.thoomT != null ? t - rx.thoomT : 9, sq = th < 0.7 ? 1 - 0.3 * Math.exp(-th * 6) * Math.abs(Math.cos(th * 13)) : 1;
+    const yawn = th > 1.3 && th <= 2.3, asleep = th > 2.3 && b.speed < 1.5;
+    const face = th < 1.3 ? { eyes: 'dizzy', mouth: 'wobble' } : yawn ? { eyes: 'closed', mouth: 'wide' } : asleep ? { eyes: 'closed', mouth: 'blep' } : { eyes: 'wide', mouth: 'o' };
+    ctx.translate(b.position.x, b.position.y); ctx.rotate(b.angle); ctx.scale(1 + (1 - sq) * 0.5, sq); ctx.translate(0, MOCHI_DRAW.dy);
+    drawCat(d, 'sit', face, { t, headY: MOCHI_DRAW.headY, scale: MOCHI_DRAW.s, look: { x: 0, y: 0 } });
+    ctx.restore();
+    if (th < 1.3) dizzyStars(b.position.x, b.bounds.min.y - 6, t);
+    if (asleep) { for (let i = 0; i < 3; i++) { const k = (t * 0.4 + i / 3) % 1; symbol('z', b.position.x + 34 + k * 26, b.bounds.min.y - 4 - k * 46, 0.7 + k * 0.6, Math.sin(k * Math.PI)); }
+      if (!attract && Snd.ok('snore', 2600)) Snd.fx('snore', 0.8); }
+    if (yawn && Snd.ok('chonkyawn' + c.idx, 30000)) Snd.fx('yawn', 1.2);
     return;
   }
   const slow = b.speed < 0.6;
@@ -5239,14 +5465,32 @@ function drawSimCat(c, t) {
   const goWay = b.velocity.x < -1.2 ? -1 : b.velocity.x > 1.2 ? 1 : 0;
   rx.turnT = goWay && goWay !== rx.flip && !c._inSpot ? (rx.turnT || 0) + dtv : 0;
   if (rx.turnT > 0.12) { rx.flip = goWay; rx.turnT = 0; }
-  const flip = rx.flip;
   const righting = (c.touched || c.hissDrop) && b.velocity.y > 0.6 && !c.loaf && !(c.pinballT > 0) && sim.grav > 0;
-  const want = righting ? 0 : b.angle; if (rx.va == null) rx.va = b.angle;
-  rx.va += Math.atan2(Math.sin(want - rx.va), Math.cos(want - rx.va)) * Math.min(1, dtv * (righting ? 9 : 30));
-  ctx.translate(b.position.x, b.position.y);
+  let hand = null;
+  if (fx.hand && fx.hand.cat === c && fx.hand.t < HANDOFF) {   // just out of the bowl: carrying on from it (cataHandoff)
+    const H = fx.hand, s = H.t / HANDOFF, h00 = 2 * s ** 3 - 3 * s ** 2 + 1, h10 = s ** 3 - 2 * s ** 2 + s;
+    const d00 = 6 * s * s - 6 * s, d10 = 3 * s * s - 4 * s + 1;   // (the offset's rate, so his heading follows the path he's drawn on)
+    hand = { x: H.off.x * h00 + H.dv.x * HANDOFF * h10, y: H.off.y * h00 + H.dv.y * HANDOFF * h10, vx: H.off.x * d00 / HANDOFF + H.dv.x * d10, vy: H.off.y * d00 / HANDOFF + H.dv.y * d10, k: H.scale + (1 - H.scale) * (1 - h00) };
+  }
+  // megachonk flies head first, out of the cat-a-pult and all the way (Adam, Nov 5: "mega chonk immediately changes
+  // orientation... he should be flying head first out of the catapult"): turned along the path he's drawn on, which leaving
+  // the bowl is the way it swings (he's lying head first in it at the top), so nothing flips. He turns about his middle.
+  const headFirst = d.catapult && !c.touched && !c.mochi, gy = 22 * CH.Q * d.k * STYLE.body;
+  const pv = headFirst ? { x: b.velocity.x * 1000 / DT + (hand ? hand.vx : 0), y: b.velocity.y * 1000 / DT + (hand ? hand.vy : 0) } : null;
+  // (and no turning on the way out, Adam: "I don't think he should rotate to upright out of the catapult": he keeps the pose he
+  // had in the bowl, flat and head forward, all the way up; over the top his path is level too, and from there he tips into
+  // a head-first dive along it)
+  if (headFirst && !hand && b.velocity.y >= 0) rx.peaked = true;   // (his real flight over the top, not the bowl's swing)
+  const want = righting ? 0 : headFirst ? (rx.peaked ? Math.atan2(pv.y, pv.x) + Math.PI / 2 : Math.PI / 2) : b.angle; if (rx.va == null) rx.va = headFirst ? want : b.angle;
+  if (headFirst) { rx.va = want; rx.flip = 1; }
+  else rx.va += Math.atan2(Math.sin(want - rx.va), Math.cos(want - rx.va)) * Math.min(1, dtv * (righting ? 9 : 30));
+  const flip = rx.flip;
+  ctx.translate(b.position.x + (hand ? hand.x : 0), b.position.y + (hand ? hand.y : 0));
+  if (hand) { ctx.translate(0, gy); ctx.scale(hand.k, hand.k); ctx.translate(0, -gy); }
   if (rx.squish > 0) { ctx.rotate(rx.sqAng); ctx.scale(1 - 0.38 * rx.squish, 1 + 0.28 * rx.squish); ctx.rotate(-rx.sqAng); }
   if (c.shrink < 1) { const w = Math.sin(t * 22) * 0.16; ctx.scale(1 + w, 1 - w); }   // liquid cat wobbles
-  ctx.rotate(rx.va); ctx.scale(flip, 1);
+  if (headFirst) { ctx.translate(0, gy); ctx.rotate(rx.va); ctx.translate(0, -gy); } else ctx.rotate(rx.va);
+  ctx.scale(flip, 1);
   if (righting && Math.abs(Math.atan2(Math.sin(rx.va), Math.cos(rx.va))) < 0.5) {
     drawCat(d, 'drop', rx.dizzy > 0 ? { eyes: 'googly', mouth: 'o' } : { eyes: 'wide', mouth: 'o' }, { t, scale: sv });
     ctx.restore(); return;
@@ -5278,6 +5522,20 @@ function drawQueue(t) {
       ctx.restore(); ctx.save(); ctx.translate(p.x - Math.sin((0.7 - rx.spook) / 0.7 * Math.PI) * 10, p.y - 33 * d.k * 0.82 - hop);
       drawCat(d, 'stiff', { eyes: 'wide', mouth: 'o' }, { t: t + qi, scale: 0.82, arch: true, puff: true }); ctx.restore();
       symbol('!', p.x + 14, p.y - 80 * d.k, 0.7); return;
+    }
+    // megachonk's cat-a-pult rolling in, him asleep in it: the cats waiting their turn are delighted. They watch him, happy
+    // eyes, a little bounce while it creaks in, hearts; once it's in, they gaze at him snoozing
+    const chonkIn = sim.current && sim.current.def.catapult && sim.current.state === 'perch' && !fx.cata && !attract;
+    if (chonkIn && rx.cheer <= 0) {
+      const rolling = !!fx.roll, bounce = rolling ? Math.pow(Math.max(0, Math.sin(t * 3.2 + qi * 1.9)), 6) * 9 : 0;
+      ctx.restore(); ctx.save(); ctx.translate(p.x, p.y - 22 * d.k * 0.82 - bounce);
+      const eyes = ((t * 0.8 + qi * 0.9) % 3) < (rolling ? 1.7 : 2.4) ? 'happy' : 'wide';
+      drawCat(d, 'sit', { eyes, mouth: rolling ? (qi % 2 ? 'smile' : 'o') : 'w' }, { t: t + qi, scale: 0.82, look: { x: -1, y: -0.35 }, wiggle: rolling ? 0.3 : 0.1, headTilt: Math.sin(t * 1.3 + qi) * 0.12 });
+      ctx.restore();
+      const hk = (t * 0.5 + qi * 0.37) % 1, n = Math.floor(t * 0.5 + qi * 0.37);
+      if (hk < 0.7 && (n + qi) % 3 === 0) symbol('heart', p.x + 12, p.y - 64 * d.k - hk * 34, 0.75, Math.sin(hk / 0.7 * Math.PI));
+      if (rolling && Snd.ok('chonkmew', 2600)) Snd.voice(qi % 2 ? 'mrrp' : 'mew', d.pitch * 1.1, 0.35);
+      return;
     }
     if (stretch) {   // the big stretch: front paws way out, butt up, a yawn
       ctx.restore(); ctx.save(); ctx.translate(p.x, p.y - 24 * d.k * 0.82); ctx.rotate(0.22); ctx.scale(-1, 1);
@@ -5324,7 +5582,7 @@ function drawCataChonk(t) {
   {
     const A = catapultArm(sim.level.perch);
     const awake = !!fx.cata;
-    ctx.save(); ctx.translate(A.S.x, A.S.y); ctx.rotate(A.rot); drawChonkBasket(d, awake ? { eyes: 'wide', mouth: 'yell' } : { eyes: 'closed', mouth: 'w' }, { t, look: { x: 0, y: 0 } }); ctx.restore();
+    ctx.save(); ctx.translate(A.S.x, A.S.y); ctx.rotate(A.rot); drawChonkBasket(d, awake ? { eyes: 'wide', mouth: 'yell' } : { eyes: 'closed', mouth: 'blep' }, { t, look: { x: 0, y: 0 } }); ctx.restore();
     const hq = { x: BOWL_CX + 8, y: -84 }, hx = A.S.x + hq.x * Math.cos(A.rot) - hq.y * Math.sin(A.rot), hy = A.S.y + hq.x * Math.sin(A.rot) + hq.y * Math.cos(A.rot);   // just over his head
     if (!awake) {
       for (let i = 0; i < 4; i++) { const k = (t * 0.45 + i / 4) % 1; symbol('z', hx + 4 + k * 34 + Math.sin(k * 6 + i) * 5, hy - k * 64, 0.8 + k * 0.9, Math.min(1, Math.sin(k * Math.PI) * 1.4)); }
@@ -5591,13 +5849,18 @@ function render(t, dt) {
   if (cataOut) { drawCatapult(sim.level.perch, t); drawCataChonk(t); }   // behind the cat post and the cats waiting their turn (Adam, Nov 4)
   drawCatTree(sim.level.perch, t);   // (the cat post stays)
   if (fx.cata) fx.cata.t += dt;
+  if (fx.hand) { fx.hand.t += dt; if (fx.hand.t > HANDOFF) fx.hand = null; }
   drawDecals();
   for (const s of sim.spots) drawSpotBack(s);
   const inside = [], outside = [];
   for (const it of sim.items) if (!it.broken) (insideFront(it.body.position) ? inside : outside).push(['i', it]);
   for (const c of sim.cats) if (c.body) (c.state === 'sit' || insideFront(c.body.position) ? inside : outside).push(['c', c]);
   const drawOne = ([k, o]) => {
-    if (k === 'i') return drawItem(o, t);
+    if (k === 'i') {
+      const wb = (fx.roll ? 0.014 : 0) + 0.07 * (fx.wob || 0);   // wobbling on their bottoms while the cat-a-pult heaves in
+      if (!wb || o.def.birb || o.def.dog) return drawItem(o, t);
+      const px = o.body.position.x, py = o.body.bounds.max.y; ctx.save(); ctx.translate(px, py); ctx.rotate(Math.sin(t * 23 + o.body.id * 1.7) * wb); ctx.translate(-px, -py); drawItem(o, t); ctx.restore(); return;
+    }
     const s = o.state === 'sit' ? o.spot : spotAround(o.body.position);
     o._inSpot = s;
     if (!s) drawSimCat(o, t); else { ctx.save(); clipToSpot(s); drawSimCat(o, t); ctx.restore(); }
@@ -5621,22 +5884,28 @@ function render(t, dt) {
   drawDemoHand(t);
   drawScreenText(dt);
 }
+let timeScale = 1;   // (slow motion, for looking at things frame by frame: window.__fits.slowmo(0.2); always 1 in play)
 function frame(now) {
-  const dt = Math.min(0.1, (now - lastT) / 1000); lastT = now;
+  const dt = Math.min(0.1, (now - lastT) / 1000) * timeScale; lastT = now;
   const live = sim && (!paused || (attract && !$('scrTitle').hidden && $('scrRotate').hidden));
-  if (live && fx.cata && fx.cata.shot && fx.cata.t >= CATA_SWING && sim.state === 'aim') { const sh = fx.cata.shot; fx.cata.shot = null; sim.launch(sh.angle, sh.power); drain(); }
+  if (live && fx.cata && fx.cata.shot && fx.cata.t >= (fx.cata.T || CATA_SWING) && sim.state === 'aim') { const sh = fx.cata.shot; fx.cata.shot = null; Snd.fx('thwonk'); const from = cataHandoff(); sim.launch(sh.angle, sh.power); handOff(from); drain(); }   // the arm hits the crossbar: THWONK, and off he goes
   if (live) {
     acc += dt * 1000 * (sim._nap ? 0.72 : 1); let n = 0;   // (nap mode: a bit slower)
     while (acc >= DT && n < 5) { if (attract) attractStep(); else hintTick(); sim.step(); acc -= DT; n++; drain(); }
     if (attract) attractTick(dt); else tallyBill();
     if (n === 5) acc = 0;
     if (fx.hop) fx.hop.t += dt;
+    if (fx.wob > 0) fx.wob = Math.max(0, fx.wob - dt * 2.2);
     if (fx.roll) {
       fx.roll.t += dt;
       const turns = Math.floor((CATA_TRAVEL + cataRoll()) / (Math.PI * CATA_WHEEL / 2));   // a squeak every quarter turn of the wheels (further apart as it slows)
-      if (turns > (fx.roll.sq || 0)) { fx.roll.sq = turns; Snd.fx(turns % 2 ? 'wheel' : 'wheel2', 0.9); }
-      if (Snd.ok('creak', 1500)) Snd.fx('creak', 0.6);
-      if (fx.roll.t >= cataRollDur()) { fx.roll = null; Snd.fx('wheelstop', 1); Snd.fx('wood', 0.9); fx.shake = Math.max(fx.shake || 0, 2); }
+      // he's SO heavy (Adam, Nov 5: "The whole screen should shake as he rolls in and the phone should vibrate with the
+      // catapult rolling noises", and things wobble): a rumble the whole way, and each squeak of the wheels a heave that jolts
+      // the screen, rattles the phone and sets everything wobbling (drawn only: the level doesn't move while you aim)
+      fx.shake = Math.max(fx.shake || 0, 1.6);
+      if (turns > (fx.roll.sq || 0)) { fx.roll.sq = turns; Snd.fx(turns % 2 ? 'wheel' : 'wheel2', 0.9); fx.shake = Math.max(fx.shake, 6); fx.wob = 1; buzz('bonk', 0.4); }
+      if (Snd.ok('creak', 1500)) { Snd.fx('creak', 0.6); buzz('tick', 0.8); }
+      if (fx.roll.t >= cataRollDur()) { fx.roll = null; Snd.fx('wheelstop', 1); Snd.fx('wood', 0.9); fx.shake = Math.max(fx.shake || 0, 8); fx.wob = 1.3; buzz('bonk', 0.8); }
     }
     tickReactions(dt);
     if (sim.state === 'aim' && firstShot && levelIdx === 0 && sim.catIdx === 0 && !aim && !demo) showDemo();
@@ -5644,11 +5913,460 @@ function frame(now) {
     if (hintTimer > 0) { hintTimer -= dt * 1000; if (hintTimer <= 0) setHint(null); }
     updateCam(dt);
   }
-  render(now / 1000, live ? dt : 0);
+  if ($('scrEnd').hidden) render(now / 1000, live ? dt : 0);   // (teh end covers the whole screen)
   requestAnimationFrame(frame);
 }
 
-window.__fits = { openAll: () => { allOpen = true; }, CLOSET, gate, WORLD_STARS, showTitle, get attract() { return attract; }, ATTRACT, STYLE, art: { ell, fs, line, rrect, poly, symbol, starPath, heartPath, INK, PAPER, ORANGE, GOLD, RED }, get sim() { return sim; }, cam, Snd, drawCat, withCtx, CATS, LEVELS, showResult, startLevel, showScreen, showLevels, drain, store, maxPullPx };
+// ---------- teh end ----------
+// Adam, Nov 5: "Do we have a good end game finale?" There wasn't one (moon 9 just went on to the moon party), so, from
+// the plan he OK'd ("Do it"): after the first win of moon 9 the cats fly the lander home from the moon, land outside the
+// hooman's house and pile into one big box in the wrecked kitchen. The hooman comes home and the bill prints out. Then
+// megachonk's cat-a-pult crawls in, he lands on top of the pile (THOOM), the box holds, and he says the title. Credits:
+// every cat walks past with its trick. Skippable; watch it again from the levels screen. The game's own art, no physics.
+const END_LEVEL = 'mn9', CREW = ['toast', 'unit', 'street', 'chaos', 'void', 'toot', 'spicy'];
+// when each part starts (seconds)
+const END_T = { space: 4.4, street: 8.0, home: 13.4, hooman: 18.3, bill: 19.7, cata: 23.9, rolled: 29.4, launch: 29.8, thoom: 31.25, fits: 33.3, sits: 34.5, love: 35.6, title: 36.4, credits: 40.2, done: 53.5 };
+const END_CREDITS = [
+  ['toast', 'the og. i just sits.'], ['unit', 'loaf mode: on'], ['street', 'claws out. i climbs.'], ['chaos', 'zoomies. no brakes.'],
+  ['void', 'i fits in smol boxez'], ['toot', 'toot toot. pardon me.'], ['spicy', 'HISSSS. chose violence.'], ['chonk', 'no tricks. just THOOM.'],
+];
+const END_PEOPLE = ['made by adam (a hooman)', 'testd by da smol hoomans', 'sounds: Joseph SARDIN · BigSoundBank.com'];
+// the big box in the kitchen, and where each cat ends up in the pile: four down in the box, three on their heads
+const END_BOX = { x: 600, w: 300, h: 60 }, END_K = 1.1;   // (the crew a touch bigger than in the levels, so their heads show over the rim)
+const END_PILE = [[-99, -52], [-33, -50], [33, -52], [99, -52], [-66, -110], [0, -112], [66, -110]];
+const END_CHONK_Y = -173;   // megachonk's sitting point, on top of the pile
+let endRaf = 0, E = null;
+const ease = k => 1 - Math.pow(1 - clamp(k, 0, 1), 3);
+const lerp = (a, b, k) => a + (b - a) * k;
+// the room's background with a stand-in level (drawRoom reads sim.level), put back right after
+function endWorld(world, w, fn) { const keep = sim; sim = { level: { world, w, furniture: [], spots: [] }, cats: [], items: [] }; try { fn(); } finally { sim = keep; } }
+function endCam(c, cw, ch, dpr, shake) {
+  const s = Math.min(cw / c.w, ch / c.h), sx = shake && !reduceMotion ? (Math.random() - 0.5) * shake : 0, sy = shake && !reduceMotion ? (Math.random() - 0.5) * shake : 0;
+  ctx.setTransform(dpr * s, 0, 0, dpr * s, dpr * (cw / 2 - c.x * s + sx), dpr * (ch / 2 - c.y * s + sy));
+  return { x0: c.x - cw / 2 / s, x1: c.x + cw / 2 / s, y0: c.y - ch / 2 / s, y1: c.y + ch / 2 / s, s };
+}
+function endCat(type, pose, x, y, face, o = {}) { ctx.save(); ctx.translate(x, y); if (o.rot) ctx.rotate(o.rot); if (o.flip) ctx.scale(-1, 1); drawCat(CATS[type], pose, face, Object.assign({ t: E ? E.t : 0 }, o)); ctx.restore(); }
+// a cardboard box: bottom centre at (x, y); o.sx/o.sy squash it from the floor up
+function endBoxBack(x, y, w, h, o = {}) {
+  ctx.save(); ctx.translate(x, y); ctx.scale(o.sx || 1, o.sy || 1);
+  ctx.fillStyle = '#8F6A40'; ctx.fillRect(-w / 2 + 6, -h, w - 12, h);
+  poly([-w / 2 + 8, -h, -w / 2 + 22, -h - 15, w / 2 - 22, -h - 15, w / 2 - 8, -h]); fs('#B68A57', INK, 2.2);
+  ctx.restore();
+}
+function endBoxFront(x, y, w, h, o = {}) {
+  ctx.save(); ctx.translate(x, y); ctx.scale(o.sx || 1, o.sy || 1);
+  for (const s of [-1, 1]) { poly([s * w / 2, -h, s * (w / 2 + 36), -h - 20, s * (w / 2 + 28), -h - 27, s * (w / 2 - 4), -h - 2]); fs('#C8955E', INK, 2.2); }
+  rrect(-w / 2, -h, w, h, 3); fs('#D2A06A', INK, 2.6);
+  ctx.fillStyle = '#E3BE8A'; ctx.fillRect(-13, -h + 1.5, 26, h * 0.42);   // tape
+  for (const ax of [-w / 2 + 26, w / 2 - 26]) { line([ax, -h * 0.28, ax, -h * 0.68], 'rgba(46,58,53,0.5)', 2.4); line([ax - 6, -h * 0.56, ax, -h * 0.7, ax + 6, -h * 0.56], 'rgba(46,58,53,0.5)', 2.4); }   // this way up
+  line([-w / 2 + 6, -6, w / 2 - 6, -6], 'rgba(46,58,53,0.12)', 3);
+  ctx.restore();
+}
+// the lander, with the crew peeking out of a box on top: body bottom centre at (x, y), legs down to y + 50
+function endLander(x, y, t, flame, face) {
+  for (const s of [-1, 1]) { line([x + s * 52, y - 12, x + s * 84, y + 46], INK, 8); line([x + s * 52, y - 12, x + s * 84, y + 46], '#9AA3A8', 5); ell(x + s * 86, y + 48, 17, 4.5); fs('#9AA3A8', INK, 1.8); }
+  poly([x - 18, y - 2, x + 18, y - 2, x + 27, y + 20, x - 27, y + 20]); fs('#7A7F86', INK, 2);
+  if (flame > 0) {
+    const f = flame * (0.85 + 0.15 * Math.sin(t * 47) + 0.1 * Math.sin(t * 31));
+    poly([x - 24, y + 20, x, y + 20 + 96 * f, x + 24, y + 20]); fs('#F0A63A', null);
+    poly([x - 13, y + 20, x, y + 20 + 58 * f, x + 13, y + 20]); fs('#FFE27A', null);
+  }
+  // the crew's box on top
+  const bw = 176, bh = 40, top = y - 70;
+  endBoxBack(x, top, bw, bh);
+  [[-64, 0], [-22, -1], [22, 0], [64, -1], [-43, 8], [0, 7], [43, 8]].forEach(([dx, dy], i) => { const f = face(i); if (f) endCat(CREW[i], 'sit', x + dx, top - 34 + dy, f, { scale: 0.7 }); });   // (no face: that one's hopped out)
+  endBoxFront(x, top, bw, bh);
+  rrect(x - 72, y - 70, 144, 70, 8); fs('#E0B04A', INK, 2.4);
+  for (let xx = x - 62; xx < x + 66; xx += 18) line([xx, y - 64, xx + 8, y - 6], 'rgba(255,255,255,0.3)', 2);
+  ell(x, y - 35, 15, 15); fs('#1F2A3A', INK, 2); ell(x - 5, y - 40, 4, 4); fs('rgba(255,255,255,0.5)', null);
+}
+function endDust(x, y, k, n = 6, spread = 120) {
+  if (k <= 0 || k >= 1) return;
+  for (let i = 0; i < n; i++) { const s = i % 2 ? 1 : -1, d = (0.3 + 0.7 * ((i * 37) % 10) / 10) * spread * ease(k); ell(x + s * d, y - 8 - k * 18 * ((i % 3) + 1), 14 + k * 26, 9 + k * 14); fs(`rgba(220,214,204,${0.8 * (1 - k)})`, null); }
+}
+// the hooman: just the legs (pyjamas, fuzzy slippers), coming in from the right
+function endLegs(x, b, step, jump, tap) {
+  const top = b.y0 - 20, ank = FLOOR - 30 - jump;
+  for (const [i, dx] of [[0, 30], [1, -30]]) {
+    const lift = (i ? Math.max(0, Math.sin(step)) : Math.max(0, -Math.sin(step))) * 16, lx = x + dx;
+    rrect(lx - 19, top, 38, ank - lift - top + 4, 12); fs('#7FA7D8', INK, 2.6);
+    ctx.save(); rrect(lx - 19, top, 38, ank - lift - top + 4, 12); ctx.clip();
+    for (let yy = top + 16; yy < ank; yy += 34) for (const ox of [-8, 9]) { ell(lx + ox + ((yy / 34) & 1 ? 6 : 0), yy, 3.4, 3.4); fs('rgba(255,255,255,0.75)', null); }
+    ctx.restore();
+    rrect(lx - 13, ank - lift, 26, 14, 6); fs('#F1C7A5', INK, 2);
+    ctx.save(); ctx.translate(lx - 6, FLOOR - 13 - jump - lift); if (i === 1 && tap) ctx.rotate(-tap * 0.32);
+    ell(-8, 0, 34, 14); fs('#F5A3B5', INK, 2.6); ell(-26, -6, 13, 10); fs('#FBC6D1', INK, 2); ell(-32, -9, 3, 3); fs(INK, null);
+    for (const ex of [-22, -14]) { ell(ex, -19, 4.5, 10, -0.2); fs('#FBC6D1', INK, 1.8); }   // bunny ears on the slippers
+    ctx.restore();
+  }
+}
+// the hooman's bill printing out of the top, then the total counting up
+function endReceipt(x, top, len, shown, counting) {
+  if (len <= 0) return;
+  const w = 124, y1 = top + len;
+  ctx.beginPath(); ctx.moveTo(x - w / 2, top); ctx.lineTo(x + w / 2, top); ctx.lineTo(x + w / 2, y1);
+  for (let k = 0; k <= 8; k++) ctx.lineTo(x + w / 2 - k * w / 8, y1 + (k % 2 ? 7 : 0));
+  ctx.closePath(); fs('#FFFDF6', INK, 2);
+  for (let yy = top + 16; yy < y1 - 64; yy += 13) { line([x - w / 2 + 12, yy, x + w / 2 - 34 - ((yy * 7) % 23), yy], 'rgba(46,58,53,0.22)', 2.2); line([x + w / 2 - 26, yy, x + w / 2 - 12, yy], 'rgba(46,58,53,0.22)', 2.2); }
+  if (len > 90) {
+    ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = `800 12px ${FONT}`; ctx.fillStyle = INK; ctx.fillText('u owes da hooman', x, y1 - 40);
+    ctx.font = `900 20px ${FONT}`; ctx.fillStyle = RED; ctx.fillText(counting ? money(shown) : '...', x, y1 - 19);
+    ctx.restore();
+  }
+}
+function endBubble(x, y, text, a, size = 24) {
+  if (a <= 0) return;
+  ctx.save(); ctx.globalAlpha = clamp(a, 0, 1); ctx.font = `900 ${size}px ${FONT}`;
+  const w = ctx.measureText(text).width + size * 1.1, h = size * 1.75;
+  rrect(x - w / 2, y - h, w, h, h / 2); fs(PAPER, INK, 2.6); poly([x - 9, y - 2, x + 9, y - 2, x - 2, y + 14]); fs(PAPER, null); line([x - 9, y, x - 2, y + 14, x + 9, y], INK, 2.6);
+  ctx.fillStyle = INK; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(text, x, y - h / 2 + 1);
+  ctx.restore();
+}
+// a caption across the top of the screen, like the game's hints (screen units)
+function endCaption(text, a, cw, dpr) {
+  if (a <= 0) return;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.save(); ctx.globalAlpha = clamp(a, 0, 1);
+  const size = Math.round(clamp(cw / 46, 15, 22)); ctx.font = `800 ${size}px ${FONT}`;
+  const w = ctx.measureText(text).width + size * 1.6, h = size * 2.1, y = Math.max(14, size * 0.8);
+  rrect(cw / 2 - w / 2, y, w, h, h / 2); fs(PAPER, INK, 2.8); ctx.fillStyle = INK; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(text, cw / 2, y + h / 2 + 1);
+  ctx.restore();
+}
+function endFade(a, cw, ch, dpr) { if (a <= 0) return; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.fillStyle = `rgba(251,241,220,${clamp(a, 0, 1)})`; ctx.fillRect(0, 0, cw, ch); }
+// a sound (or a buzz) once, right when its moment comes (not in a burst after skipping)
+function endOnce(key, when, fn) { if (E.t >= when && !E.fired.has(key)) { E.fired.add(key); if (E.t - when < 0.5) fn(); } }
+// megachonk's cat-a-pult, with the game's own drawing (it reads the roll, the swing and who's in it, so those are lent)
+function endCatapult(px, rollK, swingT, inBowl, face, t) {
+  const keep = { sim, roll: fx.roll, cata: fx.cata, hop: fx.hop }, p = { x: px };
+  sim = { level: { perch: p }, current: inBowl ? { def: CATS.chonk, state: 'perch' } : null };
+  fx.roll = rollK < 1 ? { t: rollK * CATA_ROLL } : null; fx.cata = swingT != null ? { t: swingT, T: END_SWING } : null; fx.hop = null;
+  try {
+    drawCatapult(p, t);
+    const A = catapultArm(p);
+    if (inBowl) { ctx.save(); ctx.translate(A.S.x, A.S.y); ctx.rotate(A.rot); drawChonkBasket(CATS.chonk, face, { t, look: { x: 0, y: 0 } }); ctx.restore(); basketPart(p, true); }
+    return A;
+  } finally { sim = keep.sim; fx.roll = keep.roll; fx.cata = keep.cata; fx.hop = keep.hop; }
+}
+const END_CATA_X = 459;   // (its pivot ends up at 285, left of the box)
+const END_SWING = 0.46;   // (the arm's swing, as fast as his flight out of it: cataSwingT)
+
+function drawEnding(cw, ch, dpr) {
+  const t = E.t, T = END_T;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.fillStyle = '#FBF1DC'; ctx.fillRect(0, 0, cw, ch);
+  if (t < T.space) endMoon(t, cw, ch, dpr);
+  else if (t < T.street) endSpace(t, cw, ch, dpr);
+  else if (t < T.home) endStreet(t, cw, ch, dpr);
+  else if (t < T.credits) endHome(t, cw, ch, dpr);
+  else if (t < T.done) endCreditsScene(t, cw, ch, dpr);
+  else endHome(t, cw, ch, dpr, true);
+  // a quick fade through the paper colour at each cut
+  let f = 0; for (const c of [T.space, T.street, T.home, T.credits, T.done]) f = Math.max(f, 1 - Math.abs(t - c) / 0.32);
+  if (t < 0.4) f = Math.max(f, 1 - t / 0.4);
+  endFade(f, cw, ch, dpr);
+}
+function endMoon(t, cw, ch, dpr) {
+  const liftT = 1.8, up = t > liftT ? 150 * (t - liftT) ** 2 : 0, shake = t > 1.0 && t < 3.2 ? 5 : 0;
+  const b = endCam({ x: 700, y: 335, w: 940, h: 610 }, cw, ch, dpr, shake);
+  endWorld('moon', 1333, () => drawRoom(t, b));
+  const flame = t < 1.0 ? 0 : t < liftT ? (t - 1.0) / 0.8 * 0.6 : 1;
+  endDust(560, FLOOR, (t - 1.2) / 2.2, 8, 190);
+  const wide = t > liftT;
+  endLander(560, FLOOR - 50 - up, t, flame, i => wide ? { eyes: i % 2 ? 'wide' : 'happy', mouth: i % 3 ? 'yell' : 'o' } : { eyes: 'open', mouth: 'w' });
+  endCaption('ok. we goin home now.', Math.min((t - 0.35) / 0.25, (2.6 - t) / 0.3), cw, dpr);
+  endOnce('rumble', 1.0, () => { Snd.fx('rumble', 0.7); buzz('shock', 0.5); });
+  endOnce('lift', liftT, () => { Snd.fx('zoom', 1); Snd.fx('whoosh', 1); buzz('launch', 0.8); Snd.voice('mrrp', 1.2, 0.8, 0.15); });
+}
+function endSpace(t, cw, ch, dpr) {
+  const k = (t - END_T.space) / (END_T.street - END_T.space);
+  const b = endCam({ x: 600, y: 300, w: 900, h: 520 }, cw, ch, dpr, 0);
+  ctx.fillStyle = '#141826'; ctx.fillRect(b.x0, b.y0, b.x1 - b.x0, b.y1 - b.y0);
+  starfield(b.x0, b.y0, b.x1, b.y1, t, 3);
+  const mr = 110 * (1 - 0.6 * k); ell(260 - k * 120, 470 + k * 60, mr, mr); fs('#B9B6AE', INK, 2); for (const [dx, dy, r] of [[-0.3, -0.2, 0.18], [0.25, 0.1, 0.13], [-0.05, 0.35, 0.1]]) { ell(260 - k * 120 + dx * mr, 470 + k * 60 + dy * mr, r * mr, r * mr); fs('#A3A098', null); }
+  const er = 60 + 330 * k * k; earth(760, 250 + k * 40, er);
+  // the lander, small, heading for home
+  const lx = lerp(250, 735, ease(k)), ly = lerp(420, 270, ease(k)) - Math.sin(k * Math.PI) * 60, sc = lerp(0.42, 0.06, k * k);
+  ctx.save(); ctx.translate(lx, ly); ctx.rotate(0.5); ctx.scale(sc, sc); endLander(0, 0, t, 1, () => ({ eyes: 'happy', mouth: 'w' })); ctx.restore();
+  for (let i = 1; i < 7; i++) { const kk = Math.max(0, k - i * 0.025), x = lerp(250, 735, ease(kk)), y = lerp(420, 270, ease(kk)) - Math.sin(kk * Math.PI) * 60; ell(x - 8, y + 10, 5 - i * 0.6, 5 - i * 0.6); fs(`rgba(255,210,120,${0.7 - i * 0.1})`, null); }
+  endOnce('swoosh', END_T.space + 0.4, () => Snd.fx('wheee', 0.8));
+}
+function endStreet(t, cw, ch, dpr) {
+  const T0 = END_T.street, dropT = T0 + 1.8, k = clamp((t - T0) / 1.8, 0, 1), land = FLOOR - 50;
+  const y = t < dropT ? land - 760 * (1 - k) ** 2 : land, shake = t > dropT && t < dropT + 0.35 ? 10 : 0;
+  const b = endCam({ x: 700, y: 390, w: 940, h: 520 }, cw, ch, dpr, shake);
+  endWorld('building', 1400, () => drawFacade(t, b));
+  for (const wx of [250, 1060]) drawWindow(wx, wx + 130, 210, 330, t);
+  // the hooman's front door, with a cat flap
+  const DX = 880, DW = 104, DT = FLOOR - 196;
+  rrect(DX - 10, DT - 10, DW + 20, 206, 6); fs('#EDE6D6', INK, 2.4); rrect(DX, DT, DW, 196, 4); fs('#5E9C6E', INK, 2.6);
+  for (const [yy, hh] of [[DT + 14, 60], [DT + 88, 52]]) { rrect(DX + 14, yy, DW - 28, hh, 4); fs(null, 'rgba(46,58,53,0.35)', 2); }
+  ell(DX + DW - 16, DT + 104, 5, 5); fs(GOLD, INK, 1.4);
+  rrect(DX - 18, FLOOR - 8, DW + 36, 10, 3); fs('#C4BEB1', INK, 2);
+  const flapX = DX + DW / 2, fw = 46, fh = 40, fTop = FLOOR - 8 - fh;
+  // the cats hop out and run in through the flap, one after another
+  let flapSwing = 0;
+  const outT = dropT + 0.35, runV = 560, x0 = 560;
+  const crewAt = i => { const s = outT + i * 0.28, hopEnd = s + 0.34, sx = x0 + [-64, -22, 22, 64, -43, 0, 43][i], fx0 = sx + 30, arrive = hopEnd + (flapX - fx0) / runV; return { s, hopEnd, sx, fx0, arrive }; };
+  const runners = [];
+  for (let i = 0; i < CREW.length; i++) {
+    const c = crewAt(i);
+    if (t >= c.s && t < c.hopEnd) { const kk = (t - c.s) / 0.34; runners.push(['hop', i, lerp(c.sx, c.fx0, kk), lerp(land - 104, FLOOR - 20, kk) - Math.sin(kk * Math.PI) * 60]); }
+    else if (t >= c.hopEnd && t < c.arrive + 0.25) { const x = Math.min(flapX + 40, c.fx0 + (t - c.hopEnd) * runV); runners.push(['run', i, x, FLOOR - 27]); if (x > flapX - 40) flapSwing = Math.max(flapSwing, 1 - Math.abs(x - flapX) / 60); }
+    endOnce('hop' + i, c.s, () => Snd.voice(['mew', 'mrrp', 'mew'][i % 3], CATS[CREW[i]].pitch, 0.6));
+    endOnce('flap' + i, c.arrive, () => Snd.fx('rustle', 0.5));
+  }
+  const inBox = i => t < crewAt(i).s;
+  endDust(560, FLOOR, (t - dropT) / 0.9, 8, 170);
+  endLander(560, y, t, t < dropT ? 1 : Math.max(0, 1 - (t - dropT) * 4), i => inBox(i) ? (t < dropT ? { eyes: 'wide', mouth: 'o' } : { eyes: 'happy', mouth: 'w' }) : null);
+  // the flap: the cats go in behind it
+  for (const [kind, i, x, yy] of runners) {
+    ctx.save(); if (kind === 'run') { ctx.beginPath(); ctx.rect(b.x0 - 100, b.y0 - 100, flapX + 6 - (b.x0 - 100), 2000); ctx.clip(); }
+    endCat(CREW[i], kind === 'hop' ? 'fly' : 'walk', x, yy, { eyes: 'happy', mouth: 'o' }, { phase: t * 16 }); ctx.restore();
+  }
+  ctx.save(); ctx.translate(flapX, fTop); ctx.scale(1, Math.cos(flapSwing * 1.2)); rrect(-fw / 2, 0, fw, fh, 6); fs('#4E8A5E', INK, 2.2); line([-fw / 2 + 6, 5, fw / 2 - 6, 5], 'rgba(255,255,255,0.4)', 2); ctx.restore();
+  endOnce('thud', dropT, () => { Snd.fx('slam', 0.9); Snd.fx('rumble', 0.5); buzz('bonk', 1); });
+  endOnce('descend', T0 + 0.1, () => Snd.fx('whoosh', 1));
+}
+// the kitchen: the cats pile into the big box, the hooman, the bill, the cat-a-pult, THOOM, the title
+function endHome(t, cw, ch, dpr, final) {
+  const T = END_T, bx = END_BOX.x, bw = END_BOX.w, bh = END_BOX.h, th = t - T.thoom;
+  const shake = !final && th > 0 && th < 0.6 ? 16 * (1 - th / 0.6) : 0;
+  const cam = final ? { x: 790, y: 395, w: 900, h: 540 } : { x: 600, y: 395, w: 940, h: 540 };
+  const b = endCam(cam, cw, ch, dpr, shake);
+  endWorld('kitchen', 1400, () => drawRoom(t, b));
+  const jumpK = th > 0 && !final ? Math.max(0, Math.sin(Math.min(th, 0.5) / 0.5 * Math.PI)) * Math.exp(-th * 2) : 0;   // everything hops at the THOOM
+  // the wreck: a picture hanging crooked, a fallen plant, china in bits, grey moon-dust paw prints
+  ctx.save(); ctx.translate(720, 150); ctx.rotate(0.22 + jumpK * 0.2); line([0, -26, 0, -6], INK, 1.6); rrect(-44, -6, 88, 64, 3); fs('#C99963', INK, 2.4); rrect(-36, 2, 72, 48, 2); fs('#BFE3F2', null);
+  ell(0, 40, 22, 9); fs('#ED9C52', null); poly([-12, 34, -9, 22, -3, 30]); fs('#ED9C52', null); poly([3, 30, 9, 22, 12, 34]); fs('#ED9C52', null); ctx.restore();
+  ctx.save(); ctx.translate(1110, FLOOR - 16 - jumpK * 20); ctx.rotate(1.35); rrect(-20, -18, 40, 36, 6); fs('#D9895E', INK, 2.2); for (const a of [-0.5, 0, 0.5]) { ctx.save(); ctx.rotate(a); ell(0, -42, 9, 22); fs('#6FAE62', INK, 1.8); ctx.restore(); } ctx.restore();
+  ell(1060, FLOOR + 4, 46, 8); fs('#8A6648', null);
+  for (const [sx, n] of [[350, 3], [470, 4], [800, 3], [1015, 3], [180, 2]]) for (let i = 0; i < n; i++) { const xx = sx + i * 14 - n * 6, yy = FLOOR + 6 + ((i * 7) % 5) - jumpK * (24 + i * 6); poly([xx, yy, xx + 9, yy - 4, xx + 5, yy + 6]); fs(i % 2 ? '#FFFDF6' : '#9ED3F0', INK, 1.2); }
+  for (let x = Math.floor(b.x0 / 36) * 36; x < bx - bw / 2 - 20; x += 36) { const k2 = Math.round(x / 36) % 2; ell(x, FLOOR + 14 + k2 * 10, 5, 3.5); fs('rgba(130,126,118,0.45)', null); for (const dx of [-5, 0, 5]) { ell(x + dx, FLOOR + 8 + k2 * 10, 1.8, 1.6); fs('rgba(130,126,118,0.45)', null); } }
+  // the box squashes at the THOOM, and holds
+  const sq = th > 0 && !final ? Math.exp(-th * 3.2) * Math.cos(th * 15) : 0, box = { sx: 1 + 0.16 * sq, sy: 1 - 0.2 * sq };
+  // the cats running in and hopping into the box
+  const enterT = i => T.home + 0.15 + i * 0.52, runEnd = i => enterT(i) + 0.62, inT = i => runEnd(i) + 0.44;
+  const slot = i => ({ x: bx + END_PILE[i][0] * box.sx, y: FLOOR + END_PILE[i][1] * box.sy });
+  const landed = i => t >= inT(i);
+  const look = t >= T.cata && t < T.launch + 0.3 ? { x: -1, y: 0 } : t >= T.hooman + 0.6 && t < T.cata ? { x: 1, y: 0 } : t >= T.launch + 0.3 && t < T.thoom ? { x: 0, y: -1 } : null;
+  const crewFace = i => {
+    if (final) return { eyes: 'closed', mouth: 'w' };
+    if (th > 0 && th < 1.5) return { eyes: 'googly', mouth: 'wobble' };
+    if (th >= 1.5) return { eyes: t < T.love ? 'open' : 'closed', mouth: 'w' };
+    if (t >= T.cata) return { eyes: 'wide', mouth: 'o' };
+    if (t >= T.bill + 0.7) return { eyes: 'happy', mouth: 'smile' };   // the polite smile
+    if (t >= T.hooman + 0.6) return { eyes: 'wide', mouth: 'flat' };
+    return { eyes: 'closed', mouth: 'w' };
+  };
+  const pileSq = i => { let s = 1; for (let j = i + 1; j < CREW.length; j++) { const d = t - inT(j); if (d > 0 && d < 0.4) s = Math.min(s, 1 - 0.1 * Math.sin(d / 0.4 * Math.PI)); } return s * (1 - 0.12 * Math.max(0, sq)); };
+  const hopPos = i => { const kk = clamp((t - runEnd(i)) / 0.44, 0, 1), s = slot(i); return { kk, x: lerp(bx - bw / 2 - 52, s.x, kk), y: lerp(FLOOR - 24, s.y, kk) - Math.sin(kk * Math.PI) * (i < 4 ? 130 : 150) }; };
+  const blink = i => ((t + i * 0.7) % 3.6) > 3.46 ? 1 : 0;
+  endBoxBack(bx, FLOOR, bw, bh, box);
+  for (let i = 0; i < 4; i++) {   // the four down in the box (dropping in behind its front)
+    if (landed(i)) { const s = slot(i); endCat(CREW[i], 'sit', s.x, s.y, crewFace(i), { look, blink: blink(i), squash: pileSq(i), scale: END_K }); }
+    else if (t >= runEnd(i)) { const h = hopPos(i); if (h.kk >= 0.7) endCat(CREW[i], 'fly', h.x, h.y, { eyes: 'wide', mouth: 'o' }, { scale: END_K }); }
+  }
+  endBoxFront(bx, FLOOR, bw, bh, box);
+  for (let i = 4; i < CREW.length; i++) if (landed(i)) { const s = slot(i); endCat(CREW[i], 'sit', s.x, s.y, crewFace(i), { look, blink: blink(i), squash: pileSq(i), scale: END_K }); }
+  if (final) for (let i = 0; i < 3; i++) { const k = (t * 0.4 + i / 3) % 1; symbol('z', bx + 110 + k * 40, FLOOR - 250 - k * 70, 0.8 + k * 0.8, Math.sin(k * Math.PI)); }
+  for (let i = 0; i < CREW.length; i++) {
+    endOnce('in' + i, inT(i), () => { Snd.boxSit('box'); Snd.voice(['mrrp', 'mew'][i % 2], CATS[CREW[i]].pitch, 0.7, 0.05); buzz('sit', 0.6); });
+    if (t < enterT(i) || landed(i)) continue;
+    if (t < runEnd(i)) { const x = lerp(b.x0 - 70, bx - bw / 2 - 52, (t - enterT(i)) / 0.62); endCat(CREW[i], 'walk', x, FLOOR - 21, { eyes: 'happy', mouth: 'o' }, { phase: t * 16, scale: END_K }); }
+    else { const h = hopPos(i); if (i >= 4 || h.kk < 0.7) endCat(CREW[i], 'fly', h.x, h.y, { eyes: 'wide', mouth: 'o' }, { rot: lerp(-0.3, 0, h.kk), scale: END_K }); }
+  }
+  // the hooman comes home
+  let hx = null, step = 0, tap = 0, jump = 0;
+  if (t >= T.hooman || final) {
+    const k = final ? 1 : clamp((t - T.hooman) / 1.4, 0, 1); hx = lerp(b.x1 + 90, 965, ease(k)); step = k < 1 ? t * 9 : 0;
+    const tt = t - (T.bill + 2.9); if (!final && tt > 0 && tt < 1.2) tap = Math.max(0, Math.sin(tt / 0.4 * Math.PI));
+    jump = jumpK * 46;
+    endOnce('steps', T.hooman, () => { for (let i = 0; i < 4; i++) Snd.playSample(Snd.pick(['soft1', 'soft2', 'soft3']), 0.7, 0.8, i * 0.35); });
+    endOnce('busted', T.hooman + 0.7, () => Snd.voice('huh', 1, 0.8));
+    for (let i = 0; i < 3; i++) endOnce('tap' + i, T.bill + 2.9 + i * 0.4, () => Snd.tok(0.6, 0.8));
+  }
+  // the bill prints out of the top and counts up
+  if (t >= T.bill || final) {
+    const len = final ? 300 : clamp((t - T.bill) / 1.5, 0, 1) * 300, ck = final ? 1 : clamp((t - T.bill - 1.4) / 1.6, 0, 1);
+    endReceipt(842, b.y0 - 4, len + jumpK * 10, E.bill * ease(ck), final || t >= T.bill + 1.4);
+    endOnce('print', T.bill, () => { for (let i = 0; i < 5; i++) Snd.playSample('paper1', rand(1.3, 1.6), 0.5, i * 0.26); });
+    endOnce('coins', T.bill + 1.4, () => { Snd.fx('coins', 0.8); setTimeout(() => Snd.fx('coins', 0.6), 700); });
+  }
+  if (hx != null) endLegs(hx, b, step, jump, tap);
+  // the cat-a-pult crawls in from the left with him asleep in it, then THWONK
+  if (t >= T.cata || final) {
+    const rk = final ? 1 : clamp((t - T.cata) / (T.rolled - T.cata), 0, 1), swing = !final && t >= T.launch ? t - T.launch : null, inBowl = !final && (swing == null || swing < END_SWING);
+    const awake = !final && t >= T.launch - 0.45;   // (wakes with the !)
+    const A = endCatapult(END_CATA_X, rk, swing, inBowl, awake ? { eyes: 'wide', mouth: 'yell' } : { eyes: 'closed', mouth: 'blep' }, t);
+    if (inBowl && !awake) for (let i = 0; i < 4; i++) { const k = (t * 0.45 + i / 4) % 1; symbol('z', A.S.x - 16 + k * 34 + Math.sin(k * 6 + i) * 5, A.S.y - 84 - k * 64, 0.8 + k * 0.9, Math.min(1, Math.sin(k * Math.PI) * 1.4)); }
+    if (!final && rk < 1) { const turns = Math.floor((CATA_TRAVEL - (1 - (1 - Math.pow(1 - rk, 1.4))) * CATA_TRAVEL) / (Math.PI * CATA_WHEEL / 2)); if (turns > (E.sq || 0)) { E.sq = turns; Snd.fx(turns % 2 ? 'wheel' : 'wheel2', 0.9); } if (Snd.ok('creak', 1500)) Snd.fx('creak', 0.6); if (Snd.ok('snore', 2600)) Snd.fx('snore'); }
+    endOnce('stop', T.rolled, () => { Snd.fx('wheelstop', 1); Snd.fx('wood', 0.9); });
+    endOnce('wake', T.launch - 0.45, () => Snd.voice('huh', 0.6, 0.9));
+    if (!final && t >= T.launch - 0.45 && t < T.launch + 0.1) symbol('!', A.S.x - 20, A.S.y - 96, 1);
+    endOnce('thwonk', T.launch, () => { Snd.fx('thwonk'); buzz('launch', 1); });
+  }
+  // megachonk: in the air, then on top of the pile
+  const top = { x: bx + 2, y: FLOOR + END_CHONK_Y * box.sy }, start = { x: 285, y: FITS.CATA_TOP - 32 };
+  if (!final && t >= T.launch + END_SWING && t < T.thoom) {
+    const k = (t - T.launch - END_SWING) / (T.thoom - T.launch - END_SWING), x = lerp(start.x, top.x, k), y = lerp(start.y, top.y + 8, k) - 4 * 170 * k * (1 - k);
+    const hk = ease(Math.min(1, k / 0.26));   // out of the bowl: as big and as turned as he was in it, then himself
+    const hx = top.x - start.x, hy = (top.y + 8 - start.y) - 4 * 170 * (1 - 2 * k), head = hy < 0 ? Math.PI / 2 : Math.atan2(hy, hx) + Math.PI / 2;   // flat and head forward as in the bowl, up to the top of his arc; then a head-first dive
+    endCat('chonk', 'fly', x, y, { eyes: 'wide', mouth: 'yell' }, { up: k < 0.35, rot: head, scale: lerp(0.8, 1, hk) });
+    endOnce('yell', T.launch + 0.2, () => Snd.voice('yowl', 0.6, 0.8));
+  }
+  if (final || t >= T.thoom) {
+    const chSq = final ? 1 : 1 - 0.32 * Math.exp(-th * 4) * Math.abs(Math.cos(th * 9)), face = final ? { eyes: 'closed', mouth: 'blep' } : th < 1.1 ? { eyes: 'squint', mouth: 'yell' } : t < T.love + 0.6 ? { eyes: 'open', mouth: 'w' } : { eyes: 'closed', mouth: 'w' };
+    endCat('chonk', 'sit', top.x, top.y, face, { squash: chSq, purr: t > T.love });
+    if (!final && th > 0 && th < 0.7) { const r = th / 0.7; ell(top.x, FLOOR, 90 + r * 520, 18 + r * 60); fs(null, `rgba(255,255,255,${0.8 * (1 - r)})`, 6); endDust(bx, FLOOR, r * 1.4, 10, 260); }
+    endOnce('thoom', T.thoom, () => { Snd.fx('thoom'); Snd.fx('rumble'); buzz('shock', 1); Snd.tinkle(5); });
+    if (!final) {
+      const out = (T.title - t) / 0.25;
+      endBubble(top.x + 26, top.y - 112, 'i fits.', Math.min((t - T.fits) / 0.18, out), 26);
+      if (t >= T.sits) endBubble(top.x + 26, top.y - 170, 'i sits.', Math.min((t - T.sits) / 0.18, out), 26);
+      endOnce('fits', T.fits, () => Snd.voice('mrrp', 0.62, 1));
+      endOnce('sits', T.sits, () => Snd.voice('mrrp', 0.55, 1));
+    }
+  }
+  // the hooman forgives everyone (a heart), and they all purr
+  if (!final && t >= T.love) { const k = t - T.love; symbol('heart', 965, 330 - k * 26, 2.4, Math.min(1, k * 3) * clamp((4.2 - k) / 0.6, 0, 1)); }
+  endOnce('purr', T.love, () => { Snd.purr(1, 0, 'end', 3.2, 0.9); buzz('purr', 1, { key: 'end', delay: 0, dur: 3 }); });
+  if (!final) {
+    endCaption('it wuz liek dat wen we got here.', Math.min((t - T.bill - 0.7) / 0.25, (T.cata - 0.2 - t) / 0.3), cw, dpr);
+    endTitle(t - T.title, cw, ch, dpr);
+  }
+}
+// the title, popping in big over the pile
+function endTitle(k, cw, ch, dpr) {
+  if (k < 0) return;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const size = Math.round(clamp(cw / 13, 34, 76)), pop = k < 0.3 ? 0.4 + 0.75 * ease(k / 0.3) : 1 + 0.15 * Math.exp(-(k - 0.3) * 6) * Math.sin((k - 0.3) * 18), a = clamp((3.7 - k) / 0.4, 0, 1);
+  ctx.save(); ctx.globalAlpha = a; ctx.translate(cw / 2, Math.max(size * 0.95, ch * 0.2)); ctx.scale(pop, pop); ctx.rotate(-0.04);
+  ctx.font = `900 ${size}px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+  ctx.lineWidth = size * 0.3; ctx.strokeStyle = INK; ctx.strokeText('I FITS, I SITS', 0, 0); ctx.lineWidth = size * 0.16; ctx.strokeStyle = PAPER; ctx.strokeText('I FITS, I SITS', 0, 0);
+  ctx.fillStyle = ORANGE; ctx.fillText('I FITS, I SITS', 0, 0);
+  for (let i = 0; i < 8; i++) { const ang = i / 8 * Math.PI * 2 + k * 0.6, r = size * (3.3 + 0.4 * Math.sin(k * 3 + i)); starPath(Math.cos(ang) * r, Math.sin(ang) * r * 0.42, size * 0.16); fs(RAINBOW[i % 6], INK, 2); }
+  ctx.restore();
+  endOnce('win', END_T.title, () => { Snd.fx('win', 1.2); buzz('won'); });
+}
+// the credits: everybody walks past with what they do, then who made it
+function endCreditsScene(t, cw, ch, dpr) {
+  const k0 = t - END_T.credits, b = endCam({ x: 600, y: 395, w: 900, h: 540 }, cw, ch, dpr, 0);
+  endWorld('kitchen', 1400, () => drawRoom(t, b));
+  const gap = 200, v = (b.x1 - b.x0 + gap * (END_CREDITS.length - 1) + 240) / (END_T.done - END_T.credits - 0.3);   // (megachonk, last, walks off as the card comes up)
+  END_CREDITS.forEach(([type, what], i) => {
+    const x = b.x0 - 80 + k0 * v - i * gap; if (x < b.x0 - 160 || x > b.x1 + 160) return;
+    const chonk = type === 'chonk', y = FLOOR - (chonk ? 24 : 27);
+    endCat(type, 'walk', x, y, { eyes: 'happy', mouth: chonk ? 'w' : 'o' }, { phase: k0 * (chonk ? 9 : 14), scale: 1.05 });
+    // the name tag over each cat
+    ctx.save(); ctx.font = `900 19px ${FONT}`; const nm = CATS[type].name, w1 = ctx.measureText(nm).width; ctx.font = `800 14px ${FONT}`; const w2 = ctx.measureText(what).width;
+    const w = Math.max(w1, w2) + 28, ty = y - (chonk ? 190 : 150);
+    rrect(x - w / 2, ty - 26, w, 52, 14); fs(PAPER, INK, 2.4); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = `900 19px ${FONT}`; ctx.fillStyle = INK; ctx.fillText(nm, x, ty - 9); ctx.font = `800 14px ${FONT}`; ctx.fillStyle = '#456954'; ctx.fillText(what, x, ty + 12);
+    ctx.restore();
+    const mid = (600 - (b.x0 - 80) + i * gap) / v + END_T.credits;
+    endOnce('cv' + i, mid, () => { if (type === 'toot') Snd.fart(0.6); else if (type === 'spicy') Snd.hiss(0.8); else Snd.voice(chonk ? 'mraow' : type === 'unit' ? 'mrrp' : 'meow', CATS[type].pitch, 0.7); });
+  });
+  // the people
+  const span = (END_T.done - END_T.credits) / END_PEOPLE.length;
+  END_PEOPLE.forEach((txt, i) => { const kk = k0 - i * span; if (kk < 0 || kk > span) return; endCaption(txt, Math.min(kk / 0.3, (span - kk) / 0.3), cw, dpr); });
+}
+function endLoop(now) {
+  if ($('scrEnd').hidden) { Snd.purrStop('end', 0.3); return; }
+  E.t = (now - E.t0) / 1000;
+  const c = $('endCv'), dpr = Math.min(devicePixelRatio || 1, 2.5), cw = c.clientWidth || innerWidth, ch = c.clientHeight || innerHeight;
+  if (c.width !== Math.round(cw * dpr) || c.height !== Math.round(ch * dpr)) { c.width = Math.round(cw * dpr); c.height = Math.round(ch * dpr); }
+  withCtx(c.getContext('2d'), () => drawEnding(cw, ch, dpr));
+  const T = END_T;
+  if (E.t >= T.home && !E.ambHome) { E.ambHome = true; Snd.ambPlay(AMB_OF.kitchen); Snd.ambSet(0.9); }
+  else if (E.t >= T.street && E.t < T.home && !E.ambStreet) { E.ambStreet = true; Snd.ambPlay(AMB_OF.building); }
+  if (E.t >= T.done && !E.card) { E.card = true; showEndCard(); }
+  endRaf = requestAnimationFrame(endLoop);
+}
+function showEnding() {
+  store.d.endSeen = true; store.save();
+  Snd.init(); Snd.purrStopAll(0.2); buzz('purrStopAll'); if (Snd.master) Snd.master.gain.value = 0.7;
+  E = { t0: performance.now(), t: 0, fired: new Set(), bill: store.d.bill || 0, sq: 0 };
+  $('endCard').hidden = true; $('endSkip').hidden = false;
+  showScreen('scrEnd'); Snd.ambPlay(AMB_OF.moon); Snd.ambSet(0.9);
+  cancelAnimationFrame(endRaf); endRaf = requestAnimationFrame(endLoop);
+}
+function showEndCard() {
+  const max = LEVELS.length * 3;
+  $('endStats').innerHTML = `${starSvg(true)} ${starTotal()} of ${max} stars` + (store.d.bill ? ` · u owes da hooman <b>${money(store.d.bill)}</b>` : '');
+  $('endSkip').hidden = true; $('endCard').hidden = false;
+  if (!E.ambHome) { E.ambHome = true; Snd.ambPlay(AMB_OF.kitchen); Snd.ambSet(0.9); }
+}
+$('endSkip').addEventListener('click', () => { if (!E) return; Snd.purrStop('end', 0.2); E.t0 = performance.now() - END_T.done * 1000; for (const k of ['purr', 'win', 'thoom']) E.fired.add(k); });
+$('endAgain').addEventListener('click', () => showEnding());
+$('endDone').addEventListener('click', () => { Snd.purrStop('end', 0.2); showLevels(); });
+
+// ---------- postcards: the first time u finish a world (the moon's is teh end) ----------
+const POSTCARD = {
+  kitchen: { cats: ['toast', 'unit'], line: 'i broke evry plate. 10/10.' },
+  building: { cats: ['street', 'toast'], line: 'i sits on evry ledge.' },
+  park: { cats: ['chaos', 'toast'], line: 'zoomies in da grass. purrfect.' },
+  warehouse: { cats: ['void', 'toast'], line: 'so many boxez. i fits in all.' },
+  space: { cats: ['toot', 'toast'], line: 'no gravity. just tootz.' },
+};
+let pcRaf = 0, pcThen = null;
+function lastOfWorld(L) { const i = LEVELS.indexOf(L); return L.mode !== 'mess' && !LEVELS.slice(i + 1).some(x => x.world === L.world && x.mode !== 'mess'); }
+function showPostcard(world, then) {
+  const P = POSTCARD[world]; if (!P) { then(); return; }
+  pcThen = then;
+  $('pcLine').textContent = P.line;
+  showScreen('scrCard'); Snd.fx('star'); Snd.voice('mrrp', CATS[P.cats[0]].pitch, 0.8, 0.15); buzz('star');
+  const c = $('pcCv'), t0 = performance.now(); cancelAnimationFrame(pcRaf);
+  const loop = now => {
+    if ($('scrCard').hidden) return;
+    const dpr = Math.min(devicePixelRatio || 1, 2.5), w = c.clientWidth || 480, h = c.clientHeight || 240;
+    if (c.width !== Math.round(w * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
+    withCtx(c.getContext('2d'), () => drawPostcard(world, (now - t0) / 1000, w, h, dpr));
+    pcRaf = requestAnimationFrame(loop);
+  };
+  pcRaf = requestAnimationFrame(loop);
+}
+function drawPostcard(world, t, w, h, dpr) {
+  const P = POSTCARD[world], s = w / 600;
+  ctx.setTransform(dpr * s, 0, 0, dpr * s, 0, 0); ctx.clearRect(0, 0, 600, 300);
+  rrect(0, 0, 600, 300, 14); fs('#FFFDF6', null);
+  // the photo: the world, the cats in a box
+  ctx.save(); rrect(12, 12, 576, 276, 8); ctx.clip();
+  const zs = 576 / 760, cx = 600, cy = 436;
+  ctx.translate(300, 150); ctx.scale(zs, zs); ctx.translate(-cx, -cy);
+  const b = { x0: cx - 380, x1: cx + 380, y0: cy - 200, y1: cy + 200 };
+  endWorld(world, 1400, () => drawRoom(t, b));
+  const space = world === 'space', bx = 780;
+  if (!space) endBoxBack(bx, FLOOR, 220, 58);
+  P.cats.forEach((type, i) => {
+    const x = bx - 48 + i * 96, bob = space ? Math.sin(t * 1.6 + i) * 10 : 0;
+    if (space) endCat(type, 'fly', x, FLOOR - 130 + bob - i * 34, { eyes: 'happy', mouth: 'w' }, { rot: Math.sin(t + i) * 0.2, t, scale: 1.35 });
+    else endCat(type, 'sit', x, FLOOR - 50, { eyes: ((t + i) % 3.4) > 3.25 ? 'closed' : 'open', mouth: 'w' }, { t, look: { x: -0.6, y: 0 }, scale: 1.35 });
+  });
+  if (!space) endBoxFront(bx, FLOOR, 220, 58);
+  ctx.restore();
+  rrect(12, 12, 576, 276, 8); fs(null, INK, 2.2);
+  // greetings from ...
+  ctx.save(); ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+  ctx.font = `900 22px ${FONT}`; ctx.lineWidth = 7; ctx.strokeStyle = INK; ctx.strokeText('greetings from', 34, 46); ctx.fillStyle = '#FFFDF6'; ctx.fillText('greetings from', 34, 46);
+  const name = (WORLD_NAMES[world] || world).toUpperCase(); let size = 52; ctx.font = `900 ${size}px ${FONT}`;
+  while (ctx.measureText(name).width > 360 && size > 26) { size -= 2; ctx.font = `900 ${size}px ${FONT}`; }
+  let x = 34; [...name].forEach((ch, i) => { const cw2 = ctx.measureText(ch).width, y = 96 + Math.sin(t * 2.2 + i * 0.6) * 2;
+    ctx.lineWidth = size * 0.3; ctx.strokeStyle = INK; ctx.strokeText(ch, x, y); ctx.lineWidth = size * 0.14; ctx.strokeStyle = '#FFFDF6'; ctx.strokeText(ch, x, y); ctx.fillStyle = RAINBOW[i % 6]; ctx.fillText(ch, x, y); x += cw2; });
+  ctx.restore();
+  // a stamp with the cat on it, and a postmark
+  ctx.save(); ctx.translate(520, 62);
+  ctx.beginPath(); for (let i = 0; i < 40; i++) { const k = i / 40, side = Math.floor(k * 4), u = (k * 4) % 1, px = side === 0 ? -34 + u * 68 : side === 1 ? 34 : side === 2 ? 34 - u * 68 : -34, py = side === 0 ? -40 : side === 1 ? -40 + u * 80 : side === 2 ? 40 : 40 - u * 80, r = i % 2 ? 1 : 0.92; ctx.lineTo(px * r, py * r); } ctx.closePath(); fs('#FFFDF6', INK, 1.8);
+  rrect(-26, -32, 52, 54, 4); fs('#BFE3F2', INK, 1.6);
+  ctx.save(); ctx.translate(0, -2); ctx.scale(0.5, 0.5); drawHead(CATS[P.cats[0]], { eyes: 'open', mouth: 'w' }, { faceOnly: true, t }); ctx.restore();
+  ctx.font = `900 10px ${FONT}`; ctx.fillStyle = INK; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('1 meow', 0, 31);
+  ctx.restore();
+  ctx.save(); ctx.translate(468, 84); ctx.rotate(-0.25); ell(0, 0, 30, 30); fs(null, 'rgba(46,58,53,0.55)', 2.2); ell(0, 0, 23, 23); fs(null, 'rgba(46,58,53,0.4)', 1.4);
+  ctx.font = `900 12px ${FONT}`; ctx.fillStyle = 'rgba(46,58,53,0.6)'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('PURR', 0, 0);
+  for (let i = 0; i < 3; i++) { ctx.beginPath(); for (let k = 0; k <= 20; k++) ctx.lineTo(30 + k * 4, -10 + i * 10 + Math.sin(k * 0.9) * 3); fs(null, 'rgba(46,58,53,0.45)', 2); }
+  ctx.restore();
+}
+$('pcNext').addEventListener('click', () => { Snd.fx('pop'); const f = pcThen; pcThen = null; if (f) f(); else showLevels(); });
+
+window.__fits = { openAll: () => { allOpen = true; }, slowmo: k => { timeScale = k; }, showEnding, showPostcard, END_T, get endT() { return E && E.t; }, endSeek: k => { if (E) E.t0 = performance.now() - k * 1000; }, CLOSET, gate, WORLD_STARS, showTitle, get attract() { return attract; }, ATTRACT, STYLE, art: { ell, fs, line, rrect, poly, symbol, starPath, heartPath, INK, PAPER, ORANGE, GOLD, RED }, get sim() { return sim; }, cam, Snd, drawCat, withCtx, CATS, LEVELS, showResult, startLevel, showScreen, showLevels, drain, store, maxPullPx };
 layout();
 showTitle();
 requestAnimationFrame(frame);

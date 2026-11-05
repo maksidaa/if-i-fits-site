@@ -1,4 +1,4 @@
 {
- "manifest": "{\"native\":\"2.0\",\"seq\":202611042225,\"url\":\"https://maksidaa.github.io/if-i-fits-site/ota/2.0/202611042225.html\",\"sha256\":\"6e0b494e8505c1e83711150ce4ff7731891e2531171e97fba65de93ffd9ca0db\",\"size\":1369948,\"notes\":\"Megachonk free in nap mode; a restart button next to pause; the cat-a-pult stays in view; long lineups fit the top bar\",\"commit\":\"229d9ae\",\"created\":\"2026-11-05T04:25:54.560Z\"}",
- "signature": "/KWFsjeZ2vMa4ZFGs6QV1BjHa7iJtum3d9NdYTTdggvXYhZBR+5EjSrVluIzDXh5K09jznFfKIPMisABf9dYOg=="
+ "manifest": "{\"native\":\"2.0\",\"seq\":202611051635,\"url\":\"https://maksidaa.github.io/if-i-fits-site/ota/2.0/202611051635.html\",\"sha256\":\"7f7eda66f8cba8d073863f511b3b33bb3449b5c125c9496d70350266d9c2f941\",\"size\":1392270,\"notes\":\"Megachonk: naps where he lands after the THOOM (the others cheer), his own closet line, a heavier roll-in, a smoother cat-a-pult launch, head-first flight, tongue out\",\"commit\":\"4b7a5ae\",\"created\":\"2026-11-05T22:35:10.131Z\"}",
+ "signature": "/P5cNOp1Z/jEEbVDIFzUjRLLNYRbeqbcHxiuC8cmBLhfaArC6YPzr4tVWlMTpOI72n+KQGvI76XMSjQ5t95N0Q=="
 }
