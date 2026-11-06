@@ -158,7 +158,9 @@ body.attract #hud, body.attract #hint { display: none; }
 .new-dot { position: absolute; top: -5px; right: -5px; width: 14px; height: 14px; border-radius: 50%; background: var(--orange); border: 2px solid var(--ink); }
 .goal.bill .val { color: var(--red); font-size: 18px; }
 .goal.unlock { color: var(--green); font-weight: 900; }
-.goal.unlock .ico canvas { width: 30px; height: 30px; display: block; }
+.goal.unlock .ico canvas { width: 24px; height: 24px; object-fit: contain; display: block; }
+/* (Adam: "in the after level screen megachonk is overlaying some other stuff"): the icons stay inside their 24 px column */
+.goal > span:first-child { width: 24px; height: 24px; overflow: hidden; display: grid; place-items: center; }
 .closet-card { gap: 10px; }
 .closet-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .closet-head .title { font-size: 24px; }
@@ -229,7 +231,7 @@ body.attract #hud, body.attract #hint { display: none; }
   .cl-grid.top { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); } .cl-grid.top .cl-item canvas { width: 90px; height: 90px; } .cl-item.top .tn { font-size: 18px; } }
 @media (max-width: 600px) and (orientation: portrait) { #scrCloset .closet-body { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); } #scrCloset .closet-left { grid-template-columns: 40% 1fr; } }
 @media (max-width: 560px) { #scrTitle .title-bottom { flex-direction: column; align-items: center; } #scrTitle .title-btns .btn { min-width: 120px; } }
-  .goal .chonkface canvas { display: inline-block; vertical-align: middle; margin-right: 4px; }
+  .goal .chonkface canvas { display: block; width: 24px !important; height: auto !important; max-height: 24px; object-fit: contain; }
   #chonkBtn { position: relative; }
   #chonkBtn .price { position: absolute; left: 50%; bottom: -9px; transform: translateX(-50%); background: #E2574C; color: #fff; font: 900 10px/1 Nunito, sans-serif; padding: 2px 5px; border-radius: 8px; border: 1.5px solid #2E3A35; white-space: nowrap; }
   .cl-item.forsale .nm { color: #2E7D4F; font-weight: 900; }
@@ -399,7 +401,7 @@ body.attract #hud, body.attract #hint { display: none; }
       <ul>
         <li><b>Play:</b> touch anywhere and pull back to aim, let go to fling. Land a cat in every spot (the dashed boxes). Tap while a cat flies, or just after it lands, for its trick.</li>
         <li><b>Stars:</b> one for every spot filled, one for cats left over, one for enough mess. Worlds open as you earn stars.</li>
-        <li><b>Stuck?</b> After a miss you can ask for 1 more cat. Lose a level twice and paw prints show one way through.</li>
+        <li><b>Stuck?</b> After a miss you can ask for 1 more cat. Lose a level twice and paw prints show a first throw that works. The rest is up to you.</li>
         <li><b>Sound and vibration:</b> in the pause card (the button at the top left during a level). The game plays sound even on silent.</li>
         <li><b>The Whole Game:</b> "restore purchase" on the level list restores it with the same Apple ID. Family Sharing works.</li>
         <li><b>Your progress</b> stays on this device; deleting the game deletes it.</li>
@@ -1433,6 +1435,13 @@ const FITS = (() => {
       const cat = this.active;
       if (cat) this.assist(cat);
       M.Engine.update(this.engine, DT);
+      if (!this.grav) for (const k of this.cats) {   // in space the drag that lets cats drift to a stop doesn't touch their spin: a cat that
+        // got spun keeps spinning (Adam, Nov 6: "if they inherit spin do they just keep that spin"); Matter's air friction slows both
+        const kb = k.body; if (!kb || kb.isStatic || !kb.frictionAir || k.state === 'sit' || k.hissT > 0) continue;
+        M.Body.setAngularVelocity(kb, kb.angularVelocity / (1 - kb.frictionAir));
+      }
+      if (this.plowSlow) { const pc = this.active; if (pc && pc.body && pc.def.pound) M.Body.setVelocity(pc.body, { x: pc.body.velocity.x * this.plowSlow, y: pc.body.velocity.y * this.plowSlow }); this.plowSlow = null; }
+      if (!this.pendingShock && cat && cat.def.pound && cat.slamming && cat.state === 'fly' && cat.body && cat.flyT > 12 && cat.body.speed < 1) { cat.slamming = false; this.pendingShock = { cat }; }   // (came to rest on a pile of light stuff: that's his landing)
       if (this.pendingShock) this.shock(this.pendingShock.cat);
       if ((this.held || this.heldCount) && !(this.active && this.active.def.pound && this.active.slamming && this.active.state === 'fly')) {
         if (this.held) { for (const it of this.held) this.toBreak.add(it); this.held = null; }
@@ -1547,7 +1556,7 @@ const FITS = (() => {
     }
 
     next() {
-      this.held4 = 0;
+      this.held4 = 0; this.plowed = null;
       const wreck = this.level.mode === 'mess';
       if (!wreck && this.spots.every(s => s.filled)) { this.state = 'winning'; this.timer = 80; this.emit('allFilled'); return; }
       if (this.catIdx + 1 >= this.cats.length) {
@@ -1881,13 +1890,15 @@ const FITS = (() => {
     }
     toMochi(c) {
       const M = this.M, old = c.body, verts = [];
-      for (let i = 0; i < 20; i++) { const a = i / 20 * Math.PI * 2; verts.push({ x: Math.cos(a) * MOCHI.rx, y: Math.sin(a) * MOCHI.ry }); }
-      const body = M.Bodies.fromVertices(old.position.x, old.bounds.max.y - MOCHI.ry - 0.5, [verts], { density: c.def.density, friction: 0.9, frictionStatic: 1.1,
-        restitution: 0.02, frictionAir: 0.012, label: 'cat', sleepThreshold: 1e9 });
+      // a bowling ball: rounder (32 sides, so it rolls smooth), little air drag, and already spinning at the speed it's rolling, so
+      // landing doesn't grind it to a halt (it used to have no spin, 3x the drag and stickier friction, and stopped in half a second)
+      for (let i = 0; i < 32; i++) { const a = i / 32 * Math.PI * 2; verts.push({ x: Math.cos(a) * MOCHI.rx, y: Math.sin(a) * MOCHI.ry }); }
+      const body = M.Bodies.fromVertices(old.position.x, old.bounds.max.y - MOCHI.ry - 0.5, [verts], { density: c.def.density, friction: 0.7, frictionStatic: 0.9,
+        restitution: 0.06, frictionAir: 0.004, label: 'cat', sleepThreshold: 1e9 });
       body.plugin = { cat: c };
       M.Composite.remove(this.world, old); M.Composite.add(this.world, body);
       M.Body.setAngle(body, old.angle);   // (balled up however he was turned when he came down)
-      M.Body.setVelocity(body, { x: old.velocity.x, y: 0 });
+      M.Body.setVelocity(body, { x: old.velocity.x, y: 0 }); M.Body.setAngularVelocity(body, old.velocity.x / MOCHI.ry);
       Object.assign(c, { body, mochi: true, rest: 0 });
     }
     // Once it has touched down, a cat stops sliding and rocking, and rights itself if it can (megachonk's mochi just rolls,
@@ -1895,8 +1906,13 @@ const FITS = (() => {
     settle(b, strong) {
       const mc = b.plugin && b.plugin.cat;
       if (mc && mc.tipT > 0) { mc.tipT--; return; }   // tipping off an edge: let it (tipOff)
-      if (mc && mc.mochi) { if (b.speed < 0.8) this.M.Body.setAngularVelocity(b, b.angularVelocity * 0.92); return; }
+      // megachonk's ball: it slows to a stop on the flat, but nothing slows it while there's nothing under its middle (it was braked
+      // everywhere, so it crept for ages over edges: Adam, "megachonk hung on a ledge for a long time instead of rolling off")
+      if (mc && mc.mochi) { if (b.speed < 0.25 && this.heldUnder(b)) this.M.Body.setAngularVelocity(b, b.angularVelocity * 0.9); return; }   // (only once he's nearly stopped)
       const M = this.M, a = wrapAngle(b.angle);
+      // in space a floating cat keeps its spin (Adam, Nov 6: "if they inherit spin do they just keep that spin"): nothing rights it
+      // and next to nothing slows it, the way a thing spins in zero g; it still drifts slowly to a stop so the next throw can come
+      if (!this.grav) { M.Body.setAngularVelocity(b, b.angularVelocity * 0.999); M.Body.setVelocity(b, { x: b.velocity.x * 0.97, y: b.velocity.y * 0.97 }); return; }
       if (Math.abs(a) < 1.2 && !(mc && mc.def.catapult)) M.Body.setAngularVelocity(b, b.angularVelocity * (strong ? 0.5 : 0.6) - a * 0.06);   // (cats right themselves; megachonk doesn't)
       else M.Body.setAngularVelocity(b, b.angularVelocity * 0.6);
       if (!this.grav) { M.Body.setVelocity(b, { x: b.velocity.x * 0.97, y: b.velocity.y * 0.97 }); return; }   // in space: a slow drift to a stop
@@ -1938,7 +1954,7 @@ const FITS = (() => {
       if (c.scramble > 0) c.scramble--;
       if (c.flyT % 3 === 0) c.trail.push({ x: b.position.x, y: b.position.y });
       if (b.position.y > H + 80 || b.position.x < -80 || b.position.x > this.W + 80) return this.resolve(c, 'yeet');
-      if (b.speed < 0.35 && b.angularSpeed < 0.04 && !onAwning && !(c.onBelt > 0)) c.rest++; else c.rest = 0;
+      if (b.speed < 0.35 && (b.angularSpeed < 0.04 || !this.grav) && !onAwning && !(c.onBelt > 0)) c.rest++; else c.rest = 0;   // (in space a cat can rest while it spins)
       // over an empty spot, start digging a little sooner
       const overSpot = c.stomped < 5 && this.spots.some(s => !s.filled && b.position.x > s.ix0 - 16 && b.position.x < s.ix1 + 16 && b.position.y < s.rim && b.position.y > s.rim - 150);
       if (c.rest >= (overSpot ? 12 : 22)) {
@@ -2103,8 +2119,18 @@ const FITS = (() => {
           }
           if (cat && cat.state === 'fly' && !cat.touched && !SLIPPERY[Y.label]) { cat.touched = true; if (!(cat.dashT > 0) && !cat.def.pound) X.frictionAir = this.grav ? Math.max(0.03, this.air) : this.air; }   // in space it keeps drifting   // a boing or a slide isn't touching down
           if (cat && cat.slamming && cat.state === 'fly' && !Y.isSensor) {
-            const ny = pair.collision.normal.y * (X === pair.bodyA ? 1 : -1);   // < 0: what he hit is under him
-            if ((X.velocity.y > 1.5 && X.velocity.y > Math.abs(X.velocity.x) * 0.35) || (ny < -0.55 && X.velocity.y > 1.2)) { cat.slamming = false; this.pendingShock = { cat }; }
+            // He plows through light things (Adam, Nov 6: "as soon as megachonk hits anything he stops immediately, like if he hits a
+            // plant pot or glass he just stops right there, but I feel like his size and weight and density should make the physics
+            // work differently"). Anything under a quarter of his weight doesn't count as landing: a breakable one smashes on the
+            // spot and he loses a little speed, anything else gets shoved aside. He lands (THOOM) on the floor, furniture, walls,
+            // heavy things (a griddle lid, a slab) and cats.
+            const hitItem = Y.plugin && Y.plugin.item, light = hitItem && !hitItem.broken && !Y.isStatic && Y.mass < X.mass * 0.25;
+            if (light) {
+              if ((hitItem.def.breakAt || hitItem.hp) && !(this.plowed && this.plowed.has(hitItem))) { (this.plowed || (this.plowed = new Set())).add(hitItem); this.toBreak.add(hitItem); this.plowSlow = (this.plowSlow || 1) * 0.9; this.emit('plow', { cat, item: hitItem, x: Y.position.x, y: Y.position.y }); }
+            } else {
+              const ny = pair.collision.normal.y * (X === pair.bodyA ? 1 : -1);   // < 0: what he hit is under him
+              if ((X.velocity.y > 1.5 && X.velocity.y > Math.abs(X.velocity.x) * 0.35) || (ny < -0.55 && X.velocity.y > 1.2)) { cat.slamming = false; this.pendingShock = { cat }; }
+            }
           }
           // slapstick: slam sideways into a wall or furniture and the cat sticks there flat, then slides down
           const splat = cat && !cat.def.catapult && cat.state === 'fly' && rel > 8 && (Y.label === 'wall' || Y.label === 'static') && Math.abs(X.velocity.x) > Math.abs(X.velocity.y) * 1.1 &&
@@ -2151,8 +2177,11 @@ const FITS = (() => {
         else M.Body.setVelocity(ib, { x: (dx / d) * 8 * k + (dx >= 0 ? 3.5 : -3.5), y: -(8 + 8 * k) });
         M.Body.setAngularVelocity(ib, (dx >= 0 ? 0.25 : -0.25) * k);
       }
-      if (big) {   // megachonk lands like a sack of potatoes: no bounce, he just stops (and settles like the others now)
-        M.Body.setVelocity(b, { x: b.velocity.x * 0.15, y: 0 }); M.Body.setAngularVelocity(b, 0); b.frictionAir = this.grav ? Math.max(0.03, this.air) : this.air;
+      if (big) {   // megachonk lands like a sack of potatoes, no bounce, but a heavy one keeps going (Adam, Nov 6: "his size and weight
+        // and density should make the physics work differently"): he keeps most of his sideways speed and rolls on through things
+        M.Body.setVelocity(b, { x: b.velocity.x * 0.72, y: 0 });   // (Adam: "he seems to come to a sudden halt instead of kind of bowling
+        // balling": a heavy ball landing flat keeps about 5/7 of its speed and rolls; it used to keep 15%, then 40%)
+        M.Body.setAngularVelocity(b, 0); b.frictionAir = this.grav ? Math.max(0.03, this.air) : this.air;
         if (this.grav && !this.spots.some(s => !s.filled && this.inZone(s, b.position, c) && this.fits(s, c))) this.toMochi(c);
       } else {   // the unit bounces back up off its own BONK and lets the junk fly past it for a moment
         M.Body.setVelocity(b, { x: b.velocity.x * 0.3, y: -7 });
@@ -2180,11 +2209,15 @@ const FITS = (() => {
     // conveyor belt edge?"). settle() keeps a stunned cat upright, so one that stopped with its middle out past an edge (the
     // end of a belt, a table, a shelf) stayed there, held up by one side. Now if nothing is under its middle and only one
     // side is held up, it tips off the other side (settle() lets go of it for a moment so it can).
+    heldUnder(b) {   // is there something right under the middle of this body?
+      const others = this.M.Composite.allBodies(this.world).filter(o => !o.isSensor && o !== b && o.parent !== b);
+      return this.M.Query.ray(others, { x: b.position.x, y: b.bounds.max.y - 4 }, { x: b.position.x, y: b.bounds.max.y + 10 }, 1).length > 0;
+    }
     tipOff() {
       if (!this.grav) return;   // (nothing falls in space)
       const M = this.M; let all = null;
       for (const c of this.cats) {
-        const b = c.body; if (!b || b.isStatic || c.mochi || (c.state !== 'dazed' && c.state !== 'idle') || c.tipT > 0 || b.speed > 0.6) continue;
+        const b = c.body; if (!b || b.isStatic || (c.state !== 'dazed' && c.state !== 'idle') || c.tipT > 0 || b.speed > 0.6) continue;   // (megachonk too: Adam, Nov 6, "megachonk hung on a ledge for a long time instead of rolling off")
         all = all || M.Composite.allBodies(this.world).filter(o => !o.isSensor);
         const others = all.filter(o => o !== b && o.parent !== b), y0 = b.bounds.max.y - 4, y1 = b.bounds.max.y + 10;
         const held = x => M.Query.ray(others, { x, y: y0 }, { x, y: y1 }, 1).length > 0;
@@ -2334,7 +2367,11 @@ const FITS = (() => {
     processBreaks() {
       if (!this.toBreak.size) return;
       const fl = this.active;   // nothing breaks while megachonk is in the air (Adam: "he should land HARD and then stuff breaks"): it waits for the THOOM
-      if (fl && fl.def.pound && fl.slamming && fl.state === 'fly') { const h = this.held || (this.held = new Set()); for (const it of this.toBreak) h.add(it); this.toBreak.clear(); return; }
+      if (fl && fl.def.pound && fl.slamming && fl.state === 'fly') {   // (what he plows through smashes now)
+        const h = this.held || (this.held = new Set());
+        for (const it of [...this.toBreak]) if (!(this.plowed && this.plowed.has(it))) { h.add(it); this.toBreak.delete(it); }
+        if (!this.toBreak.size) return;
+      }
       const M = this.M;
       for (const item of [...this.toBreak]) {
         if (item.broken) continue;
@@ -2430,7 +2467,7 @@ const FITS = (() => {
 </script>
 
 <script>
-const HINTS = {"b1":[{"a":33,"p":0.84,"ab":null}],"b10":[{"a":36,"p":0.84,"ab":null},{"a":45,"p":0.6,"ab":24},{"a":54,"p":0.9,"ab":8},{"a":78,"p":0.56,"ab":null}],"b2":[{"a":36,"p":0.9,"ab":null},{"a":72,"p":0.7,"ab":null}],"b3":[{"a":42,"p":0.8,"ab":8},{"a":72,"p":0.7,"ab":null}],"b4":[{"a":39,"p":0.86,"ab":8},{"a":51,"p":0.84,"ab":null}],"b5":[{"a":48,"p":0.5,"ab":32},{"a":60,"p":0.82,"ab":null}],"b6":[{"a":78,"p":0.56,"ab":null},{"a":69,"p":0.74,"ab":null}],"b7":[{"a":6,"p":0.58,"ab":16},{"a":33,"p":0.86,"ab":null}],"b8":[{"a":63,"p":0.58,"ab":null},{"a":51,"p":0.84,"ab":null}],"b9":[{"a":48,"p":0.88,"ab":null},{"a":27,"p":0.9,"ab":8},{"a":78,"p":0.56,"ab":null},{"a":30,"p":0.64,"ab":40}],"k1":[{"a":27,"p":0.9,"ab":null}],"k10":[{"a":87,"p":0.58,"ab":24},{"a":45,"p":0.86,"ab":null},{"a":45,"p":0.72,"ab":24}],"k11":[{"a":30,"p":0.56,"ab":16},{"a":48,"p":0.82,"ab":null},{"a":3,"p":0.3,"ab":8}],"k12":[{"a":24,"p":0.8,"ab":null},{"a":54,"p":0.7,"ab":16},{"a":78,"p":0.56,"ab":null},{"a":27,"p":0.86,"ab":16}],"k2":[{"a":63,"p":0.5,"ab":null}],"k3":[{"a":42,"p":0.84,"ab":null},{"a":21,"p":0.3,"ab":null}],"k4":[{"a":66,"p":0.68,"ab":null},{"a":48,"p":0.88,"ab":null}],"k5":[{"a":45,"p":0.58,"ab":null},{"a":48,"p":0.86,"ab":null}],"k6":[{"a":3,"p":0.24,"ab":null},{"a":42,"p":0.9,"ab":null}],"k7":[{"a":15,"p":0.68,"ab":8},{"a":60,"p":0.78,"ab":null}],"k8":[{"a":18,"p":0.8,"ab":24},{"a":24,"p":0.98,"ab":null}],"k9":[{"a":9,"p":0.72,"ab":24},{"a":39,"p":0.9,"ab":null}],"mn1":[{"a":15,"p":0.7,"ab":null}],"mn2":[{"a":27,"p":0.86,"ab":60},{"a":27,"p":0.9,"ab":null}],"mn3":[{"a":72,"p":0.9,"ab":null},{"a":30,"p":0.72,"ab":24}],"mn4":[{"a":15,"p":0.92,"ab":8},{"a":27,"p":0.84,"ab":null},{"a":48,"p":0.88,"ab":null}],"mn5":[{"a":75,"p":0.8,"ab":null},{"a":63,"p":0.96,"ab":null}],"mn6":[{"a":33,"p":0.6,"ab":8},{"a":87,"p":0.58,"ab":8},{"a":78,"p":0.88,"ab":null}],"mn7":[{"a":12,"p":0.84,"ab":72},{"a":48,"p":0.9,"ab":null}],"mn8":[{"a":24,"p":0.9,"ab":72},{"a":87,"p":0.58,"ab":24},{"a":21,"p":0.82,"ab":50},{"a":48,"p":0.94,"ab":8}],"mn9":[{"a":54,"p":1,"ab":null},{"a":30,"p":0.7,"ab":8},{"a":12,"p":0.86,"ab":null},{"a":54,"p":1,"ab":null},{"a":63,"p":0.78,"ab":8},{"a":12,"p":0.8,"ab":40},{"a":27,"p":1,"ab":86}],"pk1":[{"a":24,"p":0.8,"ab":null}],"pk10":[{"a":72,"p":0.68,"ab":null},{"a":9,"p":0.76,"ab":40},{"a":42,"p":0.9,"ab":8},{"a":51,"p":0.8,"ab":8}],"pk2":[{"a":24,"p":0.82,"ab":null},{"a":45,"p":0.9,"ab":null}],"pk3":[{"a":27,"p":0.92,"ab":8},{"a":42,"p":0.8,"ab":null}],"pk4":[{"a":66,"p":0.72,"ab":null},{"a":57,"p":0.56,"ab":8}],"pk5":[{"a":27,"p":0.7,"ab":32},{"a":39,"p":0.86,"ab":null}],"pk6":[{"a":42,"p":0.82,"ab":8},{"a":18,"p":0.8,"ab":null}],"pk7":[{"a":33,"p":0.86,"ab":null},{"a":69,"p":0.54,"ab":8}],"pk8":[{"a":75,"p":0.58,"ab":8},{"a":42,"p":0.9,"ab":null},{"a":69,"p":0.88,"ab":8}],"pk9":[{"a":63,"p":0.7,"ab":null},{"a":39,"p":0.9,"ab":8},{"a":54,"p":0.86,"ab":null}],"sp1":[{"a":3,"p":0.58,"ab":null},{"a":21,"p":0.58,"ab":null}],"sp2":[{"a":54,"p":0.76,"ab":null},{"a":60,"p":0.74,"ab":null}],"sp3":[{"a":6,"p":0.5,"ab":40},{"a":3,"p":0.58,"ab":null}],"sp4":[{"a":15,"p":0.58,"ab":null},{"a":6,"p":0.96,"ab":null},{"a":6,"p":0.42,"ab":60}],"sp5":[{"a":6,"p":0.58,"ab":8},{"a":48,"p":0.64,"ab":null},{"a":72,"p":0.58,"ab":8}],"sp6":[{"a":6,"p":0.58,"ab":8},{"a":33,"p":0.58,"ab":null},{"a":18,"p":0.6,"ab":40}],"sp7":[{"a":15,"p":0.62,"ab":8},{"a":6,"p":0.58,"ab":null},{"a":60,"p":0.6,"ab":null}],"sp8":[{"a":39,"p":0.58,"ab":null},{"a":66,"p":0.84,"ab":86},{"a":12,"p":0.58,"ab":8},{"a":3,"p":0.78,"ab":72},{"a":5,"p":0.14,"ab":null,"miss":true},{"a":5,"p":0.14,"ab":null,"miss":true},{"a":63,"p":0.46,"ab":32}],"wh1":[{"a":27,"p":0.8,"ab":null}],"wh10":[{"a":33,"p":0.84,"ab":null},{"a":51,"p":0.9,"ab":8},{"a":33,"p":0.7,"ab":8},{"a":78,"p":0.64,"ab":8},{"a":5,"p":0.14,"ab":null,"miss":true},{"a":45,"p":0.92,"ab":8},{"a":81,"p":0.92,"ab":8}],"wh2":[{"a":21,"p":0.9,"ab":null},{"a":51,"p":0.9,"ab":null}],"wh3":[{"a":36,"p":0.84,"ab":8},{"a":66,"p":0.64,"ab":null}],"wh4":[{"a":45,"p":0.94,"ab":8},{"a":72,"p":0.72,"ab":null},{"a":27,"p":0.9,"ab":null}],"wh5":[{"a":3,"p":0.68,"ab":8},{"a":39,"p":0.98,"ab":null}],"wh6":[{"a":21,"p":0.9,"ab":8},{"a":63,"p":0.8,"ab":null}],"wh7":[{"a":39,"p":0.96,"ab":16},{"a":33,"p":0.94,"ab":8},{"a":51,"p":0.92,"ab":null}],"wh8":[{"a":63,"p":0.9,"ab":null},{"a":45,"p":0.98,"ab":8},{"a":24,"p":0.62,"ab":null}],"wh9":[{"a":27,"p":0.9,"ab":24},{"a":45,"p":0.96,"ab":8},{"a":54,"p":0.84,"ab":null}]};
+const HINTS = {"b1":[{"a":33,"p":0.84,"ab":null}],"b10":[{"a":36,"p":0.84,"ab":null}],"b2":[{"a":36,"p":0.9,"ab":null}],"b3":[{"a":42,"p":0.8,"ab":8}],"b4":[{"a":39,"p":0.86,"ab":8}],"b5":[{"a":48,"p":0.5,"ab":32}],"b6":[{"a":78,"p":0.56,"ab":null}],"b7":[{"a":6,"p":0.58,"ab":16}],"b8":[{"a":63,"p":0.58,"ab":null}],"b9":[{"a":48,"p":0.88,"ab":null}],"k1":[{"a":27,"p":0.9,"ab":null}],"k10":[{"a":87,"p":0.58,"ab":24}],"k11":[{"a":30,"p":0.56,"ab":16}],"k12":[{"a":24,"p":0.8,"ab":null}],"k2":[{"a":63,"p":0.5,"ab":null}],"k3":[{"a":42,"p":0.84,"ab":null}],"k4":[{"a":66,"p":0.68,"ab":null}],"k5":[{"a":45,"p":0.58,"ab":null}],"k6":[{"a":3,"p":0.24,"ab":null}],"k7":[{"a":15,"p":0.68,"ab":8}],"k8":[{"a":18,"p":0.8,"ab":24}],"k9":[{"a":9,"p":0.72,"ab":24}],"mn1":[{"a":15,"p":0.7,"ab":null}],"mn2":[{"a":27,"p":0.86,"ab":60}],"mn3":[{"a":72,"p":0.9,"ab":null}],"mn4":[{"a":15,"p":0.92,"ab":8}],"mn5":[{"a":75,"p":0.8,"ab":null}],"mn6":[{"a":33,"p":0.6,"ab":8}],"mn7":[{"a":12,"p":0.84,"ab":72}],"mn8":[{"a":24,"p":0.9,"ab":72}],"mn9":[{"a":54,"p":1,"ab":null}],"pk1":[{"a":24,"p":0.8,"ab":null}],"pk10":[{"a":72,"p":0.68,"ab":null}],"pk2":[{"a":24,"p":0.82,"ab":null}],"pk3":[{"a":27,"p":0.92,"ab":8}],"pk4":[{"a":66,"p":0.72,"ab":null}],"pk5":[{"a":27,"p":0.7,"ab":32}],"pk6":[{"a":42,"p":0.82,"ab":8}],"pk7":[{"a":33,"p":0.86,"ab":null}],"pk8":[{"a":75,"p":0.58,"ab":8}],"pk9":[{"a":63,"p":0.7,"ab":null}],"sp1":[{"a":3,"p":0.58,"ab":null}],"sp2":[{"a":54,"p":0.76,"ab":null}],"sp3":[{"a":6,"p":0.5,"ab":40}],"sp4":[{"a":15,"p":0.58,"ab":null}],"sp5":[{"a":6,"p":0.58,"ab":16}],"sp6":[{"a":6,"p":0.58,"ab":8}],"sp7":[{"a":15,"p":0.62,"ab":8}],"sp8":[{"a":39,"p":0.58,"ab":null}],"wh1":[{"a":27,"p":0.8,"ab":null}],"wh10":[{"a":33,"p":0.84,"ab":null}],"wh2":[{"a":21,"p":0.9,"ab":null}],"wh3":[{"a":36,"p":0.84,"ab":8}],"wh4":[{"a":45,"p":0.94,"ab":8}],"wh5":[{"a":3,"p":0.68,"ab":8}],"wh6":[{"a":21,"p":0.9,"ab":8}],"wh7":[{"a":39,"p":0.96,"ab":16}],"wh8":[{"a":63,"p":0.9,"ab":null}],"wh9":[{"a":27,"p":0.9,"ab":24}]};
 </script>
 
 <script>
@@ -2812,7 +2849,9 @@ const FX_SAMPLE = { bonk: ['thump', 1, 1.5], splat: ['splat', 1, 1.4], slam: ['s
   wheel: [['wheel1', 'wheel2'], 1, 0.55], wheel2: [['wheel2', 'wheel3'], 0.9, 0.55], wheelstop: [['wheel3'], 0.8, 0.75], creak: [['creak1', 'wicker1'], 0.85, 0.55] };
 // the quiet room sound under each world (very low; "room sounds" in the menus turns it off)
 const AMB_OF = { kitchen: 'amb_kitchen', building: 'amb_building', park: 'amb_park', warehouse: 'amb_warehouse', space: 'amb_space', moon: 'amb_moon', 'sneak peek': 'amb_kitchen' };
-const AMB_GAIN = { amb_kitchen: 0.17, amb_building: 0.14, amb_park: 0.15, amb_warehouse: 0.15, amb_space: 0.22, amb_moon: 0.22 };
+// (the kitchen's was 0.17: Adam, Nov 6, his kids asked to turn it down, "they're kind of loud and it's not really obvious what"
+// it is. On a phone speaker the fridge's hum mostly drops out and the clock's ticking is what's left; 0.07 is about 8 dB down.)
+const AMB_GAIN = { amb_kitchen: 0.07, amb_building: 0.14, amb_park: 0.15, amb_warehouse: 0.15, amb_space: 0.22, amb_moon: 0.22 };
 const FX_GAIN = { star: 1, win: 1.2, lose: 1.2, pop: 1.5, zoom: 1.5, slide: 1.5, boing: 2 };
 const HIT_SOUND = { bubble: 'soft', clay: 'clinkLow', glass: 'clink', china: 'clinkLow', metal: 'metal', wood: 'wood', paper: 'wood', soft: 'soft', rubber: 'rubber', card: 'soft', flour: 'soft', egg: 'clink', stone: 'wood', cloth: 'soft', birb: 'soft', melon: 'soft', pie: 'soft' };
 const BREAK_SOUND = { bubble: 'pops', clay: 'china', glass: 'glass', china: 'china', egg: 'egg', card: 'card', flour: 'flour', metal: 'crunch', wood: 'snap', paper: 'rustle', soft: 'squish', rubber: 'popb', stone: 'crumble', melon: 'squelch', pie: 'squelch' };
@@ -3343,6 +3382,9 @@ const COSTUMES = [
       if (L === 'in') { if (F.view === 'side') for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.ellipse(F.rx * (-0.3 + i * 0.25), F.ry * 0.75, 7, 6, 0, Math.PI, TAU); fs(null, 'rgba(180,140,60,0.6)', 1.6); } else for (let i = 0; i < 3; i++) line([-F.rx * 0.5, F.ry * (0.3 + i * 0.2), F.rx * 0.5, F.ry * (0.3 + i * 0.2)], 'rgba(180,140,60,0.6)', 1.6); } },
     tail(w) { ctx.save(); ctx.setLineDash([4, 8]); ctx.strokeStyle = '#F0943A'; ctx.lineWidth = w + 7; ctx.lineCap = 'butt'; ctx.stroke(); ctx.restore(); } },
   // megachonk: his costumes are drawn on his own shapes (chonkCos: the egg of his body, the mochi of his head)
+  // any cat (Adam, Nov 6: "Yeah let's do an 8bit pixel cat", instead of a certain famous rainbow cat): the cat itself, in chunky
+  // 8-bit pixels, every pose, hats and all (page.js pixelDraw); lands with a 1UP
+  { id: 'c_pixel', cat: '*', name: '8-bit kitteh', price: 1600, pixel: true, fx: 'pixel' },
   { id: 'c_cake', cat: 'chonk', name: 'i iz cake', price: 150, fur: '#F2D49A', light: '#FFF4E2', fx: 'sprinkles' },
   { id: 'c_hotdog', cat: 'chonk', name: 'hot dog', price: 500, fur: '#C8553D', light: '#FFF4E2', fx: 'mustard' },
   { id: 'c_sumo', cat: 'chonk', name: 'sumo', price: 2000, fx: 'dust' },
@@ -3486,7 +3528,7 @@ function clBurst(x, y, n, cols, o = {}) {
   }
 }
 function clDecal(d, S = CL) { S.decals.push(d); if (S.decals.length > CL_DECALS) S.decals.splice(0, S.decals.length - CL_DECALS); }
-const cosOn = c => { if (!c || !c.def || (sim && sim.level && sim.level.suit)) return null; const w = wearOf(c.def).suit, C = w && COS[w]; return C && C.cat === c.def.id ? C : null; };   // (under the space suit, no costume)
+const cosOn = c => { if (!c || !c.def || (sim && sim.level && sim.level.suit)) return null; const w = wearOf(c.def).suit, C = w && COS[w]; return C && (C.cat === c.def.id || C.cat === '*') ? C : null; };   // (under the space suit, no costume)
 const shoeOn = c => c && c.def && !(sim && sim.level && sim.level.suit) ? shoesOf(c.def) : null;
 // what a costume does to its cat's trick (and to megachonk's THOOM), and what shoes do when they land
 function closetEvent(e) {
@@ -3538,6 +3580,7 @@ function closetEvent(e) {
     if (fxk === 'vroom') addText('vroom vroom', p.x, p.y - 50, INK, 18);
   }
   if (e.type === 'sit' || e.type === 'unloaf') {
+    if (fxk === 'pixel' && e.type === 'sit') { addText('1UP', p.x, p.y - 58, '#3E7BD6', 24); clBurst(p.x, p.y - 20, 12, ['#3E7BD6', '#F4C84A', '#E2463C', '#6DBE6A'], { speed: 170, shape: 'rect', size: 6, life: 1.1 }); }
     if (fxk === 'crumbs') clBurst(p.x, p.y - 10, 12, ['#E2A55B', '#F8E3B0', '#C98A44'], { speed: 150, shape: 'crumb', size: 4, life: 1.6, land: 'stay' });
     if (fxk === 'peel' && e.type === 'sit') clDecal({ kind: 'peel', x: p.x - dir * 44, y: sim.surfaceAt(p.x - dir * 44, p.y), rot: 0 });
   }
@@ -4136,8 +4179,8 @@ function metCats() {   // toast, and every cat in a level you've won (and megach
   LEVELS.forEach(L => { if (store.d.stars[L.id]) L.lineup.forEach(t => met.add(t)); }); if (store.d.chonkMet) met.add('chonk'); return met;
 }
 // what can be bought now: not the earned ones, nor a cat's own things before u've met it
-const buyable = it => !!it && !it.earned && !it.free && it.price > 0 && (it.kind !== 'suit' || metCats().has(it.cat)) && (it.kind !== 'line' || metCats().has('chonk'));
-const affordable = () => { const bill = store.d.bill || 0, met = metCats(); return SHOP.filter(it => !it.earned && !it.free && it.price <= bill && (it.kind !== 'suit' || met.has(it.cat)) && (it.kind !== 'line' || met.has('chonk')) && !owns(it.id)).length; };   // (the dot on the closet button)
+const buyable = it => !!it && !it.earned && !it.free && it.price > 0 && (it.kind !== 'suit' || it.cat === '*' || metCats().has(it.cat)) && (it.kind !== 'line' || metCats().has('chonk'));
+const affordable = () => { const bill = store.d.bill || 0, met = metCats(); return SHOP.filter(it => !it.earned && !it.free && it.price <= bill && (it.kind !== 'suit' || it.cat === '*' || met.has(it.cat)) && (it.kind !== 'line' || met.has('chonk')) && !owns(it.id)).length; };   // (the dot on the closet button)
 // for the levels that hide them (coming): window.__fits.earn('boxcrown') puts an earned thing in teh closet
 function earnItem(id) { const it = shopItem(id); if (!it || owns(id)) return false; store.d.owned = [...ownedSet(), id]; store.save(); return true; }
 
@@ -4181,8 +4224,8 @@ const CLOSET_TABS = [['suit', 'costumes'], ['hat', 'hats'], ['neck', 'neck'], ['
 const closetTabs = cat => CLOSET_TABS.filter(([k]) => (k !== 'line' || cat === 'chonk') && (k !== 'crib' || typeof CRIB !== 'undefined'));
 const byPrice = (x, y) => (x.earned ? 1e9 : x.price) - (y.earned ? 1e9 : y.price);
 function tabItems(tab, cat) {
-  if (tab === 'top') return SHOP.filter(it => it.price >= TOP_SHELF && (it.kind !== 'suit' || it.cat === cat) && it.kind !== 'line').sort(byPrice);
-  if (tab === 'suit') return COSTUMES.filter(c => c.cat === cat).sort(byPrice);
+  if (tab === 'top') return SHOP.filter(it => it.price >= TOP_SHELF && (it.kind !== 'suit' || it.cat === cat || it.cat === '*') && it.kind !== 'line').sort(byPrice);
+  if (tab === 'suit') return COSTUMES.filter(c => c.cat === cat || c.cat === '*').sort(byPrice);
   return SHOP.filter(it => it.kind === tab && !(it.price >= TOP_SHELF)).sort(byPrice);
 }
 const NONE_TABS = new Set(['suit', 'hat', 'neck', 'feet', 'trail']);
@@ -4240,7 +4283,7 @@ function closetTile(it, cat, bill, top) {
   const buying = !!it.id && closetBuy === it.id, trying = closetTry === it && !have;
   const b = document.createElement('button'); b.className = 'cl-item' + (top ? ' top' : '') + (on ? ' on' : '') + (have ? '' : earned ? ' earned' : can ? ' forsale' : ' locked') + (buying ? ' buying' : '') + (trying ? ' try' : '');
   b.setAttribute('aria-label', have ? `${it.name}${on ? ', on' : ''}` : earned ? `${it.name}, find it in the levels` : `${it.name}, ${money(it.price)}`);
-  b.appendChild(itemIcon(it.id ? it : null, it.cat || cat, top ? 64 : 54, !have && !trying));
+  b.appendChild(itemIcon(it.id ? it : null, (it.cat && it.cat !== '*' ? it.cat : null) || cat, top ? 64 : 54, !have && !trying));
   if (earned && !trying) { const q = document.createElement('span'); q.className = 'q'; q.textContent = '?'; b.appendChild(q); }
   const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = have ? it.name : earned ? 'find it' : buying ? `buy ${money(it.price)}` : trying ? it.name : money(it.price); b.appendChild(nm);
   if (can && !buying) { const tg = document.createElement('span'); tg.className = 'tag'; tg.textContent = '$!'; b.appendChild(tg); }
@@ -4272,7 +4315,7 @@ $('closetBtn').addEventListener('click', () => { Snd.init(); Snd.fx('pop'); show
 // the cat on top, teh crib's room
 function previewWear(cat) {
   const w = Object.assign({}, store.d.wear[cat] || {}), it = closetTry;
-  if (it && it.slot && it.kind !== 'post' && it.kind !== 'crib' && (it.kind !== 'suit' || it.cat === cat) && (it.kind !== 'line' || cat === 'chonk')) w[it.slot] = it.id;
+  if (it && it.slot && it.kind !== 'post' && it.kind !== 'crib' && (it.kind !== 'suit' || it.cat === cat || it.cat === '*') && (it.kind !== 'line' || cat === 'chonk')) w[it.slot] = it.id;
   return w;
 }
 function startClosetPreview() {
@@ -5046,10 +5089,40 @@ function drawCat(d, pose, face, o = {}) {
     d = suitDef(d);
   } else if (!d.suit && !d.cos && !o.faceOnly) {   // teh closet: a costume (cosDef) and shoes (closet.js)
     const w = o.wear || wearOf(d), cs = w.suit && COS[w.suit];
+    if (cs && cs.pixel && !o.noPixel) { pixelDraw(d, o, () => drawCat(d, pose, face, Object.assign({}, o, { noPixel: true }))); return; }   // 8-bit kitteh
     if (cs && cs.cat === d.id) d = cosDef(d, cs);
     if (w.feet && SHOES_BY[w.feet]) { const was = SHOE; SHOE = w.feet; SHOE_T = o.t || 0; try { drawCatPose(d, pose, face, o); } finally { SHOE = was; } return; }
   }
   drawCatPose(d, pose, face, o);
+}
+// 8-bit kitteh (Adam, Nov 6: "Yeah let's do an 8bit pixel cat"): the cat is drawn small into its own little canvas, then blown back
+// up with no smoothing, so it comes out in chunky pixels (about 5.5 of its units a pixel), in every pose, hats and shoes included.
+const PIX = { c: null, g: null };
+function pixelDraw(d, o, fn) {
+  const kk = d.k * (o.scale || 1), P = 5.5 * kk, R = (d.id === 'chonk' ? 190 : 115) * kk, n = Math.ceil(2 * R / P);
+  if (!PIX.c) { PIX.c = document.createElement('canvas'); PIX.g = PIX.c.getContext('2d', { willReadFrequently: true }); }
+  if (PIX.c.width !== n || PIX.c.height !== n) { PIX.c.width = n; PIX.c.height = n; } else { PIX.g.setTransform(1, 0, 0, 1, 0, 0); PIX.g.clearRect(0, 0, n, n); }
+  withCtx(PIX.g, () => { ctx.setTransform(1 / P, 0, 0, 1 / P, n / 2, n / 2); fn(); });
+  // a real sprite: hard edges (no see-through pixels), a small palette (6 steps a colour), and a dark outline one pixel wide
+  PIX.g.setTransform(1, 0, 0, 1, 0, 0);
+  const img = PIX.g.getImageData(0, 0, n, n), a = img.data, on = new Uint8Array(n * n);
+  // the palette: the colours this cat uses most (up to 12, counted on a coarse grid), and every pixel snapped to the nearest one,
+  // so areas come out flat like a sprite instead of speckled with in-between colours
+  const count = new Map();
+  for (let i = 0, q = 0; i < a.length; i += 4, q++) { if (a[i + 3] < 110) { a[i + 3] = 0; continue; } a[i + 3] = 255; on[q] = 1; const key = (a[i] >> 4) << 8 | (a[i + 1] >> 4) << 4 | (a[i + 2] >> 4); count.set(key, (count.get(key) || 0) + 1); }
+  const pal = [];   // most used first, but a colour only joins if it's clearly different from the ones already in (so small accents
+  // like hat stripes, irises and blush stay, and near-identical shades of fur merge); up to 16
+  for (const [key, cnt] of [...count.entries()].sort((x, y) => y[1] - x[1])) {
+    if (pal.length >= 16 || cnt < 2) break;
+    const c = [((key >> 8) & 15) * 17, ((key >> 4) & 15) * 17, (key & 15) * 17];
+    if (pal.every(p => (p[0] - c[0]) ** 2 + (p[1] - c[1]) ** 2 + (p[2] - c[2]) ** 2 > 2600)) pal.push(c);
+  }
+  if (!pal.length) pal.push([46, 58, 53]);
+  for (let i = 0, q = 0; i < a.length; i += 4, q++) { if (!on[q]) continue; let best = pal[0], bd = 1e9; for (const c of pal) { const d = (a[i] - c[0]) ** 2 + (a[i + 1] - c[1]) ** 2 + (a[i + 2] - c[2]) ** 2; if (d < bd) { bd = d; best = c; } } a[i] = best[0]; a[i + 1] = best[1]; a[i + 2] = best[2]; }
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) { const q = y * n + x; if (on[q]) continue;
+    if ((x > 0 && on[q - 1]) || (x < n - 1 && on[q + 1]) || (y > 0 && on[q - n]) || (y < n - 1 && on[q + n])) { const i = q * 4; a[i] = 46; a[i + 1] = 58; a[i + 2] = 53; a[i + 3] = 255; } }
+  PIX.g.putImageData(img, 0, 0);
+  const was = ctx.imageSmoothingEnabled; ctx.imageSmoothingEnabled = false; ctx.drawImage(PIX.c, -n / 2 * P, -n / 2 * P, n * P, n * P); ctx.imageSmoothingEnabled = was;
 }
 function drawCatPose(d, pose, face, o) {
   const k = d.k * (o.scale || 1), pin = POSE_PIN[pose] || [0, 0], give = 1 - STYLE.body;
@@ -5975,15 +6048,8 @@ function drawItem(it, t) {
     case 'lemonade': rrect(-w / 2, -h / 2 + 6, w, h - 6, 5); fs('rgba(255,236,150,0.85)', null); ell(4, -h / 2 + 12, 5, 5); fs('#F4E15A', INK, 1); line([0, -h / 2 - 8, 2, -h / 2 + 12], '#F56E75', 2.4);
       rrect(-w / 2, -h / 2 + 6, w, h - 6, 5); fs(null, INK, 2); line([-w / 2 + 4, -h / 2 + 12, -w / 2 + 4, h / 2 - 6], 'rgba(255,255,255,0.8)', 2); break;
     case 'frisbee': ell(0, 0, w / 2, h / 2 + 1); fs('#F56E75', INK, 2); ell(0, -1, w / 2 - 8, 2); fs('rgba(255,255,255,0.45)', null); break;
-    case 'dog': {   // a doggo, curled up asleep in somebody's spot (in a little helmet on the moon)
-      const br = Math.sin(t * 2.2 + it.n) * 1.2;
-      ctx.beginPath(); ctx.moveTo(-w / 2 + 8, 4); ctx.quadraticCurveTo(-w / 2 - 14, -10, -w / 2 - 6, -20); fs(null, INK, 7); ctx.beginPath(); ctx.moveTo(-w / 2 + 8, 4); ctx.quadraticCurveTo(-w / 2 - 14, -10, -w / 2 - 6, -20); fs(null, '#D2A06A', 4);
-      rrect(-w / 2, -h / 2 + 4 - br, w, h - 4 + br, 18); fs('#D2A06A', INK, 2.4); ell(-6, 6, 22, 9); fs('#FFFDF6', null); ell(-18, -h / 2 + 10, 10, 6); fs('#8F6A40', null);
-      const hx = w / 2 - 14, hy = -2;
-      ell(hx, hy, 17, 14); fs('#D2A06A', INK, 2.2); ell(hx + 9, hy + 5, 9, 6); fs('#FFFDF6', INK, 1.4); ell(hx + 15, hy + 3, 3.2, 2.6); fs(INK, null);
-      ell(hx - 9, hy - 2, 6, 12, 0.3); fs('#8F6A40', INK, 1.6);   // the floppy ear
-      ctx.beginPath(); ctx.moveTo(hx - 2, hy - 2); ctx.quadraticCurveTo(hx + 2, hy + 1, hx + 6, hy - 2); fs(null, INK, 1.8);   // asleep
-      if (sim && sim.level.suit) { ell(hx + 2, hy - 2, 24, 21); fs('rgba(210,236,250,0.18)', 'rgba(46,58,53,0.6)', 1.8); ctx.beginPath(); ctx.arc(hx + 2, hy - 2, 19, -2.6, -1.9); fs(null, 'rgba(255,255,255,0.8)', 3); }
+    case 'dog': {   // a doggo asleep in somebody's spot: chin on its paws (in a puffy suit and a globe on the moon)
+      drawDoggo('sleep', { t, n: it.n, suit: !!(sim && sim.level.suit) });
       if (!it._zz || t - it._zz > 2.4) { it._zz = t; if (Snd.ok('snore', 3000)) Snd.fx('snore', 0.4); }
       ctx.restore(); symbol('z', b.position.x + w / 2 + 6 + ((t * 0.6) % 1) * 10, b.position.y - h / 2 - 10 - ((t * 0.6) % 1) * 22, 0.7, Math.sin(((t * 0.6) % 1) * Math.PI)); ctx.save(); ctx.translate(b.position.x, b.position.y); ctx.rotate(b.angle);
       break; }
@@ -6064,8 +6130,11 @@ function breakFx(e) {
 // ---------- page state, layout, camera ----------
 let sim = null, levelIdx = 0, paused = true, acc = 0, lastT = performance.now(), rotateOk = false;
 let aim = null, lastTrail = [], demo = null, firstShot = true, hintTimer = 0;
-// After two losses on a level, paw prints show a throw that works (the solver's path). Aim close to it and the throw
-// snaps to it exactly, so the next cat's paw prints stay right too. Throw somewhere else and they go away for this try.
+// After two losses on a level, paw prints show a throw that works: the first throw of the solver's path, and only that one
+// (Adam, Nov 6: "i think the hints might be too much... especially if we want players to feel challenged and figure things
+// out on their own", then "we can still give the first paw print help, but after that no more hints"; build.py bundles just
+// the first throw). Aim close to the paws and the throw snaps to them exactly, and an early tap waits for the ring. Throw
+// somewhere else and they go away for this try. From the second cat on, you're on your own.
 let hint = null, resExtra = false, resThen = null;   // (resThen: a postcard or teh end, after the result)
 const hintNow = () => hint && hint.ok && sim && !sim.extraCats && sim.catIdx < hint.path.length ? hint.path[sim.catIdx] : null;
 const nearHint = (shot, h) => Math.abs(shot.angle - h.a * Math.PI / 180) < 5 * Math.PI / 180 && Math.abs(shot.power - h.p) < 0.07;
@@ -6241,7 +6310,7 @@ const isLocked = i => !unlock.owned && LEVELS[i] && LEVELS[i].world !== FREE_WOR
 // say the kitchen to advance to the next level" (docs/NEXT_LEVELS.md, star gates). So:
 // - Each world opens with stars earned anywhere before it, wreck-its included (Adam, Nov 6: "let's switch it to accumulate
 //   stars to open up more levels"): about 1.5 a level so far, so a kid stuck in one world can go back and earn stars anywhere.
-//   The paw prints earn about 2.2 a level.
+//   (Full paw-print paths earned about 2.2 a level; since Nov 6 the paws show only the first throw, so the rest is the player's.)
 // - Inside a world, a win opens the next level, as before.
 // - A world that has opened stays open (it's remembered), and so does any level already won. Saves from the old rule
 //   (all stars together, 1.25 a level) keep every world that rule had open.
@@ -6516,7 +6585,7 @@ function showResult(r) {
     (!r.won && !r.wreck && chonkSatOnSpot() ? `<div class="goal"><span class="chonkface"></span><span>megachonk sat on it. rude.</span><span class="val"></span></div>` : '') +
     `<div class="goal bill"><span></span><span>u owes da hooman</span><span class="val" id="resBill">${money(billFrom)}</span></div>` +
     (sim._nap ? '' : prizeRow(billTo)) +
-    fresh.slice(-2).map(c => `<div class="goal unlock"><span class="ico" data-item="${c.id}"></span><span>u can buy da ${c.name} now!</span><span class="val"></span></div>`).join('');
+    fresh.slice(-1).map(c => `<div class="goal unlock"><span class="ico" data-item="${c.id}"></span><span>u can buy da ${c.name} now!${fresh.length > 1 ? ` (+${fresh.length - 1} moar)` : ''}</span><span class="val"></span></div>`).join('');   // (one line, so the card fits a phone)
   for (const el of $('resGoals').querySelectorAll('.ico')) { const it = shopItem(el.dataset.item); el.appendChild(itemIcon(it, it.cat || L.lineup[0], 30, false, true)); }
   for (const el of $('resGoals').querySelectorAll('.chonkface')) el.appendChild(makeFace('chonk', 18));
   countUp($('resBill'), billFrom, billTo, 1100, 900, () => { if (fresh.length) { Snd.fx('star'); Snd.voice('mrrp', 1, 0.7); } });
@@ -6587,6 +6656,10 @@ function showTitle() {
   const bill = store.d.bill || 0; $('tBill').hidden = !bill; $('tBill').innerHTML = `u owes da hooman <b>${money(bill)}</b>`;
   showScreen('scrTitle');
   startAttract(attractNext);
+  // In the app, sound starts with the title (Adam, Nov 6: "when I first opened the app... I have to touch the screen in order
+  // for it to start making sounds"). The app lets the page play without a touch (mediaTypesRequiringUserActionForPlayback = []);
+  // a browser doesn't, so there the first touch still starts it.
+  if (NATIVE) Snd.init();
 }
 $('scrTitle').addEventListener('pointerdown', e => { if (e.target.closest('button')) return; Snd.init(); if (Snd.master && attract) Snd.master.gain.value = 0.35; Snd.voice(['meow', 'mrrp', 'mew', 'huh'][Math.floor(Math.random() * 4)], rand(0.85, 1.25), 0.8); });
 $('tPlay').addEventListener('click', () => {
@@ -7178,6 +7251,14 @@ function drawSimCat(c, t) {
       const bl = ((t * 0.7 + c.idx * 1.9) % 7) < 0.8;
       ctx.translate(b.position.x, bottom - 22 * K); ctx.scale(fl, 1); drawCat(d, 'sit', rx.anger > 0 ? { eyes: 'squint', mouth: 'frown' } : { eyes: bl ? 'closed' : 'open', mouth: 'w' }, { t: t + c.idx, scale: sv, earsBack: rx.anger > 0 ? 0.7 : 0, look: lookAt() });
     }
+    else if (!sim.grav) {   // in space: floating at its body's angle, turning with the spin it kept (core.js settle), and now and then
+      // (about every 4 s, a bit under a second) it scrambles its legs, trying to get traction on nothing (Adam, Nov 6: "occasionally,
+      // as they are kind of floating there, they kind of try to gain traction somewhere. Of course it doesn't happen")
+      const ph = (t * 0.95 + c.idx * 1.37) % 4.2, scr = ph < 0.85;
+      ctx.translate(b.position.x, b.position.y); ctx.rotate(b.angle); ctx.translate(0, d.h * 0.5 - 22 * K); ctx.scale(fl, 1);
+      if (scr) drawCat(d, 'walk', { eyes: 'wide', mouth: 'o' }, { t, scale: sv, phase: t * 36, earsBack: 0.5 });
+      else drawCat(d, 'sit', { eyes: rx.anger > 0 ? 'squint' : 'open', mouth: rx.anger > 0 ? 'frown' : 'flat' }, { t, scale: sv, look: { x: Math.sin(t * 1.3 + c.idx), y: Math.cos(t * 0.9) * 0.5 }, headTilt: Math.sin(t * 2) * 0.1 });
+    }
     else if (c.state === 'dazed') { ctx.translate(b.position.x, bottom - 22 * K); ctx.scale(fl, 1); drawCat(d, 'sit', { eyes: rx.anger > 0 ? 'squint' : 'open', mouth: rx.anger > 0 ? 'frown' : 'flat' }, { t, scale: sv, earsBack: rx.anger > 0 ? 0.7 : 0, headTilt: rx.anger > 0 ? 0 : Math.sin(t * 3) * 0.15, look: { x: Math.sin(t * 2), y: 0.3 } }); }
     else { ctx.translate(b.position.x, bottom - 22 * K); ctx.scale(fl, 1); const dig = rx.swipe > 0; drawCat(d, 'sit', rx.anger > 0 ? { eyes: 'squint', mouth: 'frown' } : dig ? { eyes: 'squint', mouth: 'w' } : { eyes: 'wide', mouth: 'o' }, { t, scale: sv, earsBack: rx.anger > 0 ? 0.7 : 0, pawOut: dig && Math.sin(t * 40) > 0, headTilt: dig ? 0.25 : 0 }); }
     ctx.restore();
@@ -7398,15 +7479,80 @@ function drawCataChonk(t) {
     basketPart(sim.level.perch, true);
   }
 }
+// A doggo (Adam, Nov 6: the moon doggos "do not look like dogs": they were a tan pill with a white oval, a hot dog in a
+// bun). Now a chibi dog in the cats' style: a big round head, a snout with a black nose, long floppy ears, four legs with
+// paws, a curly tail, a red collar with a gold tag, tan with a brown saddle and cream muzzle, chest and paws. On the space
+// and moon levels it wears the cats' white puffy suit (red cuffs, the chest panel) and their glass globe with the antenna.
+// 'sleep': lying down facing right, chin on its front paws, eyes shut, breathing (fits the 92 x 42 item, centred).
+// 'run': galloping off scared (a hiss woke it): eyes wide, brows up, ears flying back, tongue out, legs going.
+const DOG = { fur: '#D7A468', dark: '#8C6239', cream: '#FFF4E2', nose: '#3A2C26' };
+function drawDoggo(pose, o) {
+  const t = o.t || 0, n = o.n || 0, suit = o.suit, body = suit ? SUIT_COL : DOG.fur, paw = suit ? SUIT_COL : DOG.cream;
+  const cuff = (x, y, w) => { if (suit) { line([x - w / 2, y, x + w / 2, y], INK, 6.4); line([x - w / 2, y, x + w / 2, y], RED, 3.6); } };
+  const tail = (x, y, a) => {   // a curly tail with a cream tip (out of a suit sleeve on the moon)
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.bezierCurveTo(x - 14, y - 4 + a, x - 18, y - 22 + a, x - 6, y - 26 + a);
+    fs(null, INK, 9); fs(null, DOG.fur, 5.4);
+    ell(x - 6, y - 26 + a, 3.4, 3.4); fs(DOG.cream, INK, 1.4);
+    if (suit) { ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 7, y - 2 + a * 0.2); fs(null, INK, 11); fs(null, SUIT_COL, 7.6); line([x - 6.5, y - 4 + a * 0.2, x - 7.5, y + 0.5 + a * 0.2], RED, 3); }
+  };
+  const ear = (x, y, len, swing) => {   // a long floppy ear hanging from the top of the head (swing: radians, + = back)
+    ctx.save(); ctx.translate(x, y); ctx.rotate(swing);
+    ctx.beginPath(); ctx.moveTo(-5, 0); ctx.bezierCurveTo(-11, len * 0.35, -9, len, -1, len); ctx.bezierCurveTo(7, len, 8, len * 0.4, 5, 0); ctx.closePath();
+    fs(DOG.dark, INK, 2); ctx.restore();
+  };
+  const head = (x, y, s, mood) => {   // the head (s = scale), facing right
+    ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
+    if (mood === 'run') ear(-4, -12, 20, 1.15 + Math.sin(t * 26) * 0.25);   // the far ear, flying back
+    ell(0, 0, 17, 15); fs(DOG.fur, INK, 2.2);
+    ell(-6, -7, 6.5, 5.5, -0.3); fs(DOG.dark, null);   // a brown patch over the eye side
+    ell(12, 5, 11, 8.5); fs(DOG.cream, INK, 2);   // the muzzle
+    ell(21, 1.5, 4.6, 3.6); fs(DOG.nose, INK, 1.2); ell(20, 0, 1.6, 1); fs('rgba(255,255,255,0.7)', null);   // the nose
+    if (mood === 'sleep') {
+      ctx.beginPath(); ctx.moveTo(1, -3); ctx.quadraticCurveTo(5, 1, 9, -3); fs(null, INK, 1.9);   // eye shut
+      ctx.beginPath(); ctx.moveTo(13, 9); ctx.quadraticCurveTo(16, 11.5, 20, 9); fs(null, INK, 1.4);   // smol mouth
+    } else {
+      ell(5, -4, 5, 5.6); fs('#FFFFFF', INK, 1.6); ell(7, -3.5, 2.6, 3); fs(INK, null); ell(7.8, -4.8, 1, 1); fs('#FFFFFF', null);   // eye wide
+      line([0, -12, 9, -14], INK, 1.8);   // brow up (worried)
+      ctx.beginPath(); ctx.moveTo(11, 9); ctx.quadraticCurveTo(17, 15, 23, 8); ctx.closePath(); fs('#7A2E2E', INK, 1.4);   // mouth open
+      const tw = Math.sin(t * 30) * 2.5; ctx.beginPath(); ctx.moveTo(13, 11); ctx.quadraticCurveTo(10 + tw, 22, 5 + tw, 20); ctx.quadraticCurveTo(9, 15, 15, 12); fs('#F08A8A', INK, 1.2);   // tongue flapping
+    }
+    if (mood === 'sleep') ear(-4, -11, 22, 0.25 + Math.sin(t * 2.2 + n) * 0.04); else ear(-2, -12, 20, 0.95 + Math.sin(t * 26 + 1) * 0.3);   // the near ear
+    ctx.restore();
+  };
+  const globe = (x, y, rx, ry) => { ell(x, y, rx, ry); fs(GLASS, GLASS_EDGE, 2); ctx.beginPath(); ctx.ellipse(x, y, rx * 0.86, ry * 0.87, 0, -2.12, -1.6); fs(null, GLASS_SHINE, 3.4);
+    const ax = x - rx * 0.2, ay = y - ry * 0.98; line([ax, ay, ax + 3, ay - 12], INK, 2); ell(ax + 3.4, ay - 13, 3.6, 3.6); fs(RED, INK, 1.2); };
+  if (pose === 'sleep') {
+    const br = Math.sin(t * 2.2 + n) * 0.025;
+    tail(-36, 8, Math.sin(t * 1.1 + n) * 2);
+    ell(-26, 9, 15, 11); fs(body, INK, 2.2);   // the back leg, tucked
+    ell(-17, 18, 8, 4.5); fs(paw, INK, 1.8); cuff(-17, 15, 12);
+    ctx.save(); ctx.translate(-6, 6); ctx.scale(1 + br, 1 + br * 1.6);
+    ell(0, 0, 32, 14); fs(body, INK, 2.4);   // the body, lying down
+    if (!suit) { ell(-10, -6, 15, 6.5, -0.1); fs(DOG.dark, null); ell(10, 5, 14, 7); fs(DOG.cream, null); }
+    else suitPanel(8, 0, 0.8);
+    ctx.restore();
+    for (const [x, k] of [[22, 0], [32, 1]]) { rrect(x - 10, 13 + k, 19, 8.5, 4.2); fs(paw, INK, 1.8); if (!suit) { line([x + 3, 15 + k, x + 3, 18 + k], INK, 1.1); line([x + 6, 15 + k, x + 6, 18 + k], INK, 1.1); } cuff(x - 6, 13 + k + 4, 0.1); }
+    if (!suit) { line([12, -6, 14, 10], INK, 6.6); line([12, -6, 14, 10], RED, 3.8); ell(15, 9, 3, 3); fs(GOLD, INK, 1.1); }   // the collar and tag
+    head(28, 0, 1, 'sleep');
+    if (suit) globe(31, 0, 25, 21);
+  } else {   // 'run'
+    const ph = t * 24, leg = (x, y, a) => { ctx.save(); ctx.translate(x, y); ctx.rotate(a); rrect(-4.5, 0, 9, 15, 4.5); fs(body, INK, 1.8); ell(1, 15, 6.5, 4); fs(paw, INK, 1.6); cuff(0, 12, 9); ctx.restore(); };
+    leg(-22, 4, Math.sin(ph) * 0.7); leg(14, 4, -Math.sin(ph + 1) * 0.7);   // far legs
+    tail(-28, -2, Math.sin(t * 30) * 4);
+    ell(-4, 0, 28, 13); fs(body, INK, 2.4);   // the body, stretched out
+    if (!suit) { ell(-10, -6, 14, 6, -0.1); fs(DOG.dark, null); ell(8, 5, 12, 6); fs(DOG.cream, null); } else suitPanel(6, 0, 0.8);
+    leg(-16, 6, -Math.sin(ph) * 0.7); leg(18, 6, Math.sin(ph + 1) * 0.7);   // near legs
+    if (!suit) { line([17, -10, 21, 6], INK, 6.6); line([17, -10, 21, 6], RED, 3.8); ell(22, 6, 3, 3); fs(GOLD, INK, 1.1); }
+    head(32, -12, 1, 'run');
+    if (suit) globe(35, -12, 25, 21);
+    for (const k of [0, 1]) { const ty = ((t * 2 + k * 0.5) % 1); ell(18 - k * 6, -34 - ty * 8, 2, 3); fs('rgba(140,200,240,' + (1 - ty) + ')', null); }   // sweat drops
+  }
+}
 function drawDogs(dt) {
   if (!fx.dogs) return;
   for (const g of fx.dogs) {
     g.t += dt; g.x += g.dir * (260 + g.t * 120) * dt; const hop = Math.abs(Math.sin(g.t * (sim.grav < 1 ? 5 : 12))) * (sim.grav < 1 ? 70 : 18);
-    ctx.save(); ctx.translate(g.x, g.y0 - hop); ctx.scale(g.dir, 1);
-    for (const [x, a] of [[-26, 0.6], [-14, -0.5], [14, 0.6], [26, -0.5]]) { ctx.save(); ctx.translate(x, 8); ctx.rotate(a * Math.sin(g.t * 24)); rrect(-4, 0, 8, 18, 4); fs('#D2A06A', INK, 1.6); ctx.restore(); }
-    rrect(-38, -14, 70, 30, 14); fs('#D2A06A', INK, 2.2); ell(34, -14, 15, 12); fs('#D2A06A', INK, 2); ell(41, -10, 6, 4); fs('#FFFDF6', INK, 1.2);
-    ell(36, -18, 4, 4); fs('#FFFDF6', INK, 1.2); ell(37, -18, 2, 2); fs(INK, null); ell(26, -24, 5, 11, -0.9 - Math.sin(g.t * 20) * 0.3); fs('#8F6A40', INK, 1.4);   // ear flapping
-    line([-38, -8, -54, -22 + Math.sin(g.t * 30) * 6], INK, 4); ctx.restore();
+    ctx.save(); ctx.translate(g.x, g.y0 - hop); ctx.scale(g.dir, 1); drawDoggo('run', { t: g.t, n: 0, suit: !!sim.level.suit }); ctx.restore();
   }
   fx.dogs = fx.dogs.filter(g => g.t < 3);
 }
