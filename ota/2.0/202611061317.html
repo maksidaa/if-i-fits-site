@@ -53,11 +53,11 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: var(--wall);
 #hint canvas { width: 28px; height: 28px; }
 #hint.off { opacity: 0; }
 
-.overlay { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; background: var(--scrim); overflow-y: auto;
+.overlay { position: fixed; inset: 0; z-index: 10; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; background: var(--scrim); overflow-y: auto;
   padding: calc(env(safe-area-inset-top, 0px) + 12px) max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 12px) max(16px, env(safe-area-inset-left, 0px)); }
-.card { width: 100%; max-width: 420px; background: var(--paper); border: 2.5px solid var(--ink); border-radius: 24px; padding: 18px 18px 16px;
+.card { width: 100%; min-width: 0; box-sizing: border-box; max-width: calc(420px + 41px); background: var(--paper); border: 2.5px solid var(--ink); border-radius: 24px; padding: 18px 18px 16px;
   box-shadow: 0 6px 0 var(--ink); display: grid; gap: 12px; text-align: center; }
-.card.wide { max-width: 760px; }
+.card.wide { max-width: calc(760px + 41px); }   /* (+41: padding and border, now inside the width so small phones fit) */
 .eyebrow { font-weight: 900; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--green); }
 .title { font-weight: 900; font-size: 30px; line-height: 1; letter-spacing: 0.02em; text-wrap: balance; margin: 0; }
 .sub { font-weight: 700; font-size: 15px; color: var(--muted); margin: 0; line-height: 1.35; text-wrap: balance; }
@@ -117,6 +117,9 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: var(--wall);
 @media (prefers-reduced-motion: reduce) { .big-stars .star.pop { animation: none; transform: scale(1); } .rotate-phone { animation: none; transform: rotate(-90deg); } }
 .level-card.locked { opacity: 0.55; position: relative; }
 .level-card.locked::after { content: "🔒"; position: absolute; right: 8px; top: 6px; font-size: 14px; }
+/* not a padlock: a star door (earn stars in the world before) and a dimmed card (win the one before). A padlock only ever means buy. */
+.level-card.starlock, .level-card.waitlock { opacity: 0.55; position: relative; }
+.level-card.starlock::after { content: "★"; position: absolute; right: 8px; top: 4px; font-size: 16px; color: var(--orange); }
 .level-card.nope { animation: nope 0.4s; }
 @keyframes nope { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
 .world-head .need { display: inline-flex; align-items: center; gap: 3px; margin-left: 10px; color: var(--orange); letter-spacing: 0.06em; }
@@ -185,12 +188,26 @@ body.attract #hud, body.attract #hint { display: none; }
   .cl-item.forsale .nm { color: #2E7D4F; font-weight: 900; }
   .cl-item.buying { outline: 3px solid #5A9E6F; outline-offset: 2px; }
   .cl-item.buying .nm { background: #5A9E6F; color: #fff; border-radius: 6px; padding: 0 4px; }
-  .chonk-bank { pointer-events: none; display: flex; flex-direction: column; align-items: flex-start; gap: 0; padding: 3px 9px 3px 8px; line-height: 1.05; border-radius: 12px; margin-left: -4px; }
-  .chonk-bank .lbl { font: 800 9px/1 Nunito, sans-serif; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.65; }
+  /* Tap what u saved to go shopping (Adam, Nov 6: "we need to add quick paths to shop... click the Saved $ in the game", then
+     "make the saved $ look more like a clickable button"): a raised button like the others (ink edge, the drop under it, it
+     presses down), the money on the left and a gold shop tab with the bag on the right, the gold of the result card's shop */
+  .chonk-bank { pointer-events: auto; cursor: pointer; -webkit-appearance: none; appearance: none; font: inherit; color: inherit; text-align: left;
+    display: flex; align-items: stretch; padding: 0; overflow: hidden; border: 2.5px solid var(--ink); border-radius: 13px; box-shadow: 0 3px 0 var(--ink);
+    margin-left: -4px; margin-bottom: 3px; transition: transform 0.06s, box-shadow 0.06s; }
+  .chonk-bank:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+  .chonk-bank:focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; }
+  .chonk-bank .money { display: flex; flex-direction: column; justify-content: center; gap: 0; padding: 3px 8px 3px 8px; line-height: 1.05; }
+  .chonk-bank .tab { display: grid; place-items: center; padding: 0 7px; background: #FFE6A0; border-left: 2px solid var(--ink); }
+  .chonk-bank .lbl { font: 800 9px/1 Nunito, sans-serif; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.7; }
   .chonk-bank b { font: 900 15px/1.1 Nunito, sans-serif; }
-  .chonk-bank.ok { background: #DDF2E1; border-color: #3E8A57; color: #22603A; }
-  .chonk-bank.short { background: #FBE0DC; border-color: #C24A3F; color: #9A2F27; }
-  .chonk-bank.short .lbl::after { content: ' · need $100'; }
+  .chonk-bank.ok .money { background: #DDF2E1; color: #22603A; }
+  .chonk-bank.short .money { background: #FBE0DC; color: #9A2F27; }
+  .chonk-bank.short .lbl::after { content: ' · need ' attr(data-need); }
+  /* the shop button on the result card: a cat line, not a plain label (Adam: "it needs to be cat meme cute like a funny phrase") */
+  .btn-row.three { grid-template-columns: 1fr 1fr 1.25fr; }
+  .btn.shop { background: #FFE6A0; position: relative; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  .btn.shop svg { flex: none; }
+  .btn.shop .new-dot { top: -6px; right: -6px; }
   .intro-go { display: flex; gap: 10px; }
   .intro-go .btn { flex: 1; }
   .intro-go #introNap { flex: 0 0 34%; }
@@ -211,14 +228,14 @@ body.attract #hud, body.attract #hint { display: none; }
   /* teh end, and the postcards */
   #scrEnd { background: #FBF1DC; padding: 0; display: block; overflow: hidden; }
   #endCv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-  .end-skip { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 10px); right: max(14px, env(safe-area-inset-right, 0px)); z-index: 2; }
-  .end-card { position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); top: 50%; transform: translateY(-50%); width: min(340px, 46vw); max-height: calc(100% - 24px); overflow-y: auto; }
+  .btn.end-skip, .end-skip { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 10px); right: max(14px, env(safe-area-inset-right, 0px)); z-index: 2; }
+  .end-card { position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); top: 50%; transform: translateY(-50%); width: min(calc(340px + 41px), calc(46vw + 41px)); max-height: calc(100% - 24px); overflow-y: auto; }
   .end-card .title { font-size: 40px; }
   .end-stats { margin: 0; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap; }
   .end-stats b { color: var(--red); }
   .end-stats svg { width: 18px; height: 18px; }
   .level-card.end-lvl { background: #FFF6DA; border-color: #B8892E; }
-  .postcard-card { max-width: 640px; gap: 10px; }
+  .postcard-card { max-width: calc(640px + 41px); gap: 10px; }
   #pcCv { width: min(100%, calc((100vh - 150px) * 2)); aspect-ratio: 2 / 1; margin: 0 auto; display: block; border-radius: 14px; box-shadow: 0 3px 0 rgba(46,58,53,0.25); }
   .postcard-card .sub { margin: 0; }
 </style>
@@ -235,7 +252,7 @@ body.attract #hud, body.attract #hint { display: none; }
   <div id="lvlLabel"></div>
   <div id="lineup" aria-label="cats"></div>
   <button class="round-btn chonk-btn" id="chonkBtn" aria-label="call megachonk" hidden></button>
-  <div class="pill chonk-bank" id="chonkBank" hidden aria-label="money saved up for megachonk"><span class="lbl">saved</span><b id="chonkBankVal">$0</b></div>
+  <button class="chonk-bank" id="chonkBank" hidden aria-label="saved money, open the shop"><span class="money"><span class="lbl">saved</span><b id="chonkBankVal">$0</b></span><span class="tab"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.2 6.2 H14.8 L14 16 H4 Z" fill="#fff" stroke="#2E3A35" stroke-width="2" stroke-linejoin="round"/><path d="M6.4 7.6 V5 a2.6 2.6 0 0 1 5.2 0 V7.6" fill="none" stroke="#2E3A35" stroke-width="2" stroke-linecap="round"/></svg></span></button>
   <div class="spacer"></div>
   <div id="spotsHud" aria-label="spots"></div>
   <div class="pill" id="mess" aria-label="mess"><span class="dollar">$</span><span id="messVal">0</span></div>
@@ -274,9 +291,9 @@ body.attract #hud, body.attract #hint { display: none; }
   </div>
 </div>
 
-<div class="overlay" id="scrLevels">
+<div class="overlay" id="scrLevels" hidden>
   <div class="card wide">
-    <div class="eyebrow" id="lvlEyebrow">test kitchen · v3</div>
+    <div class="eyebrow" id="lvlEyebrow">levels</div>
     <h1 class="title">I FITS, I SITS</h1>
     <p class="sub">knock the stuff over. sit in every spot.</p>
     <div class="bill-row"><span class="bill-pill" id="lvlBill"></span><button class="btn small" id="closetBtn">closet<span class="new-dot" id="closetDot" hidden></span></button></div>
@@ -298,6 +315,7 @@ body.attract #hud, body.attract #hint { display: none; }
     <h2 class="title">u wants moar?</h2>
     <div class="peeks" id="unPeeks"></div>
     <p class="sub">52 moar levels n 5 new cats. pay once. no ads. evr.</p>
+    <p class="sub tip">out teh window opens rite away. more worlds open wif ★ as u play.</p>
     <button class="btn go" id="unBuy">unlock everything · $2.99</button>
     <div class="btn-row">
       <button class="btn" id="unRestore">restore purchase</button>
@@ -1334,28 +1352,56 @@ const FITS = (() => {
       }
       this.processBreaks();
       if (this.tick % 6 === 0) this.checkKnocked();
-      if (this.tick % 8 === 0) this.checkSupport();
+      if (this.tick % 8 === 0) { this.checkSupport(); this.tipOff(); }
       if (cat && this.state === 'fly') this.track(cat);
       for (const c of this.cats) {
         if (c.state === 'dazed' && c.body) this.settle(c.body, true);
+        // a cat that missed and came to a stop on the rim of a box it fits, half over its wall, hops in, once (Adam, Nov 6,
+        // warehouse 2: one fell off the end of the belt onto the crate's wall and stayed there)
+        if ((c.state === 'dazed' || c.state === 'idle') && c.body && !c.body.isStatic && !c.mochi && !c.tippedIn && c.body.speed < 0.5) {
+          const s = this.rimSpot(c, 20); if (s) { c.tippedIn = true; c.rest = 0; this.hopInto(c, s); }
+        }
         if (c.state === 'dazed' && c.body && !c.pushed && !c.mochi && c.dazeT === c.dazeStart - 18) this.guiltyPush(c);   // bonked or not, it gets up for this (early, so it's all settled before the next cat)
         if (c.state === 'knocked' && c.body) this.knockTrack(c);
         if (c.state === 'idle' && c.body) { this.settle(c.body, false); if (this.tick % 3 === 0) this.maybeSit(c); }
         if (c.state === 'dazed' && --c.dazeT <= 0) {
-          if (this.inTheWay(c)) {   // lying over a box it doesn't fit, or on the cat tree: it walks off
+          if (this.maybeSit(c)) {}   // it ended up in a box it fits after all (hopped or fell in after the miss): it sits
+          else if (this.inTheWay(c)) {   // lying over a box it doesn't fit, or on the cat tree: it walks off
             const pos = { x: c.body.position.x, y: c.body.bounds.max.y };
             M.Composite.remove(this.world, c.body); c.body = null; c.state = 'gone';
             this.emit('leave', { cat: c, x: pos.x, y: pos.y });
           } else { c.state = 'idle'; c.rest = 0; }   // otherwise it stays right there, and another cat can knock it into a box
         }
       }
-      if (this.state === 'wait' || this.state === 'after') { if (--this.timer <= 0) this.next(); }
-      else if (this.state === 'hopin') { if (--this.timer <= 0) { this.state = 'aim'; this.emit('aim', { cat: this.current }); } }
+      if (this.state === 'wait' || this.state === 'after') { if (--this.timer <= 0 && !this.holdTurn()) this.next(); }
+      else if (this.state === 'hopin') {
+        if (--this.timer <= 0 && !this.holdTurn()) {
+          if (this.level.mode !== 'mess' && this.spots.every(s => s.filled)) {   // the last one landed in the last box while this one hopped up: that's the win, and this one's still left over
+            this.current.state = 'queue'; this.catIdx--; this.state = 'winning'; this.timer = 80; this.emit('allFilled');
+          } else { this.state = 'aim'; this.emit('aim', { cat: this.current }); }
+        }
+      }
       else if (this.state === 'winning') { if (--this.timer <= 0) { this.state = 'won'; this.emit('won', this.result()); } }
       else if (this.state === 'losing') { if (--this.timer <= 0) { this.state = 'lost'; this.emit('lost', this.result()); } }
     }
 
+    // Time stands still while u aim, so the next cat waits till the last one has landed (Adam, Nov 6, warehouse 2: a cat
+    // slid slowly down the end of the belt, counted as stopped, and was frozen in mid-air over the crate when the next cat
+    // was ready). Before the next cat hops up, and again before u can aim, it waits while a loose cat is still falling or
+    // sliding (not riding a belt), or is dazed in a box it fits and about to sit in it, for 4 s at most in all.
+    holdTurn() {
+      const busy = this.cats.some(c => {
+        const b = c.body; if (!b || b.isStatic || !LOOSE[c.state] || c.state === 'fly') return false;
+        const riding = this.belts && this.belts.some(bb => { const f = bb.plugin.belt; return Math.abs(b.bounds.max.y - bb.bounds.min.y) <= 5 && b.position.x >= f.x0 - 4 && b.position.x <= f.x1 + 4; });
+        if (b.speed > 0.15 && !riding) return true;   // (sliding slowly down something counts)
+        return c.state === 'dazed' && this.spots.some(s => !s.filled && this.inZone(s, b.position, c) && this.fits(s, c));
+      });
+      if (!busy) { this.held4 = 0; return false; }
+      return ++this.held4 < 240;
+    }
+
     next() {
+      this.held4 = 0;
       const wreck = this.level.mode === 'mess';
       if (!wreck && this.spots.every(s => s.filled)) { this.state = 'winning'; this.timer = 80; this.emit('allFilled'); return; }
       if (this.catIdx + 1 >= this.cats.length) {
@@ -1597,6 +1643,12 @@ const FITS = (() => {
     }
 
     // A little hop over the rim to the middle of a spot's opening (no gravity: it drifts in).
+    // the box (that it fits) whose rim the cat is stuck on, half over a wall of it
+    rimSpot(c, tol) {
+      const b = c.body, hw = c.def.w * (c.shrink || 1) / 2, x = b.position.x, bottom = b.bounds.max.y;
+      return this.spots.find(s => !s.filled && !s.side && this.fits(s, c) && Math.abs(bottom - s.rim) < tol &&
+        x + hw > s.ix0 - (s.t || 8) && x - hw < s.ix1 + (s.t || 8) && !(x - hw >= s.ix0 && x + hw <= s.ix1));
+    }
     hopInto(c, s) {
       const M = this.M, b = c.body, gr = Math.max(0, this.grav), dx = (s.ix0 + s.ix1) / 2 - b.position.x;
       if (gr > 0.05) { const up = 2.2 * Math.sqrt(gr), n = 2 * up / (0.278 * gr) + 3; M.Body.setVelocity(b, { x: dx / n, y: -up }); }
@@ -1696,6 +1748,7 @@ const FITS = (() => {
     // slowing to a stop on the flat).
     settle(b, strong) {
       const mc = b.plugin && b.plugin.cat;
+      if (mc && mc.tipT > 0) { mc.tipT--; return; }   // tipping off an edge: let it (tipOff)
       if (mc && mc.mochi) { if (b.speed < 0.8) this.M.Body.setAngularVelocity(b, b.angularVelocity * 0.92); return; }
       const M = this.M, a = wrapAngle(b.angle);
       if (Math.abs(a) < 1.2 && !(mc && mc.def.catapult)) M.Body.setAngularVelocity(b, b.angularVelocity * (strong ? 0.5 : 0.6) - a * 0.06);   // (cats right themselves; megachonk doesn't)
@@ -1779,9 +1832,7 @@ const FITS = (() => {
         }
         // came down a wall and stopped on the rim of a box it fits (off some junk, say): it hops in, once
         if (c.slid && !c.tippedIn) {
-          const hw = c.def.w * (c.shrink || 1) / 2, x = b.position.x, bottom = b.bounds.max.y;
-          const s = this.spots.find(s => !s.filled && !s.side && this.fits(s, c) && Math.abs(bottom - s.rim) < 14 &&
-            x + hw > s.ix0 - (s.t || 8) && x - hw < s.ix1 + (s.t || 8) && !(x - hw >= s.ix0 && x + hw <= s.ix1));
+          const s = this.rimSpot(c, 14);
           if (s) { c.tippedIn = true; c.rest = 0; this.hopInto(c, s); return; }
         }
         // a trick cat that came to rest with its trick unused waits a moment right there: tap and it does it from there
@@ -1979,6 +2030,29 @@ const FITS = (() => {
       }
     }
 
+    // A cat that missed doesn't balance on a corner (Adam, Nov 6, warehouse 10: "why does this cat not drop down off the
+    // conveyor belt edge?"). settle() keeps a stunned cat upright, so one that stopped with its middle out past an edge (the
+    // end of a belt, a table, a shelf) stayed there, held up by one side. Now if nothing is under its middle and only one
+    // side is held up, it tips off the other side (settle() lets go of it for a moment so it can).
+    tipOff() {
+      if (!this.grav) return;   // (nothing falls in space)
+      const M = this.M; let all = null;
+      for (const c of this.cats) {
+        const b = c.body; if (!b || b.isStatic || c.mochi || (c.state !== 'dazed' && c.state !== 'idle') || c.tipT > 0 || b.speed > 0.6) continue;
+        all = all || M.Composite.allBodies(this.world).filter(o => !o.isSensor);
+        const others = all.filter(o => o !== b && o.parent !== b), y0 = b.bounds.max.y - 4, y1 = b.bounds.max.y + 10;
+        const held = x => M.Query.ray(others, { x, y: y0 }, { x, y: y1 }, 1).length > 0;
+        if (held(b.position.x)) continue;
+        const L = held(b.bounds.min.x + 4), R = held(b.bounds.max.x - 4); if (L === R) continue;
+        const dir = L ? 1 : -1, side = dir > 0 ? b.bounds.max.x + 3 : b.bounds.min.x - 3;
+        if (M.Query.ray(others, { x: side, y: b.bounds.min.y + 4 }, { x: side, y: b.bounds.max.y - 2 }, 1).length) continue;   // wedged against something on that side: it stays
+        if ((c.tips = (c.tips || 0) + 1) > 3) continue;   // (and it doesn't keep trying)
+        c.tipT = 24; c.rest = 0; M.Sleeping.set(b, false);
+        M.Body.setVelocity(b, { x: dir * 1.6, y: b.velocity.y }); M.Body.setAngularVelocity(b, dir * 0.05);
+        this.emit('tip', { cat: c, dir });
+      }
+    }
+
     checkKnocked() {
       for (const it of this.items) {
         if (it.counted || it.broken || it.def.birb || it.def.dog) continue;
@@ -2103,11 +2177,12 @@ const FITS = (() => {
       if (item.counted) return;
       const fl = this.active;   // (what megachonk knocks about in the air waits for him to land)
       if (fl && fl.def.pound && fl.slamming && fl.state === 'fly') { (this.heldCount || (this.heldCount = new Set())).add(item); return; }
-      // none of megachonk's damage counts (Adam's kids, Nov 4: he costs $100 and "not count any damage he did")
-      const free = !!(fl && fl.def.pound);
-      item.counted = true; if (free) this.chonkMess = (this.chonkMess || 0) + item.def.value; else this.mess += item.def.value; this.salami += 1; this.knocked++;
+      // everything megachonk breaks counts, like any cat (Adam, Nov 6: his kids "were disappointed that you dont get $$ for stuff he
+      // breaks, it didnt make sense to them"; before, on Nov 4, none of it counted). chonkMess keeps his share for the result card.
+      const byChonk = !!(fl && fl.def.pound);
+      item.counted = true; this.mess += item.def.value; if (byChonk) this.chonkMess = (this.chonkMess || 0) + item.def.value; this.salami += 1; this.knocked++;
       const c = this.active; if (c) c.brokeDuring++;
-      this.emit('mess', { item, value: item.def.value, free, x: item.body.position.x, y: item.body.position.y });
+      this.emit('mess', { item, value: item.def.value, chonk: byChonk, x: item.body.position.x, y: item.body.position.y });
     }
 
     processBreaks() {
@@ -2278,8 +2353,13 @@ window.fitsStoreUpdate = st => {
   syncUnlock();
   if (unlock.owned && !was) {
     Snd.init(); Snd.fx('win');
-    if (!$('scrUnlock').hidden) { const w = unlock.want; unlock.want = null; if (w != null) startLevel(w); else showLevels(); }
-    else if (!$('scrLevels').hidden) showLevels();
+    // (the launch review: buying early and then tapping building 1 showed "15 stars opens dis world", which reads as "the purchase
+    // did nothing"): u land on the level list with a thank-you, the bonus levels open, and the level u wanted if its world is open
+    if (!$('scrUnlock').hidden || !$('scrLevels').hidden) {   // (not mid-level: a purchase approved later doesn't pull u out of a level)
+      const w = unlock.want; unlock.want = null;
+      if (w != null && !gate(w)) startLevel(w);
+      else { showLevels(); lvlSay('u got teh whole game! out teh window iz open now. more worlds open wif ★ as u play.', 7000); }
+    }
   }
 };
 
@@ -2618,29 +2698,77 @@ function withCtx(g, fn) { const real = ctx; ctx = g; try { fn(); } finally { ctx
 
 // ---------- the cat (redrawn from App/CatNode.swift, in its own units) ----------
 function tailStroke(d, o = {}) {
-  const col = d.pattern === 'calico' ? d.stripe : d.fur, w = o.tailPuff ? 19 : 10;
+  const td = d.orig || d, col = td.pattern === 'calico' ? td.stripe : td.fur, w = o.tailPuff ? 19 : 10;   // (in a suit: its own tail, out of the suit's sleeve)
   ctx.lineCap = 'round'; ctx.strokeStyle = INK; ctx.lineWidth = w + 5; ctx.stroke(); ctx.strokeStyle = col; ctx.lineWidth = w; ctx.stroke();
+  if (d.suit) suitSleeve(w);
 }
-// The space helmet (in space and on the moon): a ring round the cat's neck, and the glass bubble rising out of it, over the
-// head (Adam, Nov 6: "The ring should always be around the cats neck with the glass bubble originating from the neck ring.
-// Check all the cats": the bubble was a whole oval round the head, its bottom hanging below the ring). In head units: the
-// bubble's middle at cy, its size rx, ry; the ring at ringY, just under the chin; the antenna on the side `side`.
-function spaceHelmet(cy, rx, ry, ringY, side = 1, ringH = 12, lw = 2, part = 'all') {   // (part: 'ring' or 'glass' alone, to put the head between them)
-  const a0 = Math.asin(clamp((ringY - cy) / ry, -1, 1)), half = rx * Math.cos(a0);
-  if (part === 'ring') { rrect(-half - 3, ringY - 2, 2 * half + 6, ringH, ringH / 2); fs('#F4EEDF', INK, lw); line([-half + 6, ringY - 2 + ringH * 0.4, half - 6, ringY - 2 + ringH * 0.4], '#F56E75', lw); return; }
-  ctx.beginPath(); ctx.ellipse(0, cy, rx, ry, 0, a0, Math.PI - a0, true); ctx.closePath(); fs('rgba(210,236,250,0.16)', null);   // the glass
-  ctx.beginPath(); ctx.ellipse(0, cy, rx, ry, 0, a0, Math.PI - a0, true); fs(null, 'rgba(46,58,53,0.6)', lw);
-  ctx.beginPath(); ctx.ellipse(0, cy, rx * 0.84, ry * 0.9, 0, -2.6, -1.9); fs(null, 'rgba(255,255,255,0.85)', lw * 2);   // the shine
-  const ax = side * rx * 0.52, ay = cy - ry * Math.sqrt(1 - 0.52 * 0.52);   // the antenna, on top of the glass
-  line([ax, ay, ax + side * ry * 0.19, ay - ry * 0.42], INK, lw); ell(ax + side * ry * 0.21, ay - ry * 0.46, 4 * lw / 2, 4 * lw / 2); fs(RED, INK, lw * 0.6);
-  if (part === 'glass') return;
-  rrect(-half - 3, ringY - 2, 2 * half + 6, ringH, ringH / 2); fs('#F4EEDF', INK, lw);   // the neck ring, in front of the glass's bottom edge
-  line([-half + 6, ringY - 2 + ringH * 0.4, half - 6, ringY - 2 + ringH * 0.4], '#F56E75', lw);
+// ---------- the space suit (Adam, Nov 6: "go with F1", drafts/space-helmet/) ----------
+// On the space and moon levels (level.suit) every cat wears a little white puffy toy suit: red cuffs on its mitts and boots,
+// a tiny chest panel with two dots, a little round backpack, a stubby sleeve on its tail with its own tail out the end. Its own
+// head (colours, markings, hat) is in a clean round glass globe with an antenna on top, just big enough for its head and ears
+// (the whiskers poke out through the glass). Where its body is under its head (sitting, hanging, climbing) the globe sits
+// on a red-trimmed neck ring under its chin, and sitting, its head sits a little higher so there's a neck for it; where its
+// body is behind its head (flying, walking, lying...) there's no ring (Adam: "when the head turns the ring should just
+// disappear") and the globe is the whole ball. drawCat puts it on: the body's drawn from a white copy of the cat (suitDef:
+// d.suit, and d.orig the cat itself, for its head and tail); o.suit hides its collar, o.ringDown puts the ring under its chin.
+// (The earlier helmet was a dome on a flat ring; the mockups are in drafts/space-helmet/.)
+const SUIT_COL = '#F7F5F0', SUIT_LIGHT = '#E9E8E3', SUIT_PANEL = '#E3E7EA', GLASS = 'rgba(210,236,250,0.16)', GLASS_EDGE = 'rgba(46,58,53,0.6)', GLASS_SHINE = 'rgba(255,255,255,0.85)';
+const GLOBE = { cy: -6, rx: 45, ry: 37 }, NECK_RING = { rx: 30, ry: 3.5, h: 7 };   // (head units; the ring's top edge sits where the globe's as wide as it)
+NECK_RING.y = GLOBE.cy + GLOBE.ry * Math.sqrt(1 - (NECK_RING.rx / GLOBE.rx) ** 2);
+const CHONK_GLOBE = { cy: -10, rx: 58, ry: 52 }, CHONK_RING = { rx: 36, ry: 4.5, h: 9 };   // megachonk's, round his mochi head (its own units)
+CHONK_RING.y = CHONK_GLOBE.cy + CHONK_GLOBE.ry * Math.sqrt(1 - (CHONK_RING.rx / CHONK_GLOBE.rx) ** 2);
+const SUIT_LIFT = -20, SUIT_SLEEVE = 15;   // sitting, the head this much higher (the cat's units); the tail sleeve's length
+const NECK_DOWN = new Set(['sit', 'hang', 'climb']);   // poses with the body under the head: the ring shows under the chin
+// (noSuit: the closet, the menus, the ending's cats at home; inSuit: the ending's and the postcard's cats in space)
+const suitOn = (d, o) => !d.suit && !o.faceOnly && (o.inSuit || (!o.noSuit && !!(sim && sim.level && sim.level.suit)));
+const suitDefs = new Map();
+function suitDef(d) {   // the cat's body in the suit: white all over, no stripes or patches
+  let s = suitDefs.get(d); if (!s) suitDefs.set(d, s = Object.assign({}, d, { fur: SUIT_COL, light: SUIT_LIGHT, stripe: d.id === 'chonk' ? SUIT_COL : SUIT_LIGHT, pattern: 'plain', suit: true, orig: d }));
+  return s;
+}
+function suitCuff(x0, y0, x1, y1) { line([x0, y0, x1, y1], INK, 7.6); line([x0, y0, x1, y1], RED, 4.6); }   // a red band, round ends
+function suitPanel(x, y, s = 1) { rrect(x - 7 * s, y - 4.5 * s, 14 * s, 9 * s, 2.5 * s); fs(SUIT_PANEL, INK, 1.5); ell(x - 3 * s, y, 2 * s, 2 * s); fs(RED, INK, 0.9); ell(x + 3 * s, y, 2 * s, 2 * s); fs(GOLD, INK, 0.9); }
+function suitPack(x, y) { ell(x, y, 10, 8); fs(SUIT_COL, INK, 2.6); ell(x - 3, y - 3.5, 4, 1.8); fs('#fff', null); ell(x - 2, y + 1, 2.4, 2.4); fs(RED, INK, 1); }   // the little round backpack
+function suitSleeve(w, L = SUIT_SLEEVE) {   // over the tail's base (the path that's just been stroked): a stubby white sleeve, a red cuff on its end
+  ctx.save(); ctx.lineCap = 'butt';
+  ctx.setLineDash([L, 999]); ctx.strokeStyle = INK; ctx.lineWidth = w + 9; ctx.stroke(); ctx.strokeStyle = SUIT_COL; ctx.lineWidth = w + 4; ctx.stroke();
+  ctx.setLineDash([0, L - 4.5, 4.5, 999]); ctx.strokeStyle = INK; ctx.lineWidth = w + 9; ctx.stroke();
+  ctx.setLineDash([0, L - 3.7, 2.9, 999]); ctx.strokeStyle = RED; ctx.lineWidth = w + 5.4; ctx.stroke();
+  ctx.restore();
+}
+// the neck ring (in head units, its top edge the ellipse (0, R.y) R.rx by R.ry, R.h tall): part 'back', the inside of its far
+// half wif the suit's neck in it (drawn before the head); 'front', its near side (after the glass)
+function suitRing(R, part) {
+  if (part === 'back') { ell(0, R.y, R.rx, R.ry); fs('#D9D4C8', INK, 2.2); ell(0, R.y, R.rx * 0.86, R.ry * 0.86); fs(SUIT_COL, null); return; }
+  ctx.beginPath(); ctx.ellipse(0, R.y, R.rx, R.ry, 0, Math.PI, 0, true); ctx.lineTo(R.rx, R.y + R.h); ctx.ellipse(0, R.y + R.h, R.rx, R.ry, 0, 0, Math.PI, false); ctx.closePath(); fs(SUIT_COL, INK, 2.2);
+  ctx.beginPath(); ctx.ellipse(0, R.y + R.h * 0.56, R.rx, R.ry, 0, Math.PI * 0.9, Math.PI * 0.1, true); fs(null, RED, 2.4);
+  ctx.beginPath(); ctx.ellipse(0, R.y + 1.6, R.rx - 2, R.ry, 0, Math.PI * 0.84, Math.PI * 0.62, true); fs(null, 'rgba(255,255,255,0.75)', 1.6);
+}
+// the glass globe G: the whole ball, or (on a ring R) cut flat along the ring's top edge; the shine high on its left, the antenna
+function suitGlobe(G, R) {
+  if (!R) { ell(0, G.cy, G.rx, G.ry); fs(GLASS, GLASS_EDGE, 2); }
+  else {
+    const a = Math.atan2((R.y - G.cy) / G.ry, R.rx / G.rx);   // (where the ring's ends meet the ball)
+    ctx.beginPath(); ctx.ellipse(0, G.cy, G.rx, G.ry, 0, Math.PI - a, Math.PI * 2 + a, false); ctx.ellipse(0, R.y, R.rx, R.ry, 0, 0, Math.PI, false); ctx.closePath(); fs(GLASS, null);
+    ctx.beginPath(); ctx.ellipse(0, G.cy, G.rx, G.ry, 0, Math.PI - a, Math.PI * 2 + a, false); fs(null, GLASS_EDGE, 2);
+  }
+  ctx.beginPath(); ctx.ellipse(0, G.cy, G.rx * 0.86, G.ry * 0.87, 0, -2.12, -1.6); fs(null, GLASS_SHINE, 4);
+  ctx.beginPath(); ctx.ellipse(0, G.cy, G.rx * 0.86, G.ry * 0.87, 0, -1.5, -1.38); fs(null, GLASS_SHINE, 4);
+  const ax = G.rx * 0.4, ay = G.cy - G.ry * Math.sqrt(1 - 0.16), L = G.ry * 1.1;
+  line([ax, ay, ax + L * 0.19, ay - L * 0.42], INK, 2); ell(ax + L * 0.21, ay - L * 0.46, 4, 4); fs(RED, INK, 1.2);
 }
 function drawHead(d, face, o = {}) {
   ctx.save(); const hs = o.faceOnly ? 1 : STYLE.head / STYLE.body; ctx.scale(hs, hs);
-  drawHeadInner(d, face, o);
-  if (!o.faceOnly && sim && sim.level.suit) spaceHelmet(-8, 50, 42, 24, 1);   // (the head runs to y 21: the ring sits just under the chin)
+  const ring = d.suit && o.ringDown ? NECK_RING : null;
+  if (ring) suitRing(ring, 'back');
+  drawHeadInner(d.orig || d, face, d.suit ? Object.assign({}, o, { hatsOff: true }) : o);
+  if (d.suit) {
+    suitGlobe(GLOBE, ring); if (ring) suitRing(ring, 'front');
+    // its hat sits on top of the globe (Adam, Nov 6: "make the tall hats sit on top of the globe"), lifted from the top
+    // of its head (y -21) to the top of the glass
+    const hd = d.orig, wr = o.wear || wearOf(hd);
+    ctx.save(); ctx.translate(0, GLOBE.cy - GLOBE.ry + 21 + 1); drawHeadHats(hd, o, wr, false); drawHeadHats(hd, o, wr, true); ctx.restore();
+  }
   ctx.restore();
 }
 // The head from the side, facing right (+x): for the face plant, nose first into the wall (Adam, Nov 4: "in cat fail
@@ -2704,7 +2832,9 @@ const nextBigPrize = () => CLOSET.filter(c => c.price >= BIG_PRIZE && !owns(c.id
 const wearOf = d => (store.d.wear && store.d.wear[d.id]) || {};
 const ownedSet = () => { if (!store.d.owned) store.d.owned = CLOSET.filter(c => c.at <= (store.d.bill || 0)).map(c => c.id); return new Set(store.d.owned); };   // (the old milestone unlocks count as bought)
 const owns = id => !id || ownedSet().has(id);
-const CHONK_COST = 100;   // megachonk's catapult, off the bill
+// megachonk's cat-a-pult, off the bill: one price, always (Adam, Nov 6: "$100 isnt enough... what do you think about charging $123
+// for megachonk? a kid firnedly number?"). He never uses up a cat, and everything he breaks counts (core.js count()).
+const CHONK_COST = 123;
 const money = n => '$' + Math.round(n).toLocaleString('en-US');
 function flower(x, y, r, col) { for (let k = 0; k < 5; k++) { const a = k * 1.2566; ell(x + Math.cos(a) * r * 0.7, y + Math.sin(a) * r * 0.7, r * 0.55, r * 0.55); fs(col, INK, 0.9); } ell(x, y, r * 0.42, r * 0.42); fs(GOLD, INK, 0.8); }
 function drawWear(id, side) {
@@ -2752,6 +2882,7 @@ function drawWear(id, side) {
 }
 function drawProfileHead(d, face, o = {}) {
   ctx.save(); const hs = STYLE.head / STYLE.body; ctx.scale(hs, hs);
+  const suit = d.suit; d = d.orig || d;   // (in a suit: its own head)
   const t = o.t || 0, eb = o.earsBack == null ? 0.5 : o.earsBack, es = STYLE.eye;
   const dark = d.id === 'void' || d.pattern === 'tux' || d.pattern === 'tortie', LIGHT = 'rgba(250,245,232,0.92)', eyeInk = dark ? LIGHT : INK, mouthInk = d.id === 'void' || d.pattern === 'tortie' ? LIGHT : INK;
   const ear = (bx, near) => {   // an ear standing on the top of the head at bx, its tip swept back by eb (the base stays put)
@@ -2774,8 +2905,13 @@ function drawProfileHead(d, face, o = {}) {
   ctx.beginPath(); ctx.moveTo(-14, -21); ctx.lineTo(14, -21); ctx.quadraticCurveTo(34, -21, 34, -1); ctx.quadraticCurveTo(38, 2, 37, 9); ctx.quadraticCurveTo(36, 19, 24, 20); ctx.lineTo(-14, 21); ctx.quadraticCurveTo(-34, 21, -34, 1); ctx.quadraticCurveTo(-34, -21, -14, -21); ctx.closePath(); fs(null, INK, 2.8);
   ear(4, true);   // the near ear
   const wr = o.wear || wearOf(d);
+  const hatY = suit ? GLOBE.cy - GLOBE.ry + 21 + 1 : 0;   // (in the space suit, its hat goes on top of the globe, after it)
+  const sideHats = closet => { ctx.save(); ctx.translate(0, hatY);
   if (d.outfit === 'witch' && !wr.hat) { ctx.save(); ctx.translate(-4, -18); ctx.rotate(-0.35); ell(0, 0, 30, 6); fs('#6B4C9A', INK, 2.2); ctx.beginPath(); ctx.moveTo(-15, -2); ctx.quadraticCurveTo(-4, -26, -14, -44); ctx.quadraticCurveTo(4, -30, 13, -3); ctx.closePath(); fs('#6B4C9A', INK, 2.2); line([-13, -6, 12, -7], '#BD7AE3', 3); ctx.restore(); }
   if (d.outfit === 'beanie' && !wr.hat) { ctx.beginPath(); ctx.arc(-4, -17, 17, Math.PI, 0); ctx.closePath(); fs('#63B0ED', INK, 2.2); ctx.beginPath(); ctx.arc(-4, -17, 17, Math.PI, Math.PI * 1.5); ctx.lineTo(-4, -17); ctx.closePath(); fs(GOLD, null); ctx.beginPath(); ctx.arc(-4, -17, 17, Math.PI, 0); fs(null, INK, 2.2); line([-21, -17, 13, -17], INK, 2.2); line([-4, -34, -4, -40], INK, 2); const sp = Math.cos(t * 9); ell(-4 - 9 * sp, -41, 9 * Math.abs(sp) + 1.5, 2.8); fs(RED, INK, 1.4); ell(-4 + 9 * sp, -41, 9 * Math.abs(sp) + 1.5, 2.8); fs(GOLD, INK, 1.4); }
+  if (closet && wr.hat) drawWear(wr.hat, true);
+  ctx.restore(); };
+  if (!suit) sideHats(false);
   if (d.outfit === 'sweatband' && !wr.hat) { ctx.save(); rrect(-34, -21, 68, 42, 20); ctx.clip(); ctx.fillStyle = RED; ctx.fillRect(-34, -19, 70, 8); line([-34, -15, 36, -15], 'rgba(255,255,255,0.85)', 1.6); ctx.restore(); }
   // the eye, toward the front
   const ex = 14, ey = -2, e = face.eyes || 'open';
@@ -2800,9 +2936,29 @@ function drawProfileHead(d, face, o = {}) {
   else { ctx.beginPath(); ctx.moveTo(25, 12); ctx.quadraticCurveTo(29, 15, 33, 12); fs(null, mouthInk, 1.6); }
   const wc = d.id === 'void' || d.pattern === 'tux' ? 'rgba(250,245,232,0.8)' : INK, wb = o.whiskersBack || 0;   // whiskers, pressed back
   for (const [y, a] of [[7, -0.1], [11, 0.05], [14, 0.2]]) line([24, y, 24 + 18 * Math.cos(Math.PI - wb * 1.3 + a), y + 18 * Math.sin(Math.PI - wb * 1.3 + a) * 0.6 + (1 - wb) * 0], wc, 1.5);
-  if (wr.hat) drawWear(wr.hat, true);   // (nothing at the neck from the side: it would hang under the chin on the wall)
-  if (sim && sim.level.suit) spaceHelmet(-8, 50, 42, 24, -1);   // (the same helmet, from the side)
+  if (wr.hat && !suit) drawWear(wr.hat, true);   // (nothing at the neck from the side: it would hang under the chin on the wall)
+  if (suit) { suitGlobe(GLOBE, null); sideHats(true); }   // (the same globe, from the side: its body's behind its head, so no ring; its hat on top)
   ctx.restore();
+}
+// a cat's hats: its own (the witch hat, the propeller beanie) and any from teh closet; late: just the closet one, drawn after
+// the face as before
+function drawHeadHats(d, o, wr, late) {
+  const t = o.t || 0;
+  if (late) { if (wr.hat) drawWear(wr.hat); return; }
+  if (d.outfit === 'witch' && !wr.hat) {
+    ell(0, -19, 30, 6, -0.08); fs('#6B4C9A', INK, 2.2);
+    ctx.beginPath(); ctx.moveTo(-15, -21); ctx.quadraticCurveTo(-2, -44, 8, -60); ctx.quadraticCurveTo(14, -62, 18, -56); ctx.quadraticCurveTo(10, -50, 13, -22); ctx.closePath(); fs('#6B4C9A', INK, 2.2);
+    line([-14, -26, 13, -27], '#BD7AE3', 3); starPath(1, -38, 5); fs(GOLD, INK, 1.2);
+  }
+  if (d.outfit === 'beanie' && !wr.hat) {
+    ctx.beginPath(); ctx.arc(0, -17, 17, Math.PI, 0); ctx.closePath(); fs('#63B0ED', INK, 2.2);
+    ctx.beginPath(); ctx.arc(0, -17, 17, Math.PI, Math.PI * 1.33); ctx.lineTo(0, -17); ctx.closePath(); fs(GOLD, null);
+    ctx.beginPath(); ctx.arc(0, -17, 17, Math.PI * 1.66, 0); ctx.lineTo(0, -17); ctx.closePath(); fs(RED, null);
+    ctx.beginPath(); ctx.arc(0, -17, 17, Math.PI, 0); fs(null, INK, 2.2); line([-17, -17, 17, -17], INK, 2.2);
+    line([0, -34, 0, -40], INK, 2);
+    const spin = Math.cos(t * (o.zoom ? 40 : 9));
+    ell(-9 * spin, -41, 9 * Math.abs(spin) + 1.5, 2.8); fs(RED, INK, 1.4); ell(9 * spin, -41, 9 * Math.abs(spin) + 1.5, 2.8); fs(GOLD, INK, 1.4);
+  }
 }
 function drawHeadInner(d, face, o) {
   const t = o.t || 0, eb = o.earsBack || 0;
@@ -2829,20 +2985,7 @@ function drawHeadInner(d, face, o) {
   if (d.outfit === 'sweatband' && !wr.hat) { const by = -17 - (STYLE.eye - 1) * 4; ctx.fillStyle = RED; ctx.fillRect(-34, by, 68, 8); line([-34, by + 4, 34, by + 4], 'rgba(255,255,255,0.85)', 1.6); }
   ctx.restore();
   rrect(-34, -21, 68, 42, 20); fs(null, INK, 2.8);
-  if (d.outfit === 'witch' && !wr.hat) {
-    ell(0, -19, 30, 6, -0.08); fs('#6B4C9A', INK, 2.2);
-    ctx.beginPath(); ctx.moveTo(-15, -21); ctx.quadraticCurveTo(-2, -44, 8, -60); ctx.quadraticCurveTo(14, -62, 18, -56); ctx.quadraticCurveTo(10, -50, 13, -22); ctx.closePath(); fs('#6B4C9A', INK, 2.2);
-    line([-14, -26, 13, -27], '#BD7AE3', 3); starPath(1, -38, 5); fs(GOLD, INK, 1.2);
-  }
-  if (d.outfit === 'beanie' && !wr.hat) {
-    ctx.beginPath(); ctx.arc(0, -17, 17, Math.PI, 0); ctx.closePath(); fs('#63B0ED', INK, 2.2);
-    ctx.beginPath(); ctx.arc(0, -17, 17, Math.PI, Math.PI * 1.33); ctx.lineTo(0, -17); ctx.closePath(); fs(GOLD, null);
-    ctx.beginPath(); ctx.arc(0, -17, 17, Math.PI * 1.66, 0); ctx.lineTo(0, -17); ctx.closePath(); fs(RED, null);
-    ctx.beginPath(); ctx.arc(0, -17, 17, Math.PI, 0); fs(null, INK, 2.2); line([-17, -17, 17, -17], INK, 2.2);
-    line([0, -34, 0, -40], INK, 2);
-    const spin = Math.cos(t * (o.zoom ? 40 : 9));
-    ell(-9 * spin, -41, 9 * Math.abs(spin) + 1.5, 2.8); fs(RED, INK, 1.4); ell(9 * spin, -41, 9 * Math.abs(spin) + 1.5, 2.8); fs(GOLD, INK, 1.4);
-  }
+  if (!o.hatsOff) drawHeadHats(d, o, wr, false);   // (in the space suit drawHead puts them on top of the globe)
   if (o.lump > 0) {   // a bonked cat gets crossed band-aids on its head
     ctx.save(); ctx.translate(13, -15); ctx.scale(o.lump, o.lump);
     for (const r of [0.6, -0.6]) {
@@ -2921,10 +3064,11 @@ function drawHeadInner(d, face, o) {
   else if (m === 'frown') { ctx.beginPath(); ctx.moveTo(-6, 17); ctx.quadraticCurveTo(0, 11, 6, 17); fs(null, mouthInk, 1.8); }
   else if (m === 'smile') { ctx.beginPath(); ctx.moveTo(-7, 12); ctx.quadraticCurveTo(0, 22, 7, 12); ctx.closePath(); fs('#5A2A33', mouthInk, 1.6); }
   const wc = d.id === 'void' || d.pattern === 'tux' ? 'rgba(250,245,232,0.8)' : INK;
-  if (d.outfit === 'spikes' && !wr.neck) { rrect(-22, 23, 44, 8, 4); fs('#F56E99', INK, 1.6); for (let x = -15; x <= 15; x += 7.5) { ell(x, 27, 2.4, 2.4); fs('#E3E8EA', INK, 0.8); } ell(0, 33, 3.5, 3.5); fs(GOLD, INK, 1); }   // a pink studded collar with a little tag
-  if (d.outfit === 'bowtie' && !wr.neck) { const y = 23; poly([0, y, -13, y - 7, -13, y + 7]); fs(RED, INK, 1.8); poly([0, y, 13, y - 7, 13, y + 7]); fs(RED, INK, 1.8); ell(0, y, 4, 4); fs('#B83A3A', INK, 1.6); }
+  const neck = !o.suit;   // (in the space suit, the ring's its collar)
+  if (d.outfit === 'spikes' && !wr.neck && neck) { rrect(-22, 23, 44, 8, 4); fs('#F56E99', INK, 1.6); for (let x = -15; x <= 15; x += 7.5) { ell(x, 27, 2.4, 2.4); fs('#E3E8EA', INK, 0.8); } ell(0, 33, 3.5, 3.5); fs(GOLD, INK, 1); }   // a pink studded collar with a little tag
+  if (d.outfit === 'bowtie' && !wr.neck && neck) { const y = 23; poly([0, y, -13, y - 7, -13, y + 7]); fs(RED, INK, 1.8); poly([0, y, 13, y - 7, 13, y + 7]); fs(RED, INK, 1.8); ell(0, y, 4, 4); fs('#B83A3A', INK, 1.6); }
   for (const s of [-1, 1]) { line([29 * s, 7, 44 * s, 4], wc, 1.5); line([29 * s, 12, 44 * s, 13], wc, 1.5); }
-  if (wr.neck) drawWear(wr.neck); if (wr.hat) drawWear(wr.hat);
+  if (wr.neck && neck) drawWear(wr.neck); if (!o.hatsOff) drawHeadHats(d, o, wr, true);
 }
 function drawSitPose(d, face, o) {
   const t = o.t || 0, wig = o.wiggle || 0, sq = o.squash || 1;
@@ -2934,11 +3078,12 @@ function drawSitPose(d, face, o) {
   ctx.save(); ctx.translate(ox, oy);
   ctx.rotate(o.tailLow ? 1.25 + Math.sin(t * 2) * 0.05 : Math.sin(t * (3 + wig * 14)) * (0.12 + wig * 0.4) + (o.tailPuff ? -0.3 : 0));
   ctx.beginPath(); ctx.moveTo(tp[0], tp[1]); ctx.bezierCurveTo(tp[2], tp[3], tp[4], tp[5], tp[6], tp[7]); tailStroke(d, o);
-  if (d.pattern === 'tabby') for (const u of [0.45, 0.72]) {   // stripes across the tail
+  const td = d.orig || d;   // (its own tail, out of the suit's sleeve)
+  if (td.pattern === 'tabby') for (const u of [0.45, 0.72]) {   // stripes across the tail
     const B = i => { const v = 1 - u; return v * v * v * tp[i] + 3 * v * v * u * tp[i + 2] + 3 * v * u * u * tp[i + 4] + u * u * u * tp[i + 6]; };
     const D = i => { const v = 1 - u; return 3 * v * v * (tp[i + 2] - tp[i]) + 6 * v * u * (tp[i + 4] - tp[i + 2]) + 3 * u * u * (tp[i + 6] - tp[i + 4]); };
     const x = B(0), y = B(1), n = Math.sqrt(D(0) * D(0) + D(1) * D(1)) || 1, nx = -D(1) / n * 5, ny = D(0) / n * 5;
-    line([x - nx, y - ny, x + nx, y + ny], d.stripe, 3);
+    line([x - nx, y - ny, x + nx, y + ny], td.stripe, 3);
   }
   ctx.restore();
   const hip = Math.sin(t * 26) * 3 * wig + (o.purr ? Math.sin(t * 70) * 1.4 : 0);
@@ -2953,6 +3098,11 @@ function drawSitPose(d, face, o) {
   rrect(-22 * d.wide - 9, 12 - Math.max(0, kn) * 5, 18, 11, 5); fs(d.light, INK, 2);
   if (!o.pawUp && !o.pawOut) { rrect(24 * d.wide - 9, 12 - Math.max(0, -kn) * 5, 18, 11, 5); fs(d.light, INK, 2); }
   if (STYLE.toes) for (const x of o.pawUp || o.pawOut ? [-22 * d.wide] : [-22 * d.wide, 24 * d.wide]) { line([x - 2, 18, x - 2, 22], INK, 1.3); line([x + 3, 18, x + 3, 22], INK, 1.3); }
+  if (d.suit) {   // the suit: red cuffs on its mitts, the little chest panel between them
+    suitCuff(-22 * d.wide - 6.5, 15 - Math.max(0, kn) * 5, -22 * d.wide + 6.5, 15 - Math.max(0, kn) * 5);
+    if (!o.pawUp && !o.pawOut) suitCuff(24 * d.wide - 6.5, 15 - Math.max(0, -kn) * 5, 24 * d.wide + 6.5, 15 - Math.max(0, -kn) * 5);
+    suitPanel(d.wide, 22 - 5.5 * sq, 0.95);
+  }
   ctx.save(); ctx.translate(8 + (o.headX || 0), 22 - 44 * sq + (o.headY || 0)); ctx.rotate(o.headTilt || 0); drawHead(d, face, o);
   // a paw up to the mouth (giggling, or holding its nose), in front of the face and tilting with it
   if (o.pawUp) { const ps = Math.sqrt(hs); ctx.save(); ctx.translate(9 * hs, 18 * hs); ctx.rotate(-0.45); ctx.scale(ps, ps); rrect(-9, -6, 18, 12, 6); fs(d.light, INK, 2 / ps); if (STYLE.toes) { line([-3, -6, -3, -2], INK, 1.3 / ps); line([2, -6, 2, -2], INK, 1.3 / ps); } ctx.restore(); }
@@ -2986,9 +3136,11 @@ function drawPouncePose(d, face, o) {
   if (d.pattern === 'tabby' || d.pattern === 'alley') for (const x of [-20, -8, 4]) line([x, -17, x + 2, -9], d.stripe, 3);
   if (d.pattern === 'calico' || d.pattern === 'tortie') { ell(-22, -6, 11, 9); fs(d.stripe, null); ell(10, -4, 10, 7); fs(ORANGE, null); }
   ell(-12, -13, 16, 4); fs('rgba(255,255,255,0.14)', null);
+  if (d.suit) { suitPanel(-24, 2, 0.85); suitPack(-14, -21); }
   ctx.restore(); ctx.restore();
   // front paws out in front, flat
   rrect(30 * d.wide, 15, 22, 9, 4.5); fs(d.light, INK, 2); rrect(40 * d.wide, 16, 21, 8.5, 4.5); fs(d.light, INK, 2);
+  if (d.suit) { suitCuff(30 * d.wide + 4.5, 17, 30 * d.wide + 4.5, 22); suitCuff(40 * d.wide + 4.5, 18, 40 * d.wide + 4.5, 22.5); }
   // head low and forward, not moving at all
   ctx.save(); ctx.translate(42 * d.wide, -4); ctx.scale(0.9, 0.9); drawHead(d, face, Object.assign({}, o, { earsBack: 0.12 })); ctx.restore();
 }
@@ -2999,13 +3151,15 @@ function drawClimbPose(d, face, o) {
   const t = o.t || 0, ph = o.phase != null ? o.phase : t * 9, reach = Math.sin(ph);
   ctx.save(); ctx.translate(-8 * d.wide, 26); ctx.rotate(Math.sin(t * 3) * 0.25);
   ctx.beginPath(); ctx.moveTo(0, 0); ctx.bezierCurveTo(-12, 12, -20, 26, -10, 42); tailStroke(d, o); ctx.restore();
-  for (const [s2, y] of [[1, 26], [-1, 31]]) rrect(16 * d.wide, y + Math.max(0, s2 * reach) * 4, 14, 9, 4.5), fs(d.fur, INK, 2);
+  for (const [s2, y] of [[1, 26], [-1, 31]]) { const yy = y + Math.max(0, s2 * reach) * 4; rrect(16 * d.wide, yy, 14, 9, 4.5); fs(d.fur, INK, 2); if (d.suit) suitCuff(16 * d.wide + 3.5, yy + 1.5, 16 * d.wide + 3.5, yy + 7.5); }
   ctx.save(); ctx.scale(d.wide, 1);
+  if (d.suit) suitPack(-19, 4);
   ell(2, 2, 20, 31, 0.06); fs(d.fur, INK, 2.8);
   ell(10, 6, 8, 21, 0.06); fs(d.light, null);
   if (d.pattern === 'tabby' || d.pattern === 'alley') for (const y of [-12, 0, 12]) line([-17, y, -9, y + 3], d.stripe, 3);
   if (d.pattern === 'calico' || d.pattern === 'tortie') { ell(-7, -8, 10, 11); fs(d.stripe, null); ell(-6, 14, 9, 9); fs(ORANGE, null); ell(2, 2, 20, 31, 0.06); fs(null, INK, 2.8); }
   if (d.pattern === 'tux') { ell(10, 2, 8, 22, 0.06); fs(d.light, null); }
+  if (d.suit) suitPanel(8, 20, 0.8);
   ctx.restore();
   // the head stays off the wall (the wall is at x 32), looking up where it's going
   // a big head leans back off the wall, so the front paws have room to grip beside it
@@ -3015,7 +3169,7 @@ function drawClimbPose(d, face, o) {
   const py = -46;
   for (const [s2, x] of [[1, 22], [-1, 16]]) {
     const y = py - Math.max(0, s2 * reach) * 9;
-    rrect(x, y, 10, 17, 5); fs(d.light, INK, 2);
+    rrect(x, y, 10, 17, 5); fs(d.light, INK, 2); if (d.suit) suitCuff(x + 1.5, y + 13.5, x + 8.5, y + 13.5);
     if (o.claws) for (const dx of [2.5, 5, 7.5]) line([x + dx, y + 1, x + dx + 1.5, y - 3], '#fff', 1.3);
   }
 }
@@ -3024,11 +3178,11 @@ function drawHangPose(d, face, o) {
   const t = o.t || 0, kick = Math.sin(t * 8);
   ctx.save(); ctx.translate(-4, 30); ctx.rotate(Math.sin(t * 2.5) * 0.3);
   ctx.beginPath(); ctx.moveTo(0, 0); ctx.bezierCurveTo(-6, 14, 8, 26, 0, 40); tailStroke(d, o); ctx.restore();
-  for (const [s2, x] of [[1, -12], [-1, 8]]) { ctx.save(); ctx.translate(x * d.wide, 26); ctx.rotate(s2 * kick * 0.4); rrect(-5, 0, 10, 18, 5); fs(d.fur, INK, 2); ctx.restore(); }
+  for (const [s2, x] of [[1, -12], [-1, 8]]) { ctx.save(); ctx.translate(x * d.wide, 26); ctx.rotate(s2 * kick * 0.4); rrect(-5, 0, 10, 18, 5); fs(d.fur, INK, 2); if (d.suit) suitCuff(-3.5, 12, 3.5, 12); ctx.restore(); }
   ctx.save(); ctx.scale(d.wide, 1); ell(0, 8, 19, 26); fs(d.fur, INK, 2.8); ell(0, 12, 10, 16); fs(d.light, null); ctx.restore();
   // arms straight up beside the head (outside the ears) to the shelf
   const hsc = 0.88 * STYLE.head / STYLE.body, hy = Math.max(-18, -50 + 30 * hsc), ax = Math.max(13 * d.wide, 34 * hsc + 1);
-  for (const sx of [-1, 1]) { rrect(sx * ax - 5, -50, 10, hy + 50, 5); fs(d.fur, INK, 2); rrect(sx * ax - 5.5, -51, 11, 11, 5); fs(d.light, INK, 2); }
+  for (const sx of [-1, 1]) { rrect(sx * ax - 5, -50, 10, hy + 50, 5); fs(d.fur, INK, 2); rrect(sx * ax - 5.5, -51, 11, 11, 5); fs(d.light, INK, 2); if (d.suit) suitCuff(sx * ax - 3.5, -39.5, sx * ax + 3.5, -39.5); }
   ctx.save(); ctx.translate(0, hy); ctx.scale(0.88, 0.88); drawHead(d, face, Object.assign({}, o, { look: { x: 0, y: 0.2 }, earsBack: 0.3 })); ctx.restore();
 }
 function drawStiffPose(d, face, o) {
@@ -3037,14 +3191,15 @@ function drawStiffPose(d, face, o) {
   ctx.save(); ctx.translate(-34 * d.wide, -16 - lift); ctx.rotate(-0.12 + Math.sin(t * 34) * 0.05 * arch);
   ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-3, -46); tailStroke(d, Object.assign({}, o, { tailPuff: o.tailPuff || !!arch })); ctx.restore();
   for (const [x, a, back] of [[-26, -splay, 1], [-14, -splay * 0.35, 1], [14, splay * 0.35, 0], [26, splay, 0]]) {
-    ctx.save(); ctx.translate(x * d.wide, -6 - lift); ctx.rotate(a); rrect(-5, 0, 10, leg, 5); fs(back ? d.fur : d.light, INK, 2); rrect(-6, leg - 4, 12, 7, 3.5); fs(d.light, INK, 1.6); ctx.restore();
+    ctx.save(); ctx.translate(x * d.wide, -6 - lift); ctx.rotate(a); rrect(-5, 0, 10, leg, 5); fs(back ? d.fur : d.light, INK, 2); rrect(-6, leg - 4, 12, 7, 3.5); fs(d.light, INK, 1.6); if (d.suit) suitCuff(-3.5, leg - 6, 3.5, leg - 6); ctx.restore();
   }
   ctx.save(); ctx.translate(0, -6); ctx.scale(d.wide * (o.puff ? 1.1 : 1), (o.puff ? 1.1 : 1) * (d.round || 1)); ctx.translate(0, 6);
   if (arch) { ctx.beginPath(); ctx.moveTo(-40, -8 - lift); ctx.bezierCurveTo(-38, -66 - lift, 38, -66 - lift, 40, -8 - lift); ctx.bezierCurveTo(28, 6 - lift, -28, 6 - lift, -40, -8 - lift); ctx.closePath(); fs(d.fur, INK, 2.8);
     for (let i = -3; i <= 3; i++) line([i * 10, -50 - lift + Math.abs(i) * 4, i * 12, -60 - lift + Math.abs(i) * 4], d.fur, 4); }   // every hair standing up
   else { ell(0, -16, 40, 19); fs(d.fur, INK, 2.8); ell(2, -8, 28, 7); fs(d.light, null);
     if (d.pattern === 'tabby' || d.pattern === 'alley') for (const x of [-20, -8, 4]) line([x, -32, x + 3, -23], d.stripe, 3);
-    if (d.pattern === 'calico' || d.pattern === 'tortie') { ell(-16, -20, 10, 9); fs(d.stripe, null); ell(14, -22, 11, 8); fs(ORANGE, null); ell(0, -16, 40, 19); fs(null, INK, 2.8); } }
+    if (d.pattern === 'calico' || d.pattern === 'tortie') { ell(-16, -20, 10, 9); fs(d.stripe, null); ell(14, -22, 11, 8); fs(ORANGE, null); ell(0, -16, 40, 19); fs(null, INK, 2.8); }
+    if (d.suit) { suitPanel(-24, -13, 0.85); suitPack(-16, -36); } }
   ctx.restore();
   ctx.save(); ctx.translate((36 + arch * 14) * d.wide, -30 - lift * (arch ? 0.4 : 2.2) + arch * 8); ctx.scale(0.92, 0.92); drawHead(d, face, Object.assign({}, o, { earsBack: arch ? 0.8 : 0.1 })); ctx.restore();
 }
@@ -3052,22 +3207,24 @@ function drawDropPose(d, face, o) {
   // falling feet first, like a real cat: legs reaching down for the ground, tail up as a rudder, ears back, eyes on the floor
   const t = o.t || 0, r = Math.sin(t * 12) * 0.08;
   ctx.save(); ctx.translate(-36 * d.wide, -6); ctx.rotate(-0.45 + Math.sin(t * 8) * 0.15); ctx.beginPath(); ctx.moveTo(0, 0); ctx.bezierCurveTo(-14, -10, -18, -34, -6, -48); tailStroke(d, o); ctx.restore();
-  for (const [x, a, back] of [[-28, 0.35 + r, 1], [-16, 0.12 - r, 1], [16, -0.12 + r, 0], [28, -0.35 - r, 0]]) { ctx.save(); ctx.translate(x * d.wide, 6); ctx.rotate(a); rrect(-5, 0, 10, 24, 5); fs(back ? d.fur : d.light, INK, 2); ctx.restore(); }
+  for (const [x, a, back] of [[-28, 0.35 + r, 1], [-16, 0.12 - r, 1], [16, -0.12 + r, 0], [28, -0.35 - r, 0]]) { ctx.save(); ctx.translate(x * d.wide, 6); ctx.rotate(a); rrect(-5, 0, 10, 24, 5); fs(back ? d.fur : d.light, INK, 2); if (d.suit) suitCuff(-3.5, 17, 3.5, 17); ctx.restore(); }
   ctx.save(); ctx.scale(d.wide, d.round || 1); ell(0, -4, 40, 20); fs(d.fur, INK, 2.8); ell(2, 5, 28, 8); fs(d.light, null);
   if (d.pattern === 'tabby' || d.pattern === 'alley') for (const x of [-20, -8, 4]) line([x, -20, x + 3, -11], d.stripe, 3);
   if (d.pattern === 'calico' || d.pattern === 'tortie') { ell(-16, -8, 10, 9); fs(d.stripe, null); ell(14, -10, 11, 8); fs(ORANGE, null); ell(0, -4, 40, 20); fs(null, INK, 2.8); }
+  if (d.suit) { suitPanel(-22, 0, 0.85); suitPack(-16, -25); }
   ctx.restore();
   ctx.save(); ctx.translate(34 * d.wide, -22); ctx.scale(0.92, 0.92); drawHead(d, face, Object.assign({}, o, { earsBack: 0.5, look: { x: 0.3, y: 0.9 } })); ctx.restore();
 }
 function drawFlyPose(d, face, o) {
   ctx.beginPath(); ctx.moveTo(-36, -2); ctx.bezierCurveTo(-52, -4, -62, -24, -80, -16); tailStroke(d, o);
   const sc = o.scramble ? Math.sin((o.t || 0) * 40) * 0.5 : 0;
-  for (const [x, y, r] of [[-38, 13, 0.35 + sc], [-28, 18, 0.15 - sc]]) { ell(x, y, 15, 6.5, r); fs(d.fur, INK, 2); }
+  for (const [x, y, r] of [[-38, 13, 0.35 + sc], [-28, 18, 0.15 - sc]]) { ell(x, y, 15, 6.5, r); fs(d.fur, INK, 2); if (d.suit) { const cx = x - 7.5 * Math.cos(r), cy = y - 7.5 * Math.sin(r), sn = Math.sin(r) * 4.5, cs = Math.cos(r) * 4.5; suitCuff(cx + sn, cy - cs, cx - sn, cy + cs); } }
   ctx.save(); ctx.scale(d.wide, d.round || 1);
   ell(-2, 2, 42, 22); fs(d.fur, INK, 2.8);
   ell(2, 10, 30, 9); fs(d.light, null);
   if (d.pattern === 'tabby' || d.pattern === 'alley') for (const x of [-22, -10, 2]) line([x, -18, x + 3, -9], d.stripe, 3);
   if (d.pattern === 'calico' || d.pattern === 'tortie') { ell(-18, -5, 11, 10); fs(d.stripe, null); ell(14, -8, 12, 9); fs(ORANGE, null); ell(-2, 2, 42, 22); fs(null, INK, 2.8); }
+  if (d.suit) { suitPanel(-30, 4, 0.85); suitPack(-24, -19); }
   ctx.restore();
   rrect(28 * d.wide, 6 + sc * 6, 22, 10, 5); fs(d.light, INK, 2); rrect(34 * d.wide, -2 - sc * 6, 20, 10, 5); fs(d.light, INK, 2);
   if (o.claws) for (const yy of [4, 9, 14]) line([50 * d.wide + 4, yy - 4, 50 * d.wide + 9, yy - 5], '#fff', 1.6);
@@ -3093,7 +3250,7 @@ function drawPlantPose(d, face, o) {
   ctx.beginPath(); ctx.moveTo(0, 0); ctx.bezierCurveTo(mix(-14, -10), mix(-9, 8), mix(-27, -20), mix(-18, 22), mix(-40, -14), mix(-27, 38)); tailStroke(d, Object.assign({}, o, { tailPuff: hit > 0.25 }));
   ctx.restore();
   // back legs: kicked out straight behind, then dangling
-  for (const [dx, dy, r] of [[-0.62, 0.62, 0.15], [-0.25, 0.85, -0.05]]) { ell(bx + brx * dx - 6, by + bry * dy + 2, 15, 6.5, mix(r, 1.25 + r)); fs(d.fur, INK, 2); }
+  for (const [dx, dy, r] of [[-0.62, 0.62, 0.15], [-0.25, 0.85, -0.05]]) { const lx = bx + brx * dx - 6, ly = by + bry * dy + 2, lr = mix(r, 1.25 + r); ell(lx, ly, 15, 6.5, lr); fs(d.fur, INK, 2); if (d.suit) { const cx = lx - 7.5 * Math.cos(lr), cy = ly - 7.5 * Math.sin(lr), sn = Math.sin(lr) * 4.5, cs = Math.cos(lr) * 4.5; suitCuff(cx + sn, cy - cs, cx - sn, cy + cs); } }
   ell(bx, by, brx, bry); fs(d.fur, INK, 2.8);
   ell(bx + 3, by + bry * 0.42, brx * 0.72, bry * 0.36); fs(d.light, null);
   if (d.pattern === 'tabby' || d.pattern === 'alley') for (const u of [-0.45, 0, 0.45]) line([bx + brx * u, by - bry * 0.92, bx + brx * u + 2, by - bry * 0.55], d.stripe, 3);
@@ -3105,33 +3262,36 @@ function drawPlantPose(d, face, o) {
   // the head, flat against the wall: cut off where it meets it, with the outline along the wall. Behind it, the face spreads
   // out along the wall (fur squeezed up and down past the head's corners), so the front is wider than the back.
   ctx.save(); ctx.beginPath(); ctx.rect(-400, -400, W + 400, 800); ctx.clip();
-  { const sw = 13 + 7 * hit, sh = Hh * (1.22 + 0.12 * hit); ell(W - sw * 0.5, hy - Hh * 0.12, sw, sh); fs(d.pattern === 'tux' ? d.light : d.fur, INK, 2.6); ell(W - sw * 0.35, hy - sh * 0.55, sw * 0.4, sh * 0.18); fs('rgba(255,255,255,0.16)', null); }
+  const hd = d.orig || d;   // (its own face, in a suit)
+  { const sw = 13 + 7 * hit, sh = Hh * (1.22 + 0.12 * hit); ell(W - sw * 0.5, hy - Hh * 0.12, sw, sh); fs(hd.pattern === 'tux' ? hd.light : hd.fur, INK, 2.6); ell(W - sw * 0.35, hy - sh * 0.55, sw * 0.4, sh * 0.18); fs('rgba(255,255,255,0.16)', null); }
   ctx.save(); ctx.translate(hx, hy); ctx.scale(0.92 * hsx, 0.92 * hsy); drawProfileHead(d, face, Object.assign({}, o, { earsBack: mix(1, 0.7), whiskersBack: 1 })); ctx.restore();
   ctx.restore();
   line([W, hy - Hh * 0.12 - Hh * (1.22 + 0.12 * hit) * 0.98, W, hy - Hh * 0.12 + Hh * (1.22 + 0.12 * hit) * 0.98], INK, 3);
-  { const ny = hy + 6 * hs * 0.92 * hsy; ell(W - 1.8, ny, 2.2, 6 + 2.4 * hit); fs(d.id === 'void' ? '#6B5560' : d.pattern === 'tux' || d.pattern === 'tortie' ? '#E58FA0' : '#D9778A', INK, 1.4); }   // the nose, squashed flat on the wall
+  { const ny = hy + 6 * hs * 0.92 * hsy; ell(W - 1.8, ny, 2.2, 6 + 2.4 * hit); fs(hd.id === 'void' ? '#6B5560' : hd.pattern === 'tux' || hd.pattern === 'tortie' ? '#E58FA0' : '#D9778A', INK, 1.4); }   // the nose, squashed flat on the wall
   // (no front paws: Adam, Nov 4, "Get rid of the paws beneath the face on the wall splat")
   // impact lines off the face, as it hits
   if (hit > 0.15) for (const [a, r0] of [[-2.3, 1.05], [-1.9, 1.25], [2.3, 1.05], [1.9, 1.25]]) { const c = Math.cos(a), sn = Math.sin(a); line([W - 4 + c * Hh * r0, hy + sn * Hh * r0, W - 4 + c * Hh * (r0 + 0.45), hy + sn * Hh * (r0 + 0.45)], `rgba(46,58,53,${Math.min(1, hit * 1.4)})`, 2.6); }
 }
 function drawLiePose(d, face, o) {
   ctx.beginPath(); ctx.moveTo(-38, 10); ctx.quadraticCurveTo(-60, 24, -82, 17); tailStroke(d, o);
-  rrect(-50, 14, 24, 9, 4.5); fs(d.fur, INK, 2);
+  rrect(-50, 14, 24, 9, 4.5); fs(d.fur, INK, 2); if (d.suit) suitCuff(-31, 16, -31, 21);
   ctx.save(); ctx.translate(0, 26); ctx.scale(d.wide, d.round || 1); ctx.translate(0, -26); ell(-2, 6, 42, 20); fs(d.fur, INK, 2.8); ell(0, 13, 28, 7); fs(d.light, null);
   if (d.pattern === 'tabby') for (const x of [-22, -10, 2]) line([x, -11, x + 3, -3], d.stripe, 3);
   if (d.pattern === 'calico' || d.pattern === 'tortie') { ell(-16, 2, 10, 9); fs(d.stripe, null); ell(12, -2, 11, 8); fs(ORANGE, null); ell(-2, 6, 42, 20); fs(null, INK, 2.8); }
+  if (d.suit) { suitPanel(-26, 8, 0.85); suitPack(-20, -15); }
   ctx.restore();
-  rrect(24 * d.wide, 18, 22, 9, 4.5); fs(d.light, INK, 2);
+  rrect(24 * d.wide, 18, 22, 9, 4.5); fs(d.light, INK, 2); if (d.suit) suitCuff(24 * d.wide + 4.5, 20, 24 * d.wide + 4.5, 25);
   ctx.save(); ctx.translate(36 * d.wide, 0); ctx.rotate(0.32 + (o.headTilt || 0)); ctx.scale(0.92, 0.92); drawHead(d, face, o); ctx.restore();
 }
 function drawWalkPose(d, face, o) {
   const ph = o.phase || 0;
   ctx.save(); if (o.tailLow) { ctx.translate(-36, -8); ctx.rotate(1.6); ctx.translate(36, 8); }
   ctx.beginPath(); ctx.moveTo(-36, -8); ctx.bezierCurveTo(-50, -14, -56, -40, -44, -52); tailStroke(d, o); ctx.restore();
-  [[-26], [-12], [14], [28]].forEach(([x], i) => { ctx.save(); ctx.translate(x * d.wide, 6); ctx.rotate(Math.sin(ph + (i % 2 ? Math.PI : 0)) * 0.55); rrect(-5.5, 0, 11, 21, 5.5); fs(i < 2 ? d.fur : d.light, INK, 2); ctx.restore(); });
+  [[-26], [-12], [14], [28]].forEach(([x], i) => { ctx.save(); ctx.translate(x * d.wide, 6); ctx.rotate(Math.sin(ph + (i % 2 ? Math.PI : 0)) * 0.55); rrect(-5.5, 0, 11, 21, 5.5); fs(i < 2 ? d.fur : d.light, INK, 2); if (d.suit) suitCuff(-4, 14.5, 4, 14.5); ctx.restore(); });
   ctx.save(); ctx.translate(0, 6); ctx.scale(d.wide, d.round || 1); ctx.translate(0, -6); ell(0, -4, 40, 20); fs(d.fur, INK, 2.8); ell(2, 5, 28, 8); fs(d.light, null);
   if (d.pattern === 'tabby') for (const x of [-20, -8, 4]) line([x, -20, x + 3, -11], d.stripe, 3);
   if (d.pattern === 'calico' || d.pattern === 'tortie') { ell(-16, -8, 10, 9); fs(d.stripe, null); ell(14, -10, 11, 8); fs(ORANGE, null); ell(0, -4, 40, 20); fs(null, INK, 2.8); }
+  if (d.suit) { suitPanel(-24, -1, 0.85); suitPack(-16, -25); }
   ctx.restore();
   ctx.save(); ctx.translate(34 * d.wide, -24 + Math.sin(ph * 2) * 1.5 + (o.tailLow ? 6 : 0)); ctx.scale(0.92, 0.92); drawHead(d, face, o); ctx.restore();
 }
@@ -3148,7 +3308,6 @@ const POSE_PIN = { sit: [0, 23], walk: [0, 27], pounce: [0, 24], lie: [0, 26], h
 // cat units by CH.Q. The earlier looks (the mochi head on a mochi body, H) and the mockups are in drafts/megachonk/.
 const CH = { body: { w: 140, h: 100 }, mid: 52, head: { x: 6, y: -56, w: 94, h: 64, tilt: -0.16 }, ex: 20, R: 17, Q: 0.97 * 0.88,
   MOUTH: '#5A2A33', TONGUE: '#E8737A', NOSE: '#E58FA0', BEAN: '#F2A7A9', CREASE: '#D9853F', SWEATER: '#6FB99A' };
-const CHONK_RING = 30;   // (his space helmet's neck ring, at the bottom of his head)
 const CHONK_TAIL = t => [8, 40, 54, 50, 92, 46, 90, 2 + Math.sin(t * 2) * 3];   // sitting: out at his feet, curling up (his middle's frame)
 function chonkMochi(w, h) {   // a dumpling (his head): domed top, fat sagging sides, a flat bottom; centred, top at -0.53h, bottom at 0.47h
   const T = -h * 0.53, B = h * 0.47, hw = w / 2, bw = w * 0.34;
@@ -3232,9 +3391,10 @@ function chonkEar(d, a, tp, b, crease) {   // from its two base corners and its 
   ctx.restore(); poly(out); fs(null, INK, 2.6);
 }
 function chonkHead(d, face, o, t) {   // the mochi head, centred and tipped to one side: ears, tabby stripes, the white muzzle, the face, anything from teh closet
-  const { w: W, h: Hh, tilt } = CH.head, top = -Hh * 0.53, eb = o.earsBack || 0, fk = Math.min(W, Hh * 1.5) / 100;
+  const { w: W, h: Hh, tilt } = CH.head, top = -Hh * 0.53, eb = o.earsBack || 0, fk = Math.min(W, Hh * 1.5) / 100, suit = d.suit;
+  d = d.orig || d;   // (in his suit: his own head)
   ctx.save(); ctx.rotate(tilt);
-  if (!o.faceOnly && sim && sim.level && sim.level.suit) spaceHelmet(-8, 66, 56, CHONK_RING, 1, 14, 2.2, 'ring');   // his helmet's neck ring, behind his head: his chubby chin and his mouth hang over it
+  if (suit) { suitRing(CHONK_RING, 'back'); suitRing(CHONK_RING, 'front'); }   // his neck ring, under his chin (all of it first: his tongue and his yell hang over it)
   for (const s of [-1, 1]) {
     const px = s * W * 0.26, py = top + Hh * 0.15;
     ctx.save(); ctx.translate(px, py); ctx.rotate(s * eb * 0.7); ctx.translate(-px, -py);
@@ -3256,9 +3416,12 @@ function chonkHead(d, face, o, t) {   // the mochi head, centred and tipped to o
       for (const sx of [-1, 1]) { ell(sx * ex, gy, r + 2, r + 2); fs(null, INK, 8); fs(null, '#B07A45', 5); ell(sx * ex, gy, r, r); fs('rgba(160,215,242,0.28)', INK, 1.4); ell(sx * ex - r * 0.35, gy - r * 0.35, r * 0.28, r * 0.18, -0.6); fs('rgba(255,255,255,0.8)', null); }
       rrect(-4, gy - 3, 8, 6, 2); fs('#8B5A2B', INK, 1.2);
     }
-    if (wr.neck) { ctx.save(); ctx.translate(0, 4.4); ctx.scale(1.22, 1.22); drawWear(wr.neck); ctx.restore(); }
-    if (wr.hat) { ctx.save(); ctx.translate(0, -7); ctx.scale(1.22, 1.22); drawWear(wr.hat); ctx.restore(); }
-    if (sim && sim.level && sim.level.suit) spaceHelmet(-8, 66, 56, CHONK_RING, 1, 14, 2.2, 'glass');   // in space and on the moon, like the others: a big one; its ring is behind his head (below)
+    if (wr.neck && !suit) { ctx.save(); ctx.translate(0, 4.4); ctx.scale(1.22, 1.22); drawWear(wr.neck); ctx.restore(); }   // (in his suit, the ring's his collar)
+    if (wr.hat && !suit) { ctx.save(); ctx.translate(0, -7); ctx.scale(1.22, 1.22); drawWear(wr.hat); ctx.restore(); }
+    if (suit) {
+      suitGlobe(CHONK_GLOBE, CHONK_RING);   // his globe, a big one, on his ring (his head's always on top of his body)
+      if (wr.hat) { ctx.save(); ctx.translate(0, CHONK_GLOBE.cy - CHONK_GLOBE.ry + 34 - 7); ctx.scale(1.22, 1.22); drawWear(wr.hat); ctx.restore(); }   // his hat on top of it
+    }
   }
   ctx.restore();
 }
@@ -3291,29 +3454,34 @@ function chonkBody(d, wr = {}) {   // the egg, centred: a big white tummy, tabby
     for (const [row, col] of [[0, '#F48CB6'], [1, '#F7B3D0']]) for (let k = 0; k < 9; k++) { const x = -w * 0.48 + k * w * 0.12, y = h * 0.08 + row * 7; ctx.beginPath(); ctx.ellipse(x, y, w * 0.085, 11, 0, 0, Math.PI); fs(col, INK, 1.4); }
   }
 }
-function chonkTail(d, pts, w = 14) {   // thick, striped, a white tip
+function chonkTail(sd, pts, w = 14) {   // thick, striped, a white tip (in his suit: his own tail, out of the suit's sleeve)
+  const d = sd.orig || sd;
   ctx.beginPath(); ctx.moveTo(pts[0], pts[1]); ctx.bezierCurveTo(pts[2], pts[3], pts[4], pts[5], pts[6], pts[7]); ctx.lineCap = 'round';
   ctx.strokeStyle = INK; ctx.lineWidth = w + 4; ctx.stroke(); ctx.strokeStyle = d.fur; ctx.lineWidth = w; ctx.stroke();
   for (const k of [0.35, 0.55, 0.75]) { const u = 1 - k, B = i => u * u * u * pts[i] + 3 * u * u * k * pts[i + 2] + 3 * u * k * k * pts[i + 4] + k * k * k * pts[i + 6]; ell(B(0), B(1), w * 0.42, w * 0.2, Math.atan2(pts[7] - pts[1], pts[6] - pts[0]) + 1.4); fs(d.stripe, null); }
   ell(pts[6], pts[7], w * 0.55, w * 0.55); fs(d.light, null);
+  if (sd.suit) { ctx.beginPath(); ctx.moveTo(pts[0], pts[1]); ctx.bezierCurveTo(pts[2], pts[3], pts[4], pts[5], pts[6], pts[7]); suitSleeve(w, 26); }
 }
 function chonkLeg(d, x, y, a, len, w = 14, beans = true) {   // a stubby leg sticking out at angle a (in the air), a white paw on the end
   ctx.save(); ctx.translate(x, y); ctx.rotate(a);
   rrect(-6, -w / 2, len + 6, w, w / 2); fs(d.fur, INK, 2.3); ell(len - 2, 0, w * 0.5, w * 0.58); fs(d.light, INK, 2.1);
-  if (beans) { ell(len, 0, w * 0.2, w * 0.24); fs(CH.BEAN, null); for (const k of [-0.32, 0, 0.32]) { ell(len + w * 0.32, k * w, w * 0.09, w * 0.09); fs(CH.BEAN, null); } }
+  if (d.suit) suitCuff(len - 9, -w * 0.4, len - 9, w * 0.4);   // (a boot, not toe beans)
+  else if (beans) { ell(len, 0, w * 0.2, w * 0.24); fs(CH.BEAN, null); for (const k of [-0.32, 0, 0.32]) { ell(len + w * 0.32, k * w, w * 0.09, w * 0.09); fs(CH.BEAN, null); } }
   else for (const k of [-0.2, 0.2]) line([len + 1, k * w, len + 4, k * w], INK, 1.3);
   ctx.restore();
 }
 function chonkArm(d, x, y, a, len, fill) {   // a smol arm from (x, y) along a, a white paw on the end
   ctx.save(); ctx.translate(x, y); ctx.rotate(a);
   rrect(-6, -7, len + 6, 14, 7); fs(fill || d.fur, INK, 2.3); ell(len - 1, 0, 7.4, 8); fs(d.light, INK, 2.1); line([len + 2, -2.6, len + 5, -2.6], INK, 1.2); line([len + 2, 2.6, len + 5, 2.6], INK, 1.2);
+  if (d.suit) suitCuff(len - 8.5, -5, len - 8.5, 5);
   ctx.restore();
 }
 function chonkSole(d, x, y, rot) {   // a foot stuck out at u: the white sole and the pink toe beans
   ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
   ell(0, -4, 16, 12); fs(d.fur, INK, 2.3);
-  ell(0, 0, 12.5, 13); fs(d.light, INK, 2.1); ell(0, 3.6, 5.6, 4.6); fs(CH.BEAN, null);
-  for (const [bx, by] of [[-6.2, -4.6], [0, -7.4], [6.2, -4.6]]) { ell(bx, by, 2.6, 2.9); fs(CH.BEAN, null); }
+  ell(0, 0, 12.5, 13); fs(d.light, INK, 2.1);
+  if (d.suit) suitCuff(-10, -13.5, 10, -13.5);   // (his suit's boot: a sole, a red cuff)
+  else { ell(0, 3.6, 5.6, 4.6); fs(CH.BEAN, null); for (const [bx, by] of [[-6.2, -4.6], [0, -7.4], [6.2, -4.6]]) { ell(bx, by, 2.6, 2.9); fs(CH.BEAN, null); } }
   ctx.restore();
 }
 function chonkLegsOut(d, rx, ry, list, t) { for (const [a, l] of list) chonkLeg(d, Math.cos(a) * (rx - 12), Math.sin(a) * (ry - 10), a + Math.sin(t * 30 + a * 3) * 0.15, l + 7, 14); }   // flailing out from round his middle
@@ -3321,7 +3489,7 @@ function chonkLegsOut(d, rx, ry, list, t) { for (const [a, l] of list) chonkLeg(
 // P.before, P.after: anything drawn behind him or in front)
 function chonkGroup(d, face, o, t, P = {}) {
   const B = Object.assign({ rot: -0.05, sx: 1, sy: 1 }, P.body), Hd = Object.assign({ x: CH.head.x + (o.headX || 0), y: CH.head.y + (o.headY || 0), rot: o.headTilt || 0 }, P.head);
-  const wr = o.wear || wearOf(d), sleeve = wr.body === 'sweater' ? CH.SWEATER : null, { w: cw, h: chh } = CH.body;
+  const wr = o.wear || wearOf(d), sleeve = wr.body === 'sweater' && !d.suit ? CH.SWEATER : null, { w: cw, h: chh } = CH.body;   // (in his suit: no sweater, belt, floatie or tutu)
   if (wr.back === 'cape') {   // a super cape, behind him: hanging down, or streaming out behind when he flies
     const fl = o.capeFly || 0, sw = Math.sin(t * (fl ? 18 : 2.4)) * (fl ? 6 : 2.5);
     ctx.beginPath(); ctx.moveTo(-cw * 0.24, -chh * 0.4);
@@ -3330,7 +3498,7 @@ function chonkGroup(d, face, o, t, P = {}) {
     ctx.quadraticCurveTo(cw * 0.62 - fl * 20, 4, cw * 0.24, -chh * 0.4); ctx.closePath(); fs('#D63A35', INK, 2.4);
   }
   if (P.before) P.before(sleeve);
-  ctx.save(); ctx.rotate(B.rot); ctx.scale(B.sx, B.sy); chonkBody(d, wr); ctx.restore();
+  ctx.save(); ctx.rotate(B.rot); ctx.scale(B.sx, B.sy); chonkBody(d, d.suit ? {} : wr); if (d.suit) suitPanel(0, 8, 1.9); ctx.restore();
   ctx.save(); ctx.translate(Hd.x, Hd.y); ctx.rotate(Hd.rot); chonkHead(d, face, o, t); ctx.restore();
   if (P.arms !== false) {   // resting on top of his tummy
     const A = Object.assign({ a: 0.62, len: 15, wig: 0 }, P.arms), tw = o.twitch || [0, 0];   // (twitch: each arm jerking up)
@@ -3344,6 +3512,7 @@ const CHONK_IN_BOWL = 0.62;
 const MOCHI_DRAW = { s: 0.885, headY: 20, dy: 20 };   // balled up on the ground: head tucked down, drawn centred on his round body (FITS.MOCHI)
 function chonkSoles(d, lift = [0, 0]) { for (const [i, s] of [[0, -1], [1, 1]]) chonkSole(d, s * 32, 38 - lift[i], s * 0.24); }
 function drawChonkBasket(d, face, o) {
+  if (suitOn(d, o)) d = suitDef(d);   // (in his suit in space, like in drawCat: the cat-a-pult draws him here itself)
   const t = o.t || 0, R = BOWL_R, cx = BOWL_CX;
   ctx.save(); ctx.beginPath(); ctx.rect(-600, -800, 1200, 800); ctx.moveTo(cx + R, 0); ctx.ellipse(cx, 0, R, R * BOWL_D, 0, 0, Math.PI); ctx.closePath(); ctx.clip();   // above the rim, or in the bowl
   ctx.translate(cx, R * BOWL_D * 0.5); ctx.scale(CHONK_IN_BOWL, CHONK_IN_BOWL); ctx.translate(0, -CH.mid);
@@ -3395,6 +3564,11 @@ function drawChonk(d, pose, face, o) {
   ctx.restore();
 }
 function drawCat(d, pose, face, o = {}) {
+  if (suitOn(d, o)) {   // in space and on the moon: the suit (and sitting, the head up a little, so there's a neck for the ring)
+    o = Object.assign({}, o, { suit: true, ringDown: NECK_DOWN.has(pose) });   // (megachonk's head is always on top of him: his ring always shows)
+    if (pose === 'sit' && d.id !== 'chonk') o.headY = (o.headY || 0) + SUIT_LIFT;
+    d = suitDef(d);
+  }
   const k = d.k * (o.scale || 1), pin = POSE_PIN[pose] || [0, 0], give = 1 - STYLE.body;
   ctx.save(); ctx.translate(pin[0] * k * give, pin[1] * k * give); ctx.scale(k * STYLE.body, k * STYLE.body);
   if (d.id === 'chonk') drawChonk(d, pose, face, o);
@@ -4297,9 +4471,15 @@ function drawItem(it, t) {
       rrect(-w / 2, -h / 2, w, h, 2); fs('#E3BE8A', INK, 2); ctx.fillStyle = '#E2574C'; ctx.fillRect(-w / 2 + 3, -4, w - 6, 9);
       for (const x of [-12, -4, 4, 12]) line([x - 2, -2, x, 3, x + 2, -2], '#FFFDF6', 1.4);
       poly([w / 2 - 12, -h / 2 + 6, w / 2 - 4, -h / 2 + 6, w / 2 - 8, -h / 2 + 12]); fs('#E2574C', null); line([w / 2 - 8, -h / 2 + 12, w / 2 - 8, -h / 2 + 16], '#E2574C', 1.4); break;
-    case 'bubblewrap':
-      rrect(-w / 2, -h / 2, w, h, 3); fs('rgba(205,232,244,0.75)', INK, 1.6);
-      for (let x = -w / 2 + 5; x < w / 2 - 2; x += 7) { ell(x, 0, 2.6, 2.4); fs('rgba(255,255,255,0.9)', 'rgba(126,196,230,0.9)', 0.8); } break;
+    case 'bubblewrap': {   // (Adam, Nov 6: "it doesn't quite look like bubble wrap"; it was a thin strip with dots, about 5 px tall on a
+      // phone.) Now a clear pad sitting on the body, a bit taller than it: a row of big round bubbles sticking up out of the top
+      // (the bumpy edge) and a second row between them (the staggered grid), each with a white shine. It pops under
+      // anything that lands on it, so the bubbles above the body never hold anything up.
+      const r = 3.7, sp = 8.8, bot = h / 2, y2 = bot - 1.2 - r, y1 = y2 - r * 1.8, n = Math.max(3, Math.floor((w - 2 * r) / sp) + 1), x0 = -((n - 1) * sp) / 2;
+      rrect(-w / 2, y1, w, bot - y1, 4); fs('rgba(206,233,247,0.85)', INK, 1.4);
+      for (let i = 0; i < n - 1; i++) { const x = x0 + (i + 0.5) * sp; ell(x, y2, r * 0.92, r * 0.92); fs('rgba(236,248,255,0.95)', 'rgba(90,155,200,0.9)', 1); ell(x - r * 0.35, y2 - r * 0.38, r * 0.3, r * 0.26, -0.5); fs('#fff', null); }
+      for (let i = 0; i < n; i++) { const x = x0 + i * sp; ell(x, y1, r, r); fs('rgba(236,248,255,0.97)', '#2F5F7E', 1.3); ell(x - r * 0.36, y1 - r * 0.4, r * 0.32, r * 0.28, -0.5); fs('#fff', null); }
+      break; }
     case 'tape': ell(0, 0, 11, 11); fs('#C99963', INK, 2); ell(0, 0, 5, 5); fs(PAPER, INK, 1.4); line([8, 7, 16, 12], '#C99963', 3); break;
     case 'duck': {   // a rubber-duck yellow birb with an orange beak
       const bob = Math.sin(t * 3 + it.n) * 1.2, face = (it.n % 2) ? 1 : -1; ctx.scale(face, 1);
@@ -4504,6 +4684,12 @@ const CHONK_FROM = 3;   // kitchen 4
 // whenever u call him (the cats keep coming there too).
 function chonkReady() { return !!(sim && !attract && levelIdx >= CHONK_FROM && (sim._nap || !sim.calledIn) && sim.state === 'aim' && sim.current && !sim.current.def.catapult); }
 const chonkAfford = () => !!(sim && sim._nap) || (store.d.bill || 0) >= CHONK_COST;
+// megachonk lying over a box nobody's in (one he doesn't fit, or someone else's): he sits on it anyway, and it's blocked
+function chonkSatOnSpot() {
+  const c = sim && sim.cats.find(k => k.def.pound && k.body && k.state !== 'sit'); if (!c) return null;
+  const bb = c.body.bounds;
+  return sim.spots.find(s => !s.filled && bb.max.x > s.ix0 + 4 && bb.min.x < s.ix1 - 4 && bb.max.y > s.rim - 30 && bb.min.y < s.rim + 4) || null;
+}
 function syncChonk() {
   const nap = !!(sim && sim._nap), b = $('chonkBtn'), show = !!(sim && !attract && levelIdx >= CHONK_FROM && (nap || !sim.calledIn));
   b.hidden = !show; b.disabled = !chonkReady(); b.style.opacity = chonkReady() && chonkAfford() ? '1' : '0.5';
@@ -4513,8 +4699,17 @@ function syncChonk() {
   // what you've saved up, right by his button, live (Adam, Nov 5: "make sure it's easy and obvious to see how much a player
   // has to spend on a mega chonk"): green when he's affordable, red with what he needs when not
   const bank = $('chonkBank'); bank.hidden = !show || nap;   // (nap mode: no money either way)
-  if (show) { $('chonkBankVal').textContent = money(store.d.bill || 0); bank.classList.toggle('ok', chonkAfford()); bank.classList.toggle('short', !chonkAfford()); }
+  if (show) { $('chonkBankVal').textContent = money(store.d.bill || 0); bank.classList.toggle('ok', chonkAfford()); bank.classList.toggle('short', !chonkAfford()); bank.setAttribute('aria-label', `saved ${money(store.d.bill || 0)}, open the shop`); bank.dataset.need = money(CHONK_COST); }
 }
+// Tap what u saved to go shopping, right from the level (Adam, Nov 6: "we need to add quick paths to shop... click the Saved $
+// in the game"). The level waits, paused, and teh closet's done button comes straight back to it. What's broken so far this
+// level goes on the bill first, so it's there to spend (as when megachonk is called).
+$('chonkBank').addEventListener('click', e => {
+  e.stopPropagation(); Snd.init();
+  if (!sim || attract || anyScreen() || sim._nap) return;
+  tallyBill(); store.save(); Snd.fx('pop'); Snd.ambSet(0.45);
+  showCloset(() => { showScreen(null); checkRotate(); Snd.ambSet(1); syncChonk(); });
+});
 $('chonkBtn').addEventListener('click', e => {
   e.stopPropagation(); Snd.init();
   if (!chonkReady()) return;
@@ -4557,26 +4752,49 @@ const SCREENS = ['scrTitle', 'scrLevels', 'scrIntro', 'scrPause', 'scrResult', '
 function anyScreen() { return SCREENS.some(s => !$(s).hidden) || !$('scrRotate').hidden; }
 function showScreen(id) { if (id !== 'scrTitle') stopAttract(); for (const s of SCREENS) $(s).hidden = s !== id; paused = anyScreen(); if (!paused) acc = 0; }
 const isLocked = i => !unlock.owned && LEVELS[i] && LEVELS[i].world !== FREE_WORLD;
-// Progress (Adam, Nov 4: "right now the game lets players skip to the later levels immediately. It needs to make them get a
-// certain number of stars on the previous levels before unlocking"): win a level to open the next one (the bonus wreck-its
-// aren't needed to go on), and each world after the kitchen also needs stars from the levels before it, about 1.25 a level
-// (win them all and earn a few second and third stars): 15, 28, 40, 53, 63. A level already won stays open. The purchase
-// lock comes first.
-const STARS_PER_LEVEL = 1.25;
-const WORLD_STARS = (() => { const need = {}; let regular = 0; LEVELS.forEach((L, i) => { if (i && L.world !== LEVELS[i - 1].world) need[L.world] = Math.round(regular * STARS_PER_LEVEL); if (L.mode !== 'mess') regular++; }); return need; })();
+// Progress. Adam, Nov 4: "right now the game lets players skip to the later levels immediately. It needs to make them get a
+// certain number of stars on the previous levels before unlocking". Nov 6, sharper: "players have to get a certain # of stars on
+// say the kitchen to advance to the next level" (docs/NEXT_LEVELS.md, star gates). So:
+// - Each world opens with stars earned anywhere before it, wreck-its included (Adam, Nov 6: "let's switch it to accumulate
+//   stars to open up more levels"): about 1.5 a level so far, so a kid stuck in one world can go back and earn stars anywhere.
+//   The paw prints earn about 2.2 a level.
+// - Inside a world, a win opens the next level, as before.
+// - A world that has opened stays open (it's remembered), and so does any level already won. Saves from the old rule
+//   (all stars together, 1.25 a level) keep every world that rule had open.
+// - Once the game is bought, the building is open (the purchase visibly unlocks something), and so is every wreck-it.
+// - Locks look different: a padlock only ever means buy, a star door means earn, and a dimmed card means win the one before.
+const WORLD_NEED = { building: 18, park: 33, warehouse: 48, space: 63, moon: 75 };   // stars from every level before the world
+const starsBefore = w => { const f = LEVELS.findIndex(L => L.world === w); return LEVELS.reduce((n, L, i) => n + (i < f ? store.d.stars[L.id] || 0 : 0), 0); };
+const OLD_WORLD_STARS = (() => { const need = {}; let regular = 0; LEVELS.forEach((L, i) => { if (i && L.world !== LEVELS[i - 1].world) need[L.world] = Math.round(regular * 1.25); if (L.mode !== 'mess') regular++; }); return need; })();
+function worldOpen(w) {   // has world w opened (and stayed open)?
+  const need = WORLD_NEED[w]; if (!need) return true;
+  if (w === 'building' && owned()) return true;   // buying opens the building right away (Adam, Nov 6: "make buying The Whole Game open building 1 right away, so the purchase visibly unlocks something while 2.0 is in review. Later worlds keep their star gates.")
+  const op = store.d.worldsOpen || (store.d.worldsOpen = {});
+  if (op[w]) return true;
+  if (!store.d.gates2) {   // first run under these gates: keep what the old rule had open
+    store.d.gates2 = true; for (const k in OLD_WORLD_STARS) if (starTotal() >= OLD_WORLD_STARS[k]) op[k] = true; store.save();
+    if (op[w]) return true;
+  }
+  if (starsBefore(w) >= need || LEVELS.some(L => L.world === w && store.d.stars[L.id])) { op[w] = true; store.save(); return true; }
+  return false;
+}
+const owned = () => unlock.owned || !NATIVE;
 let allOpen = false;   // for the browser checks (window.__fits.openAll()); never saved
 const starTotal = () => LEVELS.reduce((n, L) => n + (store.d.stars[L.id] || 0), 0);
-function gate(i) {   // null if level i is open, else what it needs: { stars } for the world, or { after } (the level to win first)
+function gate(i) {   // null if level i is open, else what it needs: { stars, from } for the world, or { after } (the level to win first)
   const L = LEVELS[i];
   if (!L || allOpen || store.d.stars[L.id]) return null;
-  const need = WORLD_STARS[L.world]; if (need && starTotal() < need) return { stars: need };
+  if (L.mode === 'mess' && owned() && !isLocked(i)) return null;   // wreck-its: open once the game's bought
+  if (!worldOpen(L.world)) return { stars: WORLD_NEED[L.world], w: L.world };
+  if (LEVELS.findIndex(x => x.world === L.world && x.mode !== 'mess') === i) return null;   // a world's first level opens with the world: stars, not the last level won, so one stuck level never walls u in
   for (let k = i - 1; k >= 0; k--) if (LEVELS[k].mode !== 'mess') return store.d.stars[LEVELS[k].id] ? null : { after: k };
   return null;
 }
-const gateLine = g => g.stars ? `${g.stars} stars opens dis world. u haz ${starTotal()}.` : `win ${LEVELS[g.after].name} furst`;
+const gateLine = g => g.stars ? `${g.stars} stars opens dis world. u haz ${starsBefore(g.w)}.` : `win ${LEVELS[g.after].name} furst`;
 let gateTimer = 0;
+function lvlSay(text, ms = 2600) { const m = $('lvlMsg'); m.textContent = text; m.hidden = false; clearTimeout(gateTimer); gateTimer = setTimeout(() => { m.hidden = true; }, ms); }
 function showGate(i, g) {
-  const m = $('lvlMsg'); m.textContent = gateLine(g); m.hidden = false; clearTimeout(gateTimer); gateTimer = setTimeout(() => { m.hidden = true; }, 2600);
+  lvlSay(gateLine(g));
   const card = $('lvl-' + LEVELS[i].id); if (card) { card.classList.remove('nope'); void card.offsetWidth; card.classList.add('nope'); }
   Snd.fx('bonk', 0.4); buzz('tick', 0.5);
 }
@@ -4585,7 +4803,7 @@ function tallyBill() {
   const m = sim.mess || 0, b = sim._billed || 0;
   if (m > b) { store.d.bill = (store.d.bill || 0) + (m - b); sim._billed = m; }
 }
-document.addEventListener('visibilitychange', () => { if (document.hidden) store.save(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) return; store.save(); if (sim && !attract && !anyScreen()) $('menuBtn').click(); });   // (leaving the app mid-throw pauses it)
 function startLevel(i) {
   if (isLocked(i)) { showUnlock(i); return; }
   store.save();
@@ -4646,11 +4864,12 @@ function showLevels() {
   LEVELS.forEach((L, i) => {
     if (L.world && L.world !== (LEVELS[i - 1] || {}).world) {
       const h = document.createElement('div'); h.className = 'world-head'; h.textContent = WORLD_NAMES[L.world] || L.world;
-      const need = WORLD_STARS[L.world], have = starTotal();
-      if (need && have < need && !isLocked(i) && !allOpen) { const n = document.createElement('span'); n.className = 'need'; n.innerHTML = `${starSvg(true)}${have}/${need}`; h.appendChild(n); }
+      const need = WORLD_NEED[L.world];
+      if (need && !worldOpen(L.world) && !isLocked(i) && !allOpen) { const n = document.createElement('span'); n.className = 'need'; n.innerHTML = `${starSvg(true)}${starsBefore(L.world)}/${need}`; h.appendChild(n); }
       list.appendChild(h);
     }
-    const b = document.createElement('button'); b.className = 'level-card' + (isLocked(i) || gate(i) ? ' locked' : ''); b.id = 'lvl-' + L.id;
+    const g = isLocked(i) ? null : gate(i);
+    const b = document.createElement('button'); b.className = 'level-card' + (isLocked(i) ? ' locked' : g ? (g.stars ? ' starlock' : ' waitlock') : ''); b.id = 'lvl-' + L.id;
     const st = store.d.stars[L.id] || 0;
     b.innerHTML = `${L.newCat ? '<span class="newtag">new cat</span>' : L.mode === 'mess' ? '<span class="newtag">bonus</span>' : ''}<span class="name">${L.name}</span><span class="what">${L.title}</span><span class="stars">${[0, 1, 2].map(k => starSvg(k < st)).join('')}</span><span class="faces"></span>`;
     const faces = b.querySelector('.faces'); L.lineup.forEach(t => faces.appendChild(makeFace(t, 22)));
@@ -4671,6 +4890,9 @@ function showLevels() {
   if (NATIVE) $('lvlEyebrow').textContent = unlock.owned ? 'teh whole game' : 'teh kitchen iz free';
   $('tglRestore').hidden = !NATIVE || unlock.owned;
   syncToggles(); showScreen('scrLevels');
+  // (it always opened at the top: back from moon 5, its card was 2,600 px down)
+  const here = LEVELS[levelIdx] && levelIdx >= 0 ? levelIdx : LEVELS.findIndex((L, k) => !store.d.stars[L.id] && !isLocked(k) && !gate(k));
+  const card = here >= 0 && $('lvl-' + LEVELS[here].id); if (card) card.scrollIntoView({ block: 'center' });
 }
 function showUnlock(i) {
   unlock.want = i; unlock.state = 'ready'; syncUnlock();
@@ -4690,6 +4912,7 @@ function syncUnlock() {
   $('unBuy').textContent = busy ? '...' : `unlock everything · ${unlock.price}`; $('unBuy').disabled = busy;
   const msg = { pending: 'waitin 4 a grown-up 2 say ok', failed: 'dat didnt work. try again?', 'restored-none': 'nothin 2 restore on dis account' }[unlock.state];
   $('unMsg').hidden = !msg; $('unMsg').textContent = msg || '';
+  if (msg && !$('scrLevels').hidden) lvlSay(msg, 4000);   // (restore on the level list answered only on the hidden unlock screen)
 }
 $('unBuy').addEventListener('click', () => { Snd.init(); Snd.fx('pop'); unlock.state = 'purchasing'; syncUnlock(); nativeSay({ type: 'buy' }); });
 $('unRestore').addEventListener('click', () => { Snd.init(); Snd.fx('pop'); unlock.state = 'purchasing'; syncUnlock(); nativeSay({ type: 'restore' }); });
@@ -4726,9 +4949,9 @@ function giveExtraCat() {
 }
 // the bill counting up on the result screen
 function countUp(el, from, to, ms, delay, done) {
-  if (!el) return; if (to <= from) { el.textContent = money(to); return; }
-  const t0 = performance.now() + delay;
-  const tick = now => { const k = clamp((now - t0) / ms, 0, 1), e = 1 - (1 - k) ** 3; el.textContent = money(from + (to - from) * e); if (k < 1) requestAnimationFrame(tick); else if (done) done(); };
+  if (!el) return; el._count = null; if (to <= from) { el.textContent = money(to); return; }
+  const t0 = performance.now() + delay, me = el._count = {};   // (el._count = null stops it)
+  const tick = now => { if (el._count !== me) return; const k = clamp((now - t0) / ms, 0, 1), e = 1 - (1 - k) ** 3; el.textContent = money(from + (to - from) * e); if (k < 1) requestAnimationFrame(tick); else if (done) done(); };
   requestAnimationFrame(tick);
   if (to - from >= 20) setTimeout(() => Snd.fx('coins', 0.5), delay);
 }
@@ -4764,6 +4987,23 @@ function maybeAskReview(r, L, firstWin) {
   store.d.reviewAsks = asks.concat(now); store.save();
   setTimeout(() => nativeSay({ type: 'review' }), 1700);   // after the stars pop
 }
+// the next big prize and how far u are, on the result card
+function prizeRow(bill) {
+  const big = nextBigPrize(); if (!big) return '';
+  return `<div class="goal prize"><span></span><span>${bill >= big.price ? `u can buy da ${big.name}!` : `${money(bill)} of ${money(big.price)} 4 da ${big.name}`}</span><span class="val"><span class="bar"><i style="width:${Math.min(100, bill / big.price * 100).toFixed(1)}%"></i></span></span></div>`;
+}
+// back on the result card from teh closet: the bill as it is now, and no "u can buy" for what's bought or out of reach
+function refreshResBill() {
+  const bill = store.d.bill || 0, el = $('resBill'); if (!el) return;
+  el._count = null; el.textContent = money(bill); store.d.billShown = bill; store.save();
+  const pr = $('resGoals').querySelector('.goal.prize'); if (pr) { const nu = prizeRow(bill); if (nu) pr.outerHTML = nu; else pr.remove(); }
+  for (const u of $('resGoals').querySelectorAll('.goal.unlock')) { const id = u.querySelector('.ico').dataset.item, it = CLOSET.find(c => c.id === id); if (!it || owns(id) || it.price > bill) u.remove(); }
+  const dot = $('resShopDot'); if (dot) dot.hidden = affordable() <= (store.d.closetSeen || 0);
+}
+// The shop button on the result card (Adam, Nov 6: "when a level ends add a shop button but it needs to be cat meme cute like a
+// funny phrase"). It still says shop, so it's clear what it does. The dot: something new u can buy.
+const SHOP_LINE = 'shop til i flop';
+const SHOP_BAG = '<svg width="17" height="17" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.2 6.2 H14.8 L14 16 H4 Z" fill="#fff" stroke="#2E3A35" stroke-width="2" stroke-linejoin="round"/><path d="M6.4 7.6 V5 a2.6 2.6 0 0 1 5.2 0 V7.6" fill="none" stroke="#2E3A35" stroke-width="2" stroke-linecap="round"/></svg>';
 function showResult(r) {
   const L = sim.level;
   if (!attract) tallyBill();
@@ -4781,12 +5021,14 @@ function showResult(r) {
   $('resStars').innerHTML = [0, 1, 2].map(k => starSvg(k < r.stars, 'star')).join('');
   $('resGoals').innerHTML = goalRows(L, r) + `<div class="goal"><span></span><span>broke ${r.broken} thing${r.broken === 1 ? '' : 's'}</span><span class="val"></span></div>` +
     (r.wreck ? `<div class="goal"><span></span><span>best bill</span><span class="val">$${store.d.best[L.id]}</span></div>` : '') +
-    (r.helped && sim.chonkPaid ? `<div class="goal"><span></span><span>megachonk's cat-a-pult</span><span class="val"><span class="chonkface"></span>-${money(sim.chonkPaid)}</span></div>` : '') +
+    // megachonk, one line: what he cost, and what he smashed (it's in the mess above too)
+    (r.helped && (sim.chonkPaid || sim.chonkMess) ? `<div class="goal"><span class="chonkface"></span><span>megachonk</span><span class="val">${sim.chonkPaid ? '-' + money(sim.chonkPaid) : ''}${sim.chonkPaid && sim.chonkMess ? ' · ' : ''}${sim.chonkMess ? 'smashed ' + money(sim.chonkMess) : ''}</span></div>` : '') +
+    (!r.won && !r.wreck && chonkSatOnSpot() ? `<div class="goal"><span class="chonkface"></span><span>megachonk sat on it. rude.</span><span class="val"></span></div>` : '') +
     `<div class="goal bill"><span></span><span>u owes da hooman</span><span class="val" id="resBill">${money(billFrom)}</span></div>` +
-    (nextBigPrize() && !sim._nap ? `<div class="goal prize"><span></span><span>${billTo >= nextBigPrize().price ? `u can buy da ${nextBigPrize().name}!` : `${money(billTo)} of ${money(nextBigPrize().price)} 4 da ${nextBigPrize().name}`}</span><span class="val"><span class="bar"><i style="width:${Math.min(100, billTo / nextBigPrize().price * 100).toFixed(1)}%"></i></span></span></div>` : '') +
+    (sim._nap ? '' : prizeRow(billTo)) +
     fresh.slice(-2).map(c => `<div class="goal unlock"><span class="ico" data-item="${c.id}"></span><span>u can buy da ${c.name} now!</span><span class="val"></span></div>`).join('');
   for (const el of $('resGoals').querySelectorAll('.ico')) { const it = CLOSET.find(c => c.id === el.dataset.item); el.appendChild(makeWearIcon(L.lineup[0], { [it.slot]: it.id }, 30)); }
-  for (const el of $('resGoals').querySelectorAll('.chonkface')) el.appendChild(makeFace('chonk', 22));
+  for (const el of $('resGoals').querySelectorAll('.chonkface')) el.appendChild(makeFace('chonk', 18));
   countUp($('resBill'), billFrom, billTo, 1100, 900, () => { if (fresh.length) { Snd.fx('star'); Snd.voice('mrrp', 1, 0.7); } });
   const last = levelIdx + 1 >= LEVELS.length;
   $('resMain').textContent = r.won ? (last ? 'levels' : 'next') : resExtra ? '1 more cat' : 'retry';
@@ -4794,7 +5036,10 @@ function showResult(r) {
   if (r.won) row.innerHTML = last ? '<button class="btn" id="resRetry2">retry</button>' : '<button class="btn" id="resRetry2">retry</button><button class="btn" id="resLevels2">levels</button>';
   else if (resExtra) row.innerHTML = '<button class="btn" id="resRetry2">retry</button><button class="btn" id="resLevels2">levels</button>';
   else row.innerHTML = '<button class="btn" id="resLevels2">levels</button><button class="btn" id="resHelp"></button>';
-  row.className = 'btn-row' + (row.children.length === 1 ? ' one' : '');
+  row.insertAdjacentHTML('beforeend', `<button class="btn shop" id="resShop" aria-label="shop">${SHOP_BAG}<span>${SHOP_LINE}</span><span class="new-dot" id="resShopDot" hidden></span></button>`);
+  $('resShopDot').hidden = affordable() <= (store.d.closetSeen || 0);
+  $('resShop').addEventListener('click', () => { Snd.fx('pop'); showCloset(() => { showScreen('scrResult'); refreshResBill(); }); });
+  row.className = 'btn-row' + (row.children.length === 1 ? ' one' : row.children.length === 3 ? ' three' : '');
   const r2 = $('resRetry2'); if (r2) r2.addEventListener('click', () => startLevel(levelIdx));
   const l2 = $('resLevels2'); if (l2) l2.addEventListener('click', showLevels);
   const hp = $('resHelp'); if (hp) { hp.textContent = store.d.aimFull ? 'short aim line' : 'full aim line'; hp.addEventListener('click', () => { store.d.aimFull = !store.d.aimFull; store.save(); startLevel(levelIdx); }); }
@@ -4857,7 +5102,8 @@ $('scrTitle').addEventListener('pointerdown', e => { if (e.target.closest('butto
 $('tPlay').addEventListener('click', () => {
   stopAttract(); Snd.init(); Snd.fx('pop');
   const i = LEVELS.findIndex((L, k) => !store.d.stars[L.id] && !isLocked(k) && !gate(k) && L.mode !== 'mess');   // the next level to play
-  if (i < 0) showLevels(); else startLevel(i);
+  if (i >= 0) startLevel(i);
+  else { const k = LEVELS.findIndex((L, n) => isLocked(n)); if (k >= 0) showUnlock(k); else showLevels(); }   // (the free kitchen done: the unlock screen, not a quiet level list)
 });
 $('tLevels').addEventListener('click', () => { stopAttract(); Snd.init(); Snd.fx('pop'); showLevels(); });
 
@@ -4876,12 +5122,14 @@ function makeWearIcon(type, wear, size) {   // the cat's head wearing it (megach
   withCtx(c.getContext('2d'), () => { ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     if (type !== 'chonk') { ctx.translate(size / 2, size * 0.64); const k = size / 110; ctx.scale(k, k); drawHead(CATS[type], { eyes: 'open', mouth: 'w' }, { faceOnly: true, wear }); return; }
     if (slot === 'cata') { ctx.translate(size * 0.62, size * 0.95); const k = size / 350; ctx.scale(k, k); ctx.translate(0, -FLOOR); const keep = store.d.wear.chonk; store.d.wear.chonk = Object.assign({}, keep, wear); try { endCatapult(174, 1, null, false, null, 0); } finally { store.d.wear.chonk = keep; } return; }
-    if (slot === 'body' || slot === 'back') { ctx.translate(size / 2, size * 0.8); const k = size / 150; ctx.scale(k, k); drawCat(CATS.chonk, 'sit', { eyes: 'open', mouth: 'w' }, { t: 0, wear }); return; }
+    if (slot === 'body' || slot === 'back') { ctx.translate(size / 2, size * 0.8); const k = size / 150; ctx.scale(k, k); drawCat(CATS.chonk, 'sit', { eyes: 'open', mouth: 'w' }, { t: 0, wear, noSuit: true }); return; }
     ctx.translate(size / 2, size * 0.68); const k = size / 136; ctx.scale(k, k); chonkHead(CATS.chonk, { eyes: 'open', mouth: 'w' }, { wear });
   });
   return c;
 }
-function showCloset() {
+let closetBack = null;   // where teh closet's done button goes: the level list, or back to the level or the result card
+function showCloset(back) {
+  closetBack = back || null;
   store.d.closetSeen = affordable(); closetBuy = null; store.save();
   if (!metCats().has(closetCat)) closetCat = 'toast';
   renderCloset(); showScreen('scrCloset'); startClosetPreview();
@@ -4941,12 +5189,12 @@ function startClosetPreview() {
     if ($('scrCloset').hidden) return;
     const t = (now - t0) / 1000;
     withCtx(g, () => { ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h); const big = closetCat === 'chonk', sc = Math.min(w, h) / (big ? 172 : 118); ctx.translate(w / 2, h * (big ? 0.8 : 0.66)); ctx.scale(sc, sc);   // (megachonk's twice as big)
-      drawCat(CATS[closetCat], 'sit', { eyes: 'open', mouth: 'w' }, { t, blink: (t % 3.6) > 3.45 ? 1 : 0, wiggle: 0.15 }); });
+      drawCat(CATS[closetCat], 'sit', { eyes: 'open', mouth: 'w' }, { t, blink: (t % 3.6) > 3.45 ? 1 : 0, wiggle: 0.15, noSuit: true }); });
     closetRaf = requestAnimationFrame(loop);
   };
   closetRaf = requestAnimationFrame(loop);
 }
-$('clDone').addEventListener('click', () => { Snd.fx('pop'); showLevels(); });
+$('clDone').addEventListener('click', () => { Snd.fx('pop'); const back = closetBack; closetBack = null; if (back) back(); else showLevels(); });
 $('closetBtn').addEventListener('click', () => { Snd.init(); Snd.fx('pop'); showCloset(); });
 // every button: a soft wooden tok and a light tick (ASMR, Nov 5)
 document.addEventListener('pointerdown', e => { const b = e.target && e.target.closest && e.target.closest('button'); if (!b || b.disabled) return; Snd.init(); Snd.tok(0.3, b.classList.contains('go') ? 0.82 : 1.05); buzz('tick', 0.15); }, true);
@@ -4971,7 +5219,7 @@ function drawNewCatDemo(d, t, clock) {
   ctx.fillStyle = '#FBF1DC'; ctx.fillRect(0, 0, 400, F); ctx.fillStyle = '#E4D3B6'; ctx.fillRect(0, F, 400, 20); ctx.fillStyle = '#C99963'; ctx.fillRect(0, F - 3, 400, 6);
   const tapRing = (x, y, k) => { if (k < 0 || k > 1) return; ell(x, y, 10 + k * 26, 10 + k * 26); fs(null, `rgba(237,156,82,${1 - k})`, 4); };
   const box = (x0, x1, rim, bottom = F) => { rrect(x0, rim, x1 - x0, bottom - rim, 2); fs('#D2A06A', INK, 2.4); };
-  const cat = (pose, x, y, face, o = {}) => { ctx.save(); ctx.translate(x, y); if (o.rot) ctx.rotate(o.rot); if (o.flipY) ctx.scale(1, -1); drawCat(d, pose, face, Object.assign({ t: clock }, o)); ctx.restore(); };
+  const cat = (pose, x, y, face, o = {}) => { ctx.save(); ctx.translate(x, y); if (o.rot) ctx.rotate(o.rot); if (o.flipY) ctx.scale(1, -1); drawCat(d, pose, face, Object.assign({ t: clock, noSuit: true }, o)); ctx.restore(); };
   const sitIn = (x, y, s = 1) => cat('sit', x, y, { eyes: 'closed', mouth: 'w' }, { scale: s });
   const heart = (x, y, k) => symbol('heart', x, y - k * 10, 0.9, clamp(2.8 - t, 0, 1));
   if (d.ability === 'loaf') {
@@ -5103,7 +5351,7 @@ function drain() {
         if (e.cat.def.ability && !seenHint.has(e.cat.type)) { seenHint.add(e.cat.type); setHint(e.cat.type, 0); } else setHint(null);
         break; }
       case 'aim': updateHud();
-        if (chonkReady() && !store.d.chonkMet && !hintNow()) { showTextHint(sim._nap ? 'megachonk iz free in nap mode. tap him!' : `megachonk iz here! tap him 2 call him. he costz ${money(CHONK_COST)}`, 'chonk'); hintTimer = 4000; }
+        if (chonkReady() && !store.d.chonkMet && !hintNow() && !sim._chonkTip && !sim.level.newCat && chonkAfford() && $('hint').classList.contains('off')) { sim._chonkTip = true; showTextHint(sim._nap ? 'megachonk iz free in nap mode. tap him!' : `megachonk iz here! tap him 2 call him. he costz ${money(CHONK_COST)}`, 'chonk'); hintTimer = 4000; }
         if (hint) hint.cur = null;
         if (hintNow() && !hint.shown) { hint.shown = true; showTextHint('psst. follow da paws.'); hintTimer = 3500; }
         break;
@@ -5172,7 +5420,7 @@ function drain() {
         } else Snd.fx('soft', 0.6);
         break; }
       case 'hit': if (e.rel > 2) Snd.fx(HIT_SOUND[e.item.def.mat] || 'soft', clamp(e.rel / 8, 0.25, 1)); break;
-      case 'mess': if (!e.free) addText('$' + e.value, e.x, e.y - 20, RED, 18); updateHud(); break;   // (megachonk's don't count)
+      case 'mess': addText('$' + e.value, e.x, e.y - 20, e.chonk ? GOLD : RED, e.chonk ? 20 : 18); updateHud(); break;   // (megachonk's in gold, a bit bigger)
       case 'break': {
         breakFx(e); buzz('break', 0.6);
         if (!(sim.active && sim.active.def.pound)) for (const c of nearCats(e.x, e.y, 200)) { const rx = RX(c); if (rx.spook <= 0) { rx.spook = 0.7; if (c.state === 'sit' || c.state === 'queue') Snd.hiss(0.5); } }   // (megachonk's smashes: they're too busy cheering)
@@ -5236,6 +5484,7 @@ function drain() {
         else if (e.bonked) Snd.fx('slide', 0.7);
         if (e.blocked) rx.anger = 1.6;
         if (!e.cat.def.pound) sim.cats.filter(c => c.state === 'queue').forEach(c => { RX(c).sad = 1.2; });   // (megachonk not in a box isn't sad: he's having a nap)
+        else if (!attract && chonkSatOnSpot()) { showTextHint('i no fits. i sits anyway.', 'chonk'); hintTimer = 3200; }   // on a box he doesn't fit (or someone else's): blocked
         updateHud(); break; }
       case 'leave': {
         const c = e.cat;
@@ -6088,7 +6337,7 @@ function endCam(c, cw, ch, dpr, shake) {
   ctx.setTransform(dpr * s, 0, 0, dpr * s, dpr * (cw / 2 - c.x * s + sx), dpr * (ch / 2 - c.y * s + sy));
   return { x0: c.x - cw / 2 / s, x1: c.x + cw / 2 / s, y0: c.y - ch / 2 / s, y1: c.y + ch / 2 / s, s };
 }
-function endCat(type, pose, x, y, face, o = {}) { ctx.save(); ctx.translate(x, y); if (o.rot) ctx.rotate(o.rot); if (o.flip) ctx.scale(-1, 1); drawCat(CATS[type], pose, face, Object.assign({ t: E ? E.t : 0 }, o)); ctx.restore(); }
+function endCat(type, pose, x, y, face, o = {}) { ctx.save(); ctx.translate(x, y); if (o.rot) ctx.rotate(o.rot); if (o.flip) ctx.scale(-1, 1); drawCat(CATS[type], pose, face, Object.assign({ t: E ? E.t : 0, noSuit: true }, o)); ctx.restore(); }
 // a cardboard box: bottom centre at (x, y); o.sx/o.sy squash it from the floor up
 function endBoxBack(x, y, w, h, o = {}) {
   ctx.save(); ctx.translate(x, y); ctx.scale(o.sx || 1, o.sy || 1);
@@ -6117,7 +6366,7 @@ function endLander(x, y, t, flame, face) {
   // the crew's box on top
   const bw = 176, bh = 40, top = y - 70;
   endBoxBack(x, top, bw, bh);
-  [[-64, 0], [-22, -1], [22, 0], [64, -1], [-43, 8], [0, 7], [43, 8]].forEach(([dx, dy], i) => { const f = face(i); if (f) endCat(CREW[i], 'sit', x + dx, top - 34 + dy, f, { scale: 0.7 }); });   // (no face: that one's hopped out)
+  [[-64, 0], [-22, -1], [22, 0], [64, -1], [-43, 8], [0, 7], [43, 8]].forEach(([dx, dy], i) => { const f = face(i); if (f) endCat(CREW[i], 'sit', x + dx, top - 34 + dy, f, { scale: 0.7, inSuit: true }); });   // (no face: that one's hopped out)
   endBoxFront(x, top, bw, bh);
   rrect(x - 72, y - 70, 144, 70, 8); fs('#E0B04A', INK, 2.4);
   for (let xx = x - 62; xx < x + 66; xx += 18) line([xx, y - 64, xx + 8, y - 6], 'rgba(255,255,255,0.3)', 2);
@@ -6186,7 +6435,7 @@ function endCatapult(px, rollK, swingT, inBowl, face, t) {
   try {
     drawCatapult(p, t);
     const A = catapultArm(p);
-    if (inBowl) { ctx.save(); ctx.translate(A.S.x, A.S.y); ctx.rotate(A.rot); drawChonkBasket(CATS.chonk, face, { t, look: { x: 0, y: 0 }, lids: face.eyes === 'open' ? chonkBlinks(t) : null }); ctx.restore(); basketPart(p, true); }
+    if (inBowl) { ctx.save(); ctx.translate(A.S.x, A.S.y); ctx.rotate(A.rot); drawChonkBasket(CATS.chonk, face, { t, look: { x: 0, y: 0 }, lids: face.eyes === 'open' ? chonkBlinks(t) : null, noSuit: true }); ctx.restore(); basketPart(p, true); }
     return A;
   } finally { sim = keep.sim; fx.roll = keep.roll; fx.cata = keep.cata; fx.hop = keep.hop; }
 }
@@ -6491,7 +6740,7 @@ function drawPostcard(world, t, w, h, dpr) {
   if (!space) endBoxBack(bx, FLOOR, 220, 58);
   P.cats.forEach((type, i) => {
     const x = bx - 48 + i * 96, bob = space ? Math.sin(t * 1.6 + i) * 10 : 0;
-    if (space) endCat(type, 'fly', x, FLOOR - 130 + bob - i * 34, { eyes: 'happy', mouth: 'w' }, { rot: Math.sin(t + i) * 0.2, t, scale: 1.35 });
+    if (space) endCat(type, 'fly', x, FLOOR - 130 + bob - i * 34, { eyes: 'happy', mouth: 'w' }, { rot: Math.sin(t + i) * 0.2, t, scale: 1.35, inSuit: true });
     else endCat(type, 'sit', x, FLOOR - 50, { eyes: ((t + i) % 3.4) > 3.25 ? 'closed' : 'open', mouth: 'w' }, { t, look: { x: -0.6, y: 0 }, scale: 1.35 });
   });
   if (!space) endBoxFront(bx, FLOOR, 220, 58);
@@ -6519,7 +6768,7 @@ function drawPostcard(world, t, w, h, dpr) {
 }
 $('pcNext').addEventListener('click', () => { Snd.fx('pop'); const f = pcThen; pcThen = null; if (f) f(); else showLevels(); });
 
-window.__fits = { openAll: () => { allOpen = true; }, slowmo: k => { timeScale = k; }, showEnding, showPostcard, END_T, get endT() { return E && E.t; }, endSeek: k => { if (E) E.t0 = performance.now() - k * 1000; }, CLOSET, gate, WORLD_STARS, showTitle, get attract() { return attract; }, ATTRACT, STYLE, art: { ell, fs, line, rrect, poly, symbol, starPath, heartPath, INK, PAPER, ORANGE, GOLD, RED }, get sim() { return sim; }, cam, Snd, drawCat, withCtx, CATS, LEVELS, showResult, startLevel, showScreen, showLevels, drain, store, maxPullPx };
+window.__fits = { openAll: () => { allOpen = true; }, slowmo: k => { timeScale = k; }, showEnding, showPostcard, END_T, get endT() { return E && E.t; }, endSeek: k => { if (E) E.t0 = performance.now() - k * 1000; }, CLOSET, gate, WORLD_NEED, starsBefore, showTitle, get attract() { return attract; }, ATTRACT, STYLE, art: { ell, fs, line, rrect, poly, symbol, starPath, heartPath, INK, PAPER, ORANGE, GOLD, RED }, get sim() { return sim; }, cam, Snd, drawCat, withCtx, CATS, LEVELS, showResult, startLevel, showScreen, showLevels, drain, store, maxPullPx };
 layout();
 showTitle();
 requestAnimationFrame(frame);
