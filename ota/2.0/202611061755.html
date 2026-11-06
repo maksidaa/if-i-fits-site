@@ -401,7 +401,7 @@ body.attract #hud, body.attract #hint { display: none; }
       <ul>
         <li><b>Play:</b> touch anywhere and pull back to aim, let go to fling. Land a cat in every spot (the dashed boxes). Tap while a cat flies, or just after it lands, for its trick.</li>
         <li><b>Stars:</b> one for every spot filled, one for cats left over, one for enough mess. Worlds open as you earn stars.</li>
-        <li><b>Stuck?</b> After a miss you can ask for 1 more cat. Lose a level twice and paw prints show one way through.</li>
+        <li><b>Stuck?</b> After a miss you can ask for 1 more cat. Lose a level twice and paw prints show a first throw that works. The rest is up to you.</li>
         <li><b>Sound and vibration:</b> in the pause card (the button at the top left during a level). The game plays sound even on silent.</li>
         <li><b>The Whole Game:</b> "restore purchase" on the level list restores it with the same Apple ID. Family Sharing works.</li>
         <li><b>Your progress</b> stays on this device; deleting the game deletes it.</li>
@@ -2467,7 +2467,7 @@ const FITS = (() => {
 </script>
 
 <script>
-const HINTS = {"b1":[{"a":33,"p":0.84,"ab":null}],"b10":[{"a":36,"p":0.84,"ab":null},{"a":45,"p":0.6,"ab":24},{"a":54,"p":0.9,"ab":8},{"a":78,"p":0.56,"ab":null}],"b2":[{"a":36,"p":0.9,"ab":null},{"a":72,"p":0.7,"ab":null}],"b3":[{"a":42,"p":0.8,"ab":8},{"a":72,"p":0.7,"ab":null}],"b4":[{"a":39,"p":0.86,"ab":8},{"a":51,"p":0.84,"ab":null}],"b5":[{"a":48,"p":0.5,"ab":32},{"a":60,"p":0.82,"ab":null}],"b6":[{"a":78,"p":0.56,"ab":null},{"a":69,"p":0.74,"ab":null}],"b7":[{"a":6,"p":0.58,"ab":16},{"a":33,"p":0.86,"ab":null}],"b8":[{"a":63,"p":0.58,"ab":null},{"a":51,"p":0.84,"ab":null}],"b9":[{"a":48,"p":0.88,"ab":null},{"a":27,"p":0.9,"ab":8},{"a":78,"p":0.56,"ab":null},{"a":30,"p":0.64,"ab":40}],"k1":[{"a":27,"p":0.9,"ab":null}],"k10":[{"a":87,"p":0.58,"ab":24},{"a":45,"p":0.86,"ab":null},{"a":45,"p":0.72,"ab":24}],"k11":[{"a":30,"p":0.56,"ab":16},{"a":48,"p":0.82,"ab":null},{"a":3,"p":0.3,"ab":8}],"k12":[{"a":24,"p":0.8,"ab":null},{"a":54,"p":0.7,"ab":16},{"a":78,"p":0.56,"ab":null},{"a":27,"p":0.86,"ab":16}],"k2":[{"a":63,"p":0.5,"ab":null}],"k3":[{"a":42,"p":0.84,"ab":null},{"a":21,"p":0.3,"ab":null}],"k4":[{"a":66,"p":0.68,"ab":null},{"a":48,"p":0.88,"ab":null}],"k5":[{"a":45,"p":0.58,"ab":null},{"a":48,"p":0.86,"ab":null}],"k6":[{"a":3,"p":0.24,"ab":null},{"a":42,"p":0.9,"ab":null}],"k7":[{"a":15,"p":0.68,"ab":8},{"a":60,"p":0.78,"ab":null}],"k8":[{"a":18,"p":0.8,"ab":24},{"a":24,"p":0.98,"ab":null}],"k9":[{"a":9,"p":0.72,"ab":24},{"a":39,"p":0.9,"ab":null}],"mn1":[{"a":15,"p":0.7,"ab":null}],"mn2":[{"a":27,"p":0.86,"ab":60},{"a":27,"p":0.9,"ab":null}],"mn3":[{"a":72,"p":0.9,"ab":null},{"a":30,"p":0.72,"ab":24}],"mn4":[{"a":15,"p":0.92,"ab":8},{"a":27,"p":0.84,"ab":null},{"a":48,"p":0.88,"ab":null}],"mn5":[{"a":75,"p":0.8,"ab":null},{"a":63,"p":0.96,"ab":null}],"mn6":[{"a":33,"p":0.6,"ab":8},{"a":87,"p":0.58,"ab":8},{"a":78,"p":0.88,"ab":null}],"mn7":[{"a":12,"p":0.84,"ab":72},{"a":48,"p":0.9,"ab":null}],"mn8":[{"a":24,"p":0.9,"ab":72},{"a":87,"p":0.58,"ab":24},{"a":21,"p":0.82,"ab":50},{"a":48,"p":0.94,"ab":8}],"mn9":[{"a":54,"p":1,"ab":null},{"a":30,"p":0.7,"ab":8},{"a":12,"p":0.86,"ab":null},{"a":54,"p":1,"ab":null},{"a":63,"p":0.78,"ab":8},{"a":12,"p":0.8,"ab":40},{"a":27,"p":1,"ab":86}],"pk1":[{"a":24,"p":0.8,"ab":null}],"pk10":[{"a":72,"p":0.68,"ab":null},{"a":9,"p":0.76,"ab":40},{"a":42,"p":0.9,"ab":8},{"a":51,"p":0.8,"ab":8}],"pk2":[{"a":24,"p":0.82,"ab":null},{"a":45,"p":0.9,"ab":null}],"pk3":[{"a":27,"p":0.92,"ab":8},{"a":42,"p":0.8,"ab":null}],"pk4":[{"a":66,"p":0.72,"ab":null},{"a":57,"p":0.56,"ab":8}],"pk5":[{"a":27,"p":0.7,"ab":32},{"a":39,"p":0.86,"ab":null}],"pk6":[{"a":42,"p":0.82,"ab":8},{"a":18,"p":0.8,"ab":null}],"pk7":[{"a":33,"p":0.86,"ab":null},{"a":69,"p":0.54,"ab":8}],"pk8":[{"a":75,"p":0.58,"ab":8},{"a":42,"p":0.9,"ab":null},{"a":69,"p":0.88,"ab":8}],"pk9":[{"a":63,"p":0.7,"ab":null},{"a":39,"p":0.9,"ab":8},{"a":54,"p":0.86,"ab":null}],"sp1":[{"a":3,"p":0.58,"ab":null},{"a":21,"p":0.58,"ab":null}],"sp2":[{"a":54,"p":0.76,"ab":null},{"a":60,"p":0.74,"ab":null}],"sp3":[{"a":6,"p":0.5,"ab":40},{"a":3,"p":0.58,"ab":null}],"sp4":[{"a":15,"p":0.58,"ab":null},{"a":6,"p":0.96,"ab":null},{"a":6,"p":0.42,"ab":60}],"sp5":[{"a":6,"p":0.58,"ab":16},{"a":48,"p":0.64,"ab":null},{"a":48,"p":0.6,"ab":60},{"a":21,"p":0.7,"ab":null}],"sp6":[{"a":6,"p":0.58,"ab":8},{"a":33,"p":0.58,"ab":null},{"a":18,"p":0.6,"ab":40}],"sp7":[{"a":15,"p":0.62,"ab":8},{"a":6,"p":0.58,"ab":null},{"a":60,"p":0.6,"ab":null}],"sp8":[{"a":39,"p":0.58,"ab":null},{"a":57,"p":0.92,"ab":40},{"a":12,"p":0.58,"ab":8},{"a":3,"p":0.7,"ab":8},{"a":5,"p":0.14,"ab":null,"miss":true},{"a":5,"p":0.14,"ab":null,"miss":true},{"a":39,"p":0.9,"ab":86},{"a":3,"p":0.88,"ab":40}],"wh1":[{"a":27,"p":0.8,"ab":null}],"wh10":[{"a":33,"p":0.84,"ab":null},{"a":51,"p":0.9,"ab":8},{"a":33,"p":0.7,"ab":8},{"a":78,"p":0.64,"ab":8},{"a":5,"p":0.14,"ab":null,"miss":true},{"a":45,"p":0.92,"ab":8},{"a":81,"p":0.92,"ab":8}],"wh2":[{"a":21,"p":0.9,"ab":null},{"a":51,"p":0.9,"ab":null}],"wh3":[{"a":36,"p":0.84,"ab":8},{"a":66,"p":0.64,"ab":null}],"wh4":[{"a":45,"p":0.94,"ab":8},{"a":72,"p":0.72,"ab":null},{"a":27,"p":0.9,"ab":null}],"wh5":[{"a":3,"p":0.68,"ab":8},{"a":39,"p":0.98,"ab":null}],"wh6":[{"a":21,"p":0.9,"ab":8},{"a":63,"p":0.8,"ab":null}],"wh7":[{"a":39,"p":0.96,"ab":16},{"a":33,"p":0.94,"ab":8},{"a":51,"p":0.92,"ab":null}],"wh8":[{"a":63,"p":0.9,"ab":null},{"a":45,"p":0.98,"ab":8},{"a":24,"p":0.62,"ab":null}],"wh9":[{"a":27,"p":0.9,"ab":24},{"a":45,"p":0.96,"ab":8},{"a":54,"p":0.84,"ab":null}]};
+const HINTS = {"b1":[{"a":33,"p":0.84,"ab":null}],"b10":[{"a":36,"p":0.84,"ab":null}],"b2":[{"a":36,"p":0.9,"ab":null}],"b3":[{"a":42,"p":0.8,"ab":8}],"b4":[{"a":39,"p":0.86,"ab":8}],"b5":[{"a":48,"p":0.5,"ab":32}],"b6":[{"a":78,"p":0.56,"ab":null}],"b7":[{"a":6,"p":0.58,"ab":16}],"b8":[{"a":63,"p":0.58,"ab":null}],"b9":[{"a":48,"p":0.88,"ab":null}],"k1":[{"a":27,"p":0.9,"ab":null}],"k10":[{"a":87,"p":0.58,"ab":24}],"k11":[{"a":30,"p":0.56,"ab":16}],"k12":[{"a":24,"p":0.8,"ab":null}],"k2":[{"a":63,"p":0.5,"ab":null}],"k3":[{"a":42,"p":0.84,"ab":null}],"k4":[{"a":66,"p":0.68,"ab":null}],"k5":[{"a":45,"p":0.58,"ab":null}],"k6":[{"a":3,"p":0.24,"ab":null}],"k7":[{"a":15,"p":0.68,"ab":8}],"k8":[{"a":18,"p":0.8,"ab":24}],"k9":[{"a":9,"p":0.72,"ab":24}],"mn1":[{"a":15,"p":0.7,"ab":null}],"mn2":[{"a":27,"p":0.86,"ab":60}],"mn3":[{"a":72,"p":0.9,"ab":null}],"mn4":[{"a":15,"p":0.92,"ab":8}],"mn5":[{"a":75,"p":0.8,"ab":null}],"mn6":[{"a":33,"p":0.6,"ab":8}],"mn7":[{"a":12,"p":0.84,"ab":72}],"mn8":[{"a":24,"p":0.9,"ab":72}],"mn9":[{"a":54,"p":1,"ab":null}],"pk1":[{"a":24,"p":0.8,"ab":null}],"pk10":[{"a":72,"p":0.68,"ab":null}],"pk2":[{"a":24,"p":0.82,"ab":null}],"pk3":[{"a":27,"p":0.92,"ab":8}],"pk4":[{"a":66,"p":0.72,"ab":null}],"pk5":[{"a":27,"p":0.7,"ab":32}],"pk6":[{"a":42,"p":0.82,"ab":8}],"pk7":[{"a":33,"p":0.86,"ab":null}],"pk8":[{"a":75,"p":0.58,"ab":8}],"pk9":[{"a":63,"p":0.7,"ab":null}],"sp1":[{"a":3,"p":0.58,"ab":null}],"sp2":[{"a":54,"p":0.76,"ab":null}],"sp3":[{"a":6,"p":0.5,"ab":40}],"sp4":[{"a":15,"p":0.58,"ab":null}],"sp5":[{"a":6,"p":0.58,"ab":16}],"sp6":[{"a":6,"p":0.58,"ab":8}],"sp7":[{"a":15,"p":0.62,"ab":8}],"sp8":[{"a":39,"p":0.58,"ab":null}],"wh1":[{"a":27,"p":0.8,"ab":null}],"wh10":[{"a":33,"p":0.84,"ab":null}],"wh2":[{"a":21,"p":0.9,"ab":null}],"wh3":[{"a":36,"p":0.84,"ab":8}],"wh4":[{"a":45,"p":0.94,"ab":8}],"wh5":[{"a":3,"p":0.68,"ab":8}],"wh6":[{"a":21,"p":0.9,"ab":8}],"wh7":[{"a":39,"p":0.96,"ab":16}],"wh8":[{"a":63,"p":0.9,"ab":null}],"wh9":[{"a":27,"p":0.9,"ab":24}]};
 </script>
 
 <script>
@@ -2849,7 +2849,9 @@ const FX_SAMPLE = { bonk: ['thump', 1, 1.5], splat: ['splat', 1, 1.4], slam: ['s
   wheel: [['wheel1', 'wheel2'], 1, 0.55], wheel2: [['wheel2', 'wheel3'], 0.9, 0.55], wheelstop: [['wheel3'], 0.8, 0.75], creak: [['creak1', 'wicker1'], 0.85, 0.55] };
 // the quiet room sound under each world (very low; "room sounds" in the menus turns it off)
 const AMB_OF = { kitchen: 'amb_kitchen', building: 'amb_building', park: 'amb_park', warehouse: 'amb_warehouse', space: 'amb_space', moon: 'amb_moon', 'sneak peek': 'amb_kitchen' };
-const AMB_GAIN = { amb_kitchen: 0.17, amb_building: 0.14, amb_park: 0.15, amb_warehouse: 0.15, amb_space: 0.22, amb_moon: 0.22 };
+// (the kitchen's was 0.17: Adam, Nov 6, his kids asked to turn it down, "they're kind of loud and it's not really obvious what"
+// it is. On a phone speaker the fridge's hum mostly drops out and the clock's ticking is what's left; 0.07 is about 8 dB down.)
+const AMB_GAIN = { amb_kitchen: 0.07, amb_building: 0.14, amb_park: 0.15, amb_warehouse: 0.15, amb_space: 0.22, amb_moon: 0.22 };
 const FX_GAIN = { star: 1, win: 1.2, lose: 1.2, pop: 1.5, zoom: 1.5, slide: 1.5, boing: 2 };
 const HIT_SOUND = { bubble: 'soft', clay: 'clinkLow', glass: 'clink', china: 'clinkLow', metal: 'metal', wood: 'wood', paper: 'wood', soft: 'soft', rubber: 'rubber', card: 'soft', flour: 'soft', egg: 'clink', stone: 'wood', cloth: 'soft', birb: 'soft', melon: 'soft', pie: 'soft' };
 const BREAK_SOUND = { bubble: 'pops', clay: 'china', glass: 'glass', china: 'china', egg: 'egg', card: 'card', flour: 'flour', metal: 'crunch', wood: 'snap', paper: 'rustle', soft: 'squish', rubber: 'popb', stone: 'crumble', melon: 'squelch', pie: 'squelch' };
@@ -2975,21 +2977,21 @@ const CLOSET = [
   { id: 'paperhat', slot: 'hat', name: 'paper hat', at: Infinity, price: 30 },
   { id: 'foil', slot: 'hat', name: 'tin foil hat', at: Infinity, price: 40 },
   { id: 'boxhat', slot: 'hat', name: 'box on ur head', at: Infinity, price: 50 },
-  { id: 'party', slot: 'hat', name: 'party hat', at: 50, price: 120 },
-  { id: 'bandana', slot: 'neck', name: 'bandana', at: 120, price: 150 },
-  { id: 'bow', slot: 'hat', name: 'big bow', at: 250, price: 200 },
-  { id: 'bell', slot: 'neck', name: 'bell collar', at: 400, price: 300 },
-  { id: 'flowers', slot: 'hat', name: 'flower crown', at: 600, price: 400 },
-  { id: 'chef', slot: 'hat', name: 'chef hat', at: 900, price: 600 },
-  { id: 'scarf', slot: 'neck', name: 'scarf', at: 1300, price: 800 },
-  { id: 'cowboy', slot: 'hat', name: 'cowboy hat', at: 1800, price: 1000 },
-  { id: 'bread', slot: 'hat', name: 'bread', at: 2500, price: 1250 },
-  { id: 'lei', slot: 'neck', name: 'lei', at: 3500, price: 1600 },
-  { id: 'pirate', slot: 'hat', name: 'pirate hat', at: 5000, price: 2000 },
-  { id: 'tophat', slot: 'hat', name: 'top hat', at: 7000, price: 3000 },
-  { id: 'pearls', slot: 'neck', name: 'pearls', at: 10000, price: 4000 },
-  { id: 'viking', slot: 'hat', name: 'viking helmet', at: 14000, price: 6000 },
-  { id: 'cone', slot: 'hat', name: 'traffic cone', at: 20000, price: 8000 },
+  { id: 'party', slot: 'hat', name: 'party hat', at: 50, price: 180 },
+  { id: 'bandana', slot: 'neck', name: 'bandana', at: 120, price: 230 },
+  { id: 'bow', slot: 'hat', name: 'big bow', at: 250, price: 300 },
+  { id: 'bell', slot: 'neck', name: 'bell collar', at: 400, price: 450 },
+  { id: 'flowers', slot: 'hat', name: 'flower crown', at: 600, price: 600 },
+  { id: 'chef', slot: 'hat', name: 'chef hat', at: 900, price: 900 },
+  { id: 'scarf', slot: 'neck', name: 'scarf', at: 1300, price: 1200 },
+  { id: 'cowboy', slot: 'hat', name: 'cowboy hat', at: 1800, price: 1500 },
+  { id: 'bread', slot: 'hat', name: 'bread', at: 2500, price: 1900 },
+  { id: 'lei', slot: 'neck', name: 'lei', at: 3500, price: 2400 },
+  { id: 'pirate', slot: 'hat', name: 'pirate hat', at: 5000, price: 3000 },
+  { id: 'tophat', slot: 'hat', name: 'top hat', at: 7000, price: 4500 },
+  { id: 'pearls', slot: 'neck', name: 'pearls', at: 10000, price: 6000 },
+  { id: 'viking', slot: 'hat', name: 'viking helmet', at: 14000, price: 9000 },
+  { id: 'cone', slot: 'hat', name: 'traffic cone', at: 20000, price: 12000 },
   { id: 'bling', slot: 'neck', name: 'bling', at: 25000, price: 20000 },   // (Nov 6: the top shelf up with the new wreck-its, closet.js "prices")
   { id: 'crown', slot: 'hat', name: 'crown', at: 30000, price: 50000 },
 ];
@@ -2998,25 +3000,28 @@ const CLOSET = [
 // cape on his back, and a paint job for his cat-a-pult. Priced like the rest of the arcade.
 const CHONK_LINE = [
   { id: 'duck', slot: 'hat', name: 'a rubber duck', price: 25 },
-  { id: 'tinyhat', slot: 'hat', name: 'teeny tiny hat', price: 60 },
-  { id: 'bib', slot: 'neck', name: 'a bib', price: 90 },
-  { id: 'goggles', slot: 'face', name: 'flight goggles', price: 250 },
-  { id: 'floatie', slot: 'body', name: 'donut floatie', price: 300 },
-  { id: 'sweater', slot: 'body', name: 'chonky sweater', price: 450 },
-  { id: 'nightcap', slot: 'hat', name: 'nap tiem nightcap', price: 500 },
-  { id: 'helmet', slot: 'hat', name: 'crash helmet', price: 700 },
-  { id: 'tutu', slot: 'body', name: 'tutu', price: 800 },
-  { id: 'cape', slot: 'back', name: 'super cape', price: 1200 },
-  { id: 'flames', slot: 'cata', name: 'hot rod flames', price: 1500 },
-  { id: 'belt', slot: 'body', name: 'champ belt', price: 2500 },
-  { id: 'goldpult', slot: 'cata', name: 'golden cat-a-pult', price: 6000 },
+  { id: 'tinyhat', slot: 'hat', name: 'teeny tiny hat', price: 90 },
+  { id: 'bib', slot: 'neck', name: 'a bib', price: 140 },
+  { id: 'goggles', slot: 'face', name: 'flight goggles', price: 380 },
+  { id: 'floatie', slot: 'body', name: 'donut floatie', price: 450 },
+  { id: 'sweater', slot: 'body', name: 'chonky sweater', price: 680 },
+  { id: 'nightcap', slot: 'hat', name: 'nap tiem nightcap', price: 750 },
+  { id: 'helmet', slot: 'hat', name: 'crash helmet', price: 1050 },
+  { id: 'tutu', slot: 'body', name: 'tutu', price: 1200 },
+  { id: 'cape', slot: 'back', name: 'super cape', price: 1800 },
+  { id: 'flames', slot: 'cata', name: 'hot rod flames', price: 2250 },
+  { id: 'belt', slot: 'body', name: 'champ belt', price: 3750 },
+  { id: 'goldpult', slot: 'cata', name: 'golden cat-a-pult', price: 9000 },
 ];
 const cataSkin = () => ((store.d.wear || {}).chonk || {}).cata || null;   // his cat-a-pult's paint job
 const BIG_PRIZE = 3000, TOP_SHELF = 15000;   // the big prizes (a progress bar to the next one), the top shelf
-const nextBigPrize = () => SHOP.filter(c => c.price >= BIG_PRIZE && buyable(c) && !owns(c.id)).sort((x, y) => x.price - y.price)[0] || null;   // (everything in teh closet: closet.js)
+const nextBigPrize = () => SHOP.filter(c => c.price >= BIG_PRIZE && buyable(c) && !ownsAny(c.id)).sort((x, y) => x.price - y.price)[0] || null;   // (everything in teh closet: closet.js)
 const wearOf = d => (store.d.wear && store.d.wear[d.id]) || {};
 const ownedSet = () => { if (!store.d.owned) store.d.owned = CLOSET.filter(c => c.at <= (store.d.bill || 0)).map(c => c.id); return new Set(store.d.owned); };   // (the old milestone unlocks count as bought)
-const owns = id => !id || ownedSet().has(id);
+// Bought per cat since Nov 6 (closet.js, perCat): store.d.owned holds 'id@cat'; a plain id is every cat's (a post, an earned
+// thing, and anything bought before Nov 6, so nobody lost what they paid for). owns(id, cat): this cat has it; ownsAny: some cat does.
+const owns = (id, cat) => !id || ownedSet().has(id) || (!!cat && ownedSet().has(id + '@' + cat));
+const ownsAny = id => !id || [...ownedSet()].some(k => k === id || k.startsWith(id + '@'));
 // megachonk's cat-a-pult, off the bill: one price, always (Adam, Nov 6: "$100 isnt enough... what do you think about charging $123
 // for megachonk? a kid firnedly number?"). He never uses up a cat, and everything he breaks counts (core.js count()).
 const CHONK_COST = 123;
@@ -3185,7 +3190,7 @@ const COSTUMES = [
       for (const [x, y] of [[-30, -32], [24, -36], [-4, -42], [36, 8], [-37, 10], [12, -30]]) { ell(x, y, 2.4, 1.6, x); fs('rgba(185,119,58,0.45)', null); } },
     side() { sideHood(CRUMB); }, hatY: -18,
     body(L, F) { if (L === 'in') { crumbs(F.rx, F.ry, 9, 'rgba(250,228,180,0.9)', 2); ell(0, -F.ry * 0.7, F.rx * 0.8, F.ry * 0.25); fs('rgba(255,255,255,0.12)', null); } } },
-  { id: 'c_banana', cat: 'toast', name: 'banana 4 scale', price: 180, fur: '#F6D44A', light: '#FCEB98', hood: '#F6D44A', fx: 'peel',
+  { id: 'c_banana', cat: 'toast', name: 'banana 4 scale', price: 270, fur: '#F6D44A', light: '#FCEB98', hood: '#F6D44A', fx: 'peel',
     head(L, hd, t) {
       if (L === 'back') return;
       for (const s of [-1, 1]) { const w = Math.sin(t * 2.4 + s) * 2;   // peeled: a strip of peel flopping down each side
@@ -3195,7 +3200,7 @@ const COSTUMES = [
     side() { sideHood('#F6D44A'); },
     body(L, F) { if (L !== 'in') return; if (F.view === 'side') for (const y of [-0.45, 0.1]) { ctx.beginPath(); ctx.ellipse(0, y * F.ry, F.rx * 0.95, F.ry * 0.5, 0, Math.PI * 1.1, Math.PI * 1.9); fs(null, 'rgba(160,120,30,0.45)', 2); }
       for (const [x, y] of [[-0.5, -0.2], [0.3, 0.3], [-0.1, 0.5]]) { ell(x * F.rx, y * F.ry, 3, 2.2); fs('#8A6A2A', null); } } },
-  { id: 'c_taco', cat: 'toast', name: 'tacocat', price: 650,   // (Adam: "What about taco cat": tacocat backwards iz tacocat)
+  { id: 'c_taco', cat: 'toast', name: 'tacocat', price: 980,   // (Adam: "What about taco cat": tacocat backwards iz tacocat)
     keep: true, fx: 'crumbs',
     body(L, F) {   // the cat in a taco shell: the shell round the body, lettuce, tomato and cheese along its edge
       const { rx, ry } = F, shell = () => { ctx.beginPath(); ctx.ellipse(0, -ry * 0.05, rx * 1.18, ry * 1.12, 0, -0.08, Math.PI + 0.08); ctx.quadraticCurveTo(0, ry * 0.45, rx * 1.18, -ry * 0.12); ctx.closePath(); };
@@ -3206,7 +3211,7 @@ const COSTUMES = [
       if (L === 'over' && F.view === 'side') { shell(); fs('#F2C056', INK, 2.6); ctx.save(); shell(); ctx.clip(); crumbs(rx, ry, 8, 'rgba(201,138,60,0.5)', 1); ctx.restore();
         frills(-rx * 1.12, -ry * 0.18, rx * 1.12, -ry * 0.18, 7); for (const x of [-0.6, 0, 0.55]) { ell(x * rx, -ry * 0.28, 5, 3.4); fs('#E2574C', INK, 1.2); } P([-rx * 0.3, -ry * 0.15, -rx * 0.2, ry * 0.2, -rx * 0.1, -ry * 0.15], '#FFD959', 1.2); }
       if (L === 'over' && F.view === 'front') { ctx.beginPath(); ctx.ellipse(0, ry * 0.25, rx * 1.15, ry * 0.85, 0, 0, Math.PI); ctx.closePath(); fs('#F2C056', INK, 2.4); frills(-rx * 1.1, ry * 0.3, rx * 1.1, ry * 0.3, 6); } } },
-  { id: 'c_burger', cat: 'toast', name: 'i can has cheezburger', price: 2400, fur: '#8A5634', light: '#E8B26A', fx: 'crumbs', hatY: -24,
+  { id: 'c_burger', cat: 'toast', name: 'i can has cheezburger', price: 3600, fur: '#8A5634', light: '#E8B26A', fx: 'crumbs', hatY: -24,
     head(L) { if (L !== 'front') return;   // the top bun over the top of the head, sesame seeds, lettuce and cheese dripping under it
       frills(-44, -14, 44, -14, 8); P([-30, -15, -24, -4, -18, -15], '#FFD959', 1.2); P([16, -15, 22, -2, 28, -15], '#FFD959', 1.2);
       ctx.beginPath(); ctx.moveTo(-47, -12); ctx.bezierCurveTo(-48, -56, 48, -56, 47, -12); ctx.quadraticCurveTo(0, -18, -47, -12); ctx.closePath(); fs('#E8A85A', INK, 2.6);
@@ -3218,7 +3223,7 @@ const COSTUMES = [
         ctx.fillStyle = LETTUCE; ctx.fillRect(-rx, ry * 0.15, rx * 2, ry * 0.18); ctx.fillStyle = '#E8B26A'; ctx.fillRect(-rx, ry * 0.33, rx * 2, ry); line([-rx, ry * 0.33, rx, ry * 0.33], INK, 1.6); }
       else { ctx.fillStyle = LETTUCE; ctx.fillRect(-rx, ry * 0.35, rx * 2, ry * 0.15); ctx.fillStyle = '#E8B26A'; ctx.fillRect(-rx, ry * 0.5, rx * 2, ry); }
       crumbs(rx, ry * 0.4, 6, 'rgba(60,30,15,0.35)', 4); } },
-  { id: 'c_shork', cat: 'toast', name: 'shork suit', price: 1200, fur: '#7C9BB4', light: '#F4F6F8', tailCol: '#7C9BB4', hood: '#7C9BB4',
+  { id: 'c_shork', cat: 'toast', name: 'shork suit', price: 1800, fur: '#7C9BB4', light: '#F4F6F8', tailCol: '#7C9BB4', hood: '#7C9BB4',
     hoodTop() { P([-6, -40, 4, -68, 18, -38], '#7C9BB4', 2.4); },
     head(L) { if (L !== 'front') return; for (let i = 0; i < 7; i++) { const x = -24 + i * 8, y = -23 * Math.sqrt(1 - (x / 33) ** 2) + 0.5; P([x - 3.5, y, x, y + 6, x + 3.5, y], '#FFFFFF', 1.2); } for (const s of [-1, 1]) for (let i = 0; i < 2; i++) line([s * (38 + i * 4), -4, s * (36 + i * 4), 8], 'rgba(46,58,53,0.5)', 1.6); },
     side() { sideHood('#7C9BB4'); P([-20, -38, -8, -58, 2, -36], '#7C9BB4', 2.2); },
@@ -3232,11 +3237,11 @@ const COSTUMES = [
         lf(); fs('#D7954C', INK, 2.6); ctx.save(); lf(); ctx.clip(); ell(-F.rx * 0.6, -F.ry * 1.6, F.rx * 0.9, F.ry * 0.5, -0.3); fs('rgba(255,255,255,0.18)', null); ctx.restore();
         for (const [x, y] of [[-1.5, -0.5], [-1.15, -1.3], [1.5, -0.5], [1.15, -1.3], [-0.5, -2.1], [0.5, -2.1]]) line([x * F.rx - 7, y * F.ry + 6, x * F.rx + 7, y * F.ry - 4], '#A86E32', 3.4); return; }
       if (L === 'in' && F.view === 'side') { for (let i = 0; i < 4; i++) { const u = -0.6 + i * 0.36, x = u * F.rx, y = topAt(F, u); line([x - 7, y + 10, x + 7, y + 2], '#A86E32', 3); } ell(0, -F.ry * 0.55, F.rx * 0.75, F.ry * 0.22); fs('rgba(255,255,255,0.18)', null); } } },
-  { id: 'c_potato', cat: 'unit', name: 'couch potato', price: 90, fur: '#B98A55', light: '#D2A874', hood: '#B98A55',
+  { id: 'c_potato', cat: 'unit', name: 'couch potato', price: 140, fur: '#B98A55', light: '#D2A874', hood: '#B98A55',
     hoodTop() { for (const [x, a] of [[-6, -0.5], [4, 0.3]]) { ctx.save(); ctx.translate(x, -40); ctx.rotate(a); ell(0, -8, 4, 9); fs('#7DBF5A', INK, 1.6); ctx.restore(); } for (const [x, y] of [[-34, -16], [30, -26], [-20, -34], [38, 6]]) { ell(x, y, 2.6, 1.8); fs('#7A5530', null); } },
     side() { sideHood('#B98A55'); },
     body(L, F) { if (L === 'in') for (const [x, y] of [[-0.6, -0.3], [-0.1, 0.2], [0.4, -0.4], [0.2, 0.5], [-0.4, 0.55]]) { ell(x * F.rx, y * F.ry, 2.8, 2); fs('#7A5530', null); ell(x * F.rx + 1, y * F.ry - 3, 2, 1); fs('rgba(255,255,255,0.25)', null); } } },
-  { id: 'c_purrito', cat: 'unit', name: 'purrito', price: 350, fur: '#EED39A', light: '#F7E4B8', fx: 'crumbs',
+  { id: 'c_purrito', cat: 'unit', name: 'purrito', price: 530, fur: '#EED39A', light: '#F7E4B8', fx: 'crumbs',
     head(L) {   // the head poking out of the open end: tortilla round the neck, the filling peeking out
       if (L === 'back') return;
       for (const s of [-1, 1]) { ell(s * 34, 16, 6, 4, s * 0.4); fs(LETTUCE, INK, 1); ell(s * 26, 19, 4.5, 3); fs('#FFFDF6', INK, 1); }
@@ -3247,7 +3252,7 @@ const COSTUMES = [
         ctx.save(); roll(); ctx.clip(); for (let i = -4; i <= 4; i++) line([i * F.rx * 0.42 - 14, -F.ry * 1.3, i * F.rx * 0.42 + 14, F.ry], 'rgba(150,110,50,0.35)', 2.2); for (const [x, y] of [[-1.45, -0.5], [1.4, -0.7], [-1.2, 0.5], [1.25, 0.4], [-0.6, 0.7], [0.5, 0.75]]) { ell(x * F.rx, y * F.ry, 4.5, 2.4, 0.4); fs('#C9965A', null); } ctx.restore(); return; }
       if (L === 'in') { for (let i = -3; i <= 3; i++) line([i * F.rx * 0.32 - 10, -F.ry, i * F.rx * 0.32 + 10, F.ry], 'rgba(150,110,50,0.35)', 2); for (const [x, y] of [[-0.5, -0.4], [0.1, -0.5], [-0.2, 0.3], [0.45, 0.2], [-0.7, 0.1]]) { ell(x * F.rx, y * F.ry, 3.6, 2, 0.4); fs('#C9965A', null); } }
       if (L === 'over' && F.view === 'side') { frills(F.rx * 0.82, -F.ry * 0.7, F.rx * 0.82, F.ry * 0.7, 4); for (const y of [-0.3, 0.25]) { ell(F.rx * 0.9, y * F.ry, 3, 2.4); fs('#FFFDF6', INK, 0.8); } } } },
-  { id: 'c_sushi', cat: 'unit', name: 'sushi roll', price: 1100, fur: '#2F3A30', light: '#FBF8F0', hatY: -12,
+  { id: 'c_sushi', cat: 'unit', name: 'sushi roll', price: 1650, fur: '#2F3A30', light: '#FBF8F0', hatY: -12,
     head(L) {
       if (L === 'back') return;
       ctx.save(); ctx.translate(0, -24); ctx.rotate(-0.08);   // a slice of salmon on top
@@ -3266,7 +3271,7 @@ const COSTUMES = [
       for (const s of [-1, 1]) { ctx.moveTo(s * 15.5 + 11.5, -2); ctx.ellipse(s * 15.5, -2, 11.5, 11.5, 0, 0, TAU, true); } fs('#2B2B30', INK, 1.4); },
     side() { sideHood('#8E8E92'); },
     tail(w) { ctx.save(); ctx.setLineDash([5, 6]); ctx.strokeStyle = '#3A3A40'; ctx.lineWidth = w; ctx.lineCap = 'butt'; ctx.stroke(); ctx.restore(); } },
-  { id: 'c_biker', cat: 'street', name: 'biker jakkit', price: 120, fur: '#2B2B30', light: '#9F978B', keep: true, fx: 'vroom',
+  { id: 'c_biker', cat: 'street', name: 'biker jakkit', price: 180, fur: '#2B2B30', light: '#9F978B', keep: true, fx: 'vroom',
     head(L) { if (L !== 'front') return; ctx.beginPath(); ctx.moveTo(-35, -8); ctx.bezierCurveTo(-38, -34, 38, -34, 35, -8); ctx.quadraticCurveTo(0, -16, -35, -8); ctx.closePath(); fs('#D63A35', INK, 2.2);
       for (const [x, y] of [[-20, -18], [-4, -24], [12, -22], [26, -14], [-30, -12]]) { ell(x, y, 1.8, 1.8); fs('#FFFDF6', null); } P([33, -10, 46, -2, 42, -14], '#D63A35', 1.8); P([33, -10, 48, -10, 44, 0], '#D63A35', 1.8); },
     body(L, F) { if (L !== 'in') return;   // black leather, a zip, silver studs, a flaming paw on the back
@@ -3274,33 +3279,33 @@ const COSTUMES = [
         ctx.save(); ctx.translate(-F.rx * 0.25, 0); flame(0, F.ry * 0.3, 0.7, F.t || 0); EF(0, -2, 5, 4, '#9F978B', 0); for (const a of [-0.9, -0.3, 0.3, 0.9]) EF(Math.sin(a) * 7, -2 - Math.cos(a) * 7, 2, 2, '#9F978B', 0); ctx.restore(); }
       else { line([0, -F.ry, 0, F.ry], '#C9CED3', 2.2); for (const s of [-1, 1]) for (let i = 0; i < 3; i++) { ell(s * F.rx * 0.75, -F.ry * 0.2 + i * 9, 1.8, 1.8); fs('#E3E8EA', INK, 0.6); } }
       ell(-F.rx * 0.2, -F.ry * 0.6, F.rx * 0.5, F.ry * 0.12); fs('rgba(255,255,255,0.18)', null); } },
-  { id: 'c_ninja', cat: 'street', name: 'ninja', price: 900, fur: '#2A2A33', light: '#3A3A45', tailCol: '#2A2A33', fx: 'poof', lightWhiskers: true, hatY: -14,
+  { id: 'c_ninja', cat: 'street', name: 'ninja', price: 1350, fur: '#2A2A33', light: '#3A3A45', tailCol: '#2A2A33', fx: 'poof', lightWhiskers: true, hatY: -14,
     head(L, hd, t) { if (L !== 'front') return;   // the hood with just an eye slit, a red headband, its tails flying
       ctx.beginPath(); hoodOuter(); ctx.closePath(); ctx.moveTo(32, -4); ctx.ellipse(0, -4, 32, 15, 0, 0, TAU, true); fs('#2A2A33', INK, 2.6);
       rrect(-44, -26, 88, 9, 4); fs('#D63A35', INK, 1.8);
       for (const k of [0, 1]) { const w = Math.sin(t * 8 + k) * 4; ctx.beginPath(); ctx.moveTo(-42, -22); ctx.quadraticCurveTo(-58, -26 + w + k * 8, -72, -16 + w * 1.5 + k * 10); fs(null, INK, 6); ctx.stroke(); ctx.strokeStyle = '#D63A35'; ctx.lineWidth = 3.4 * STYLE.ink; ctx.stroke(); } },
     side() { sideHood('#2A2A33'); },
     body(L, F) { if (L !== 'in') return; if (F.view === 'side') { ctx.fillStyle = '#D63A35'; ctx.fillRect(-F.rx * 0.08, -F.ry, F.rx * 0.16, F.ry * 2); } else { ctx.fillStyle = '#D63A35'; ctx.fillRect(-F.rx, F.ry * 0.25, F.rx * 2, F.ry * 0.25); } } },
-  { id: 'c_spider', cat: 'street', name: 'spooder', price: 2200, fur: '#3B2F4A', light: '#5A4870', tailCol: '#3B2F4A', hood: '#3B2F4A', keep: true, fx: 'web', lightWhiskers: true,
+  { id: 'c_spider', cat: 'street', name: 'spooder', price: 3300, fur: '#3B2F4A', light: '#5A4870', tailCol: '#3B2F4A', hood: '#3B2F4A', keep: true, fx: 'web', lightWhiskers: true,
     hoodTop() { for (const [x, y, r] of [[-8, -30, 3.4], [8, -30, 3.4], [-17, -26, 2.6], [17, -26, 2.6], [-3, -37, 2.2], [3, -37, 2.2]]) { EF(x, y, r, r, '#E2574C', 1); ell(x - r * 0.3, y - r * 0.35, r * 0.3, r * 0.3); fs('#fff', null); } for (let i = 0; i < 9; i++) { const a = Math.PI + i * 0.39; line([Math.cos(a) * 44, -4 + Math.sin(a) * 36, Math.cos(a) * 49, -4 + Math.sin(a) * 41], INK, 1.4); } },
     side() { sideHood('#3B2F4A'); },
     body(L, F) { if (L === 'back') legsExtra(F, '#3B2F4A'); if (L === 'in' && F.view === 'side') { P([-F.rx * 0.1, -F.ry * 0.55, -F.rx * 0.2, -F.ry * 0.2, -F.rx * 0.1, F.ry * 0.05, 0, -F.ry * 0.2], '#E2574C', 0); } } },
   // chaos (zoomies)
-  { id: 'c_bee', cat: 'chaos', name: 'lil bee', price: 60, fur: '#F6C93C', light: '#FCE58A', hood: '#F6C93C', fx: 'bzz',
+  { id: 'c_bee', cat: 'chaos', name: 'lil bee', price: 90, fur: '#F6C93C', light: '#FCE58A', hood: '#F6C93C', fx: 'bzz',
     hoodTop() { for (const s of [-1, 1]) { ctx.beginPath(); ctx.moveTo(s * 10, -38); ctx.quadraticCurveTo(s * 14, -56, s * 24, -58); fs(null, INK, 2.4); EF(s * 25, -58, 4.5, 4.5, '#2B2B30', 1.4); } for (const y of [-34, -24]) { ctx.save(); ctx.beginPath(); hoodOuter(); ctx.clip(); rrect(-50, y, 100, 5, 2); fs('#2B2B30', null); ctx.restore(); } },
     side() { sideHood('#F6C93C'); },
     body(L, F) { if (L === 'back') wingsBack(F, 'bee'); if (L === 'in') { ctx.fillStyle = '#2B2B30'; if (F.view === 'side') for (const u of [-0.55, -0.15, 0.25]) ctx.fillRect(u * F.rx, -F.ry, F.rx * 0.16, F.ry * 2); else ctx.fillRect(-F.rx, F.ry * 0.35, F.rx * 2, F.ry * 0.28); }
       if (L === 'over' && F.view === 'side') P([-F.rx * 0.98, -2, -F.rx * 1.2, 0, -F.rx * 0.98, 3], '#2B2B30', 1.2); } },
-  { id: 'c_snail', cat: 'chaos', name: 'speedy snail', price: 250, fur: '#B8C77A', light: '#D6E0A0', fx: 'slime',
+  { id: 'c_snail', cat: 'chaos', name: 'speedy snail', price: 380, fur: '#B8C77A', light: '#D6E0A0', fx: 'slime',
     head(L) { if (L !== 'front') return; for (const s of [-1, 1]) { ctx.beginPath(); ctx.moveTo(s * 10, -20); ctx.quadraticCurveTo(s * 12, -42, s * 20, -54); fs(null, INK, 6); ctx.strokeStyle = '#B8C77A'; ctx.lineWidth = 3.6 * STYLE.ink; ctx.stroke(); EF(s * 20, -56, 6, 6, '#B8C77A', 1.6); EF(s * 21, -57, 2.6, 2.6, INK, 0); } },
     body(L, F) { if (L !== 'over') return; if (F.view === 'side') shellSpiral(-F.rx * 0.15, -F.ry * 0.85, F.ry * 1.25, '#C9894A'); else for (const s of [-1, 1]) shellSpiral(s * F.rx * 1.05, -F.ry * 0.2, F.ry * 0.7, '#C9894A'); } },
-  { id: 'c_race', cat: 'chaos', name: 'race car', price: 1300, fur: '#E2463C', light: '#FFFFFF', hood: '#E2463C', fx: 'tires',
+  { id: 'c_race', cat: 'chaos', name: 'race car', price: 1950, fur: '#E2463C', light: '#FFFFFF', hood: '#E2463C', fx: 'tires',
     hoodTop() { ctx.save(); ctx.beginPath(); hoodOuter(); ctx.clip(); ctx.fillStyle = '#FFFFFF'; ctx.fillRect(-6, -50, 12, 30); ctx.restore(); rrect(-30, -30, 60, 9, 4); fs('rgba(40,50,70,0.75)', INK, 1.8); line([-22, -27, -6, -27], 'rgba(255,255,255,0.6)', 1.8); },
     side() { sideHood('#E2463C'); },
     body(L, F) { if (L !== 'in') return; if (F.view === 'side') { for (const o of [-0.62, -0.42]) { ctx.beginPath(); ctx.ellipse(0, 0, F.rx * 1.02, F.ry * (-o), 0, Math.PI, TAU); fs(null, '#FFFFFF', 3.2); }
         EF(-F.rx * 0.1, F.ry * 0.12, 10, 10, '#FFFFFF', 1.6); ctx.font = `900 13px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = INK; ctx.fillText('7', -F.rx * 0.1, F.ry * 0.12 + 1); }
       else { ctx.fillStyle = '#FFFFFF'; ctx.fillRect(-6, -F.ry, 12, F.ry * 2); } } },
-  { id: 'c_hero', cat: 'chaos', name: 'I AM SPEED', price: 3500, fur: '#3E7BD6', light: '#FFFFFF', keep: true, fx: 'speed',
+  { id: 'c_hero', cat: 'chaos', name: 'I AM SPEED', price: 5300, fur: '#3E7BD6', light: '#FFFFFF', keep: true, fx: 'speed',
     head(L) { if (L !== 'front') return; ctx.beginPath(); ctx.moveTo(-38, -8); ctx.quadraticCurveTo(-20, -20, 0, -10); ctx.quadraticCurveTo(20, -20, 38, -8); ctx.quadraticCurveTo(24, 10, 4, 2); ctx.lineTo(-4, 2); ctx.quadraticCurveTo(-24, 10, -38, -8); ctx.closePath();
       for (const s of [-1, 1]) { ctx.moveTo(s * 15.5 + 11.5, -2); ctx.ellipse(s * 15.5, -2, 11.5, 11, 0, 0, TAU, true); } fs('#D63A35', INK, 1.8); },
     body(L, F) { if (L === 'back') capeBack(F, '#D63A35', '#A82A26');
@@ -3317,17 +3322,17 @@ const COSTUMES = [
     side() { ell(2, -4, 46, 36); fs('#F7F6F2', INK, 2.6); EF(16, -4, 7, 8, '#2A2A31', 1.2); },
     body(L, F) { if (L === 'over' && F.view === 'side') { const w = Math.sin((F.t || 0) * 5) * 2; ctx.beginPath(); ctx.moveTo(-F.rx * 0.95, F.ry * 0.3); for (let i = 1; i <= 6; i++) ctx.quadraticCurveTo(-F.rx * 0.95 + (i - 0.5) * F.rx * 0.3, F.ry * 1.2 + (i % 2 ? w : -w), -F.rx * 0.95 + i * F.rx * 0.3, F.ry * 0.85); ctx.lineTo(F.rx * 0.85, F.ry * 0.3); ctx.closePath(); fs('#F7F6F2', INK, 2.2); }
       if (L === 'over' && F.view === 'front') { ctx.beginPath(); ctx.moveTo(-F.rx * 1.02, 0); for (let i = 1; i <= 5; i++) ctx.quadraticCurveTo(-F.rx * 1.02 + (i - 0.5) * F.rx * 0.41, F.ry * 1.25, -F.rx * 1.02 + i * F.rx * 0.41, F.ry * 0.95); ctx.lineTo(F.rx, 0); ctx.closePath(); fs('#F7F6F2', INK, 2.2); } } },
-  { id: 'c_pumpkin', cat: 'void', name: 'smol pumpkin', price: 200, fur: '#F08A2E', light: '#F7B060', fx: 'candy',
+  { id: 'c_pumpkin', cat: 'void', name: 'smol pumpkin', price: 300, fur: '#F08A2E', light: '#F7B060', fx: 'candy',
     head(L) { if (L !== 'front') return; ctx.save(); ctx.translate(2, -20); rrect(-4, -16, 8, 16, 3); fs('#6B8E3A', INK, 1.8); ctx.beginPath(); ctx.moveTo(4, -12); ctx.bezierCurveTo(18, -22, 20, -6, 12, -6); fs(null, '#6FAE62', 2.2); ell(-12, -10, 9, 5, -0.4); fs('#7DBF5A', INK, 1.4); ctx.restore(); },
     body(L, F) {
       if (L === 'back' && F.view === 'front') { const W = F.rx * 1.9, H = F.ry * 1.6, cy = -F.ry * 0.55; for (const [x, w] of [[-0.55, 0.55], [0.55, 0.55], [0, 0.6]]) EF(x * W, cy, w * W, H, '#F08A2E', 2.6); ell(-W * 0.3, cy - H * 0.55, W * 0.25, H * 0.15, -0.3); fs('rgba(255,255,255,0.25)', null); return; }
       if (L !== 'in') return; for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.ellipse(0, 0, Math.abs(i) * F.rx * 0.32 + 4, F.ry * 1.1, 0, i < 0 ? Math.PI / 2 : -Math.PI / 2, i < 0 ? Math.PI * 1.5 : Math.PI / 2); fs(null, 'rgba(160,70,10,0.4)', 2); }
       if (F.view === 'side') { ctx.save(); ctx.translate(-F.rx * 0.25, 0); P([-12, -5, -6, -12, -2, -4], '#6B3A12', 0); P([4, -5, 9, -12, 13, -4], '#6B3A12', 0); ctx.beginPath(); ctx.moveTo(-12, 4); for (let k = 0; k <= 6; k++) ctx.lineTo(-12 + k * 4, 4 + (k % 2 ? 5 : 0)); ctx.lineTo(12, 10); ctx.quadraticCurveTo(0, 14, -12, 10); ctx.closePath(); fs('#6B3A12', null); ctx.restore(); } } },
-  { id: 'c_vamp', cat: 'void', name: 'lil vampire', price: 1000, light: '#E8E4F0', fx: 'bats',
+  { id: 'c_vamp', cat: 'void', name: 'lil vampire', price: 1500, light: '#E8E4F0', fx: 'bats',
     head(L) { if (L === 'back') { for (const s of [-1, 1]) { ctx.beginPath(); ctx.moveTo(s * 18, 20); ctx.lineTo(s * 56, -26); ctx.quadraticCurveTo(s * 50, 4, s * 40, 24); ctx.closePath(); fs('#2A2A31', INK, 2.2); ctx.beginPath(); ctx.moveTo(s * 22, 18); ctx.lineTo(s * 50, -18); ctx.quadraticCurveTo(s * 46, 4, s * 38, 20); ctx.closePath(); fs('#B5283A', null); } return; }
       EF(0, 26, 6, 6, GOLD, 1.4); EF(0, 26, 3, 3, '#B5283A', 0); },
     body(L, F) { if (L === 'back') capeBack(F, '#26262E', '#B5283A'); if (L === 'in' && F.view === 'side') { ctx.fillStyle = '#E8E4F0'; ctx.beginPath(); ctx.ellipse(F.rx * 0.75, F.ry * 0.1, F.rx * 0.25, F.ry * 0.8, 0, 0, TAU); ctx.fill(); line([F.rx * 0.62, -F.ry * 0.2, F.rx * 0.62, F.ry * 0.6], '#B5283A', 2.4); } } },
-  { id: 'c_galaxy', cat: 'void', name: 'galaxy cape', price: 4000, keep: true, fx: 'cosmos',
+  { id: 'c_galaxy', cat: 'void', name: 'galaxy cape', price: 6000, keep: true, fx: 'cosmos',
     head(L, hd, t) { if (L !== 'front') return; for (let i = 0; i < 3; i++) { const a = t * 1.4 + i * 2.1; starPath(Math.cos(a) * 46, -10 + Math.sin(a) * 12, 3.2); fs(i ? '#FFFFFF' : GOLD, null); } },
     body(L, F) { const t = F.t || 0; if (L === 'back') capeBack(F, '#3B2A6B', '#6B4FB8', () => { ctx.fillStyle = 'rgba(99,176,237,0.35)'; ell(-F.rx * 0.6, 0, F.rx * 0.6, F.ry * 0.5, 0.4); ctx.fill(); ctx.fillStyle = 'rgba(189,122,227,0.35)'; ell(-F.rx * 1.1, -F.ry * 0.4, F.rx * 0.5, F.ry * 0.4, -0.3); ctx.fill(); ctx.save(); ctx.translate(-F.rx * 0.6, 0); stars(F.rx * 1.2, F.ry * 1.1, 14, t); ctx.restore(); });
       if (L === 'in') stars(F.rx, F.ry, 7, t, 1); } },
@@ -3337,12 +3342,12 @@ const COSTUMES = [
     side() { sideHood('#E86A86'); },
     body(L, F) { if (L === 'in') { ell(-F.rx * 0.25, -F.ry * 0.45, F.rx * 0.45, F.ry * 0.18, -0.2); fs('rgba(255,255,255,0.35)', null); for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.ellipse(0, 0, F.rx * (0.4 + i * 0.2), F.ry * (0.4 + i * 0.2), 0, 0.3, 1.2); fs(null, 'rgba(160,50,80,0.25)', 1.6); } }
       if (L === 'over' && F.view === 'side') { rrect(-F.rx * 1.15, -6, 14, 12, 4); fs('#E86A86', INK, 1.8); } } },
-  { id: 'c_skunk', cat: 'toot', name: 'lil skunk', price: 400, fur: '#2A2A30', light: '#F4F2EC', tailCol: '#2A2A30', hood: '#2A2A30', fx: 'skunk', lightWhiskers: true,
+  { id: 'c_skunk', cat: 'toot', name: 'lil skunk', price: 600, fur: '#2A2A30', light: '#F4F2EC', tailCol: '#2A2A30', hood: '#2A2A30', fx: 'skunk', lightWhiskers: true,
     hoodTop() { for (const s of [-1, 1]) EF(s * 30, -36, 9, 9, '#2A2A30', 2.2); ctx.save(); ctx.beginPath(); hoodOuter(); ctx.clip(); ctx.fillStyle = '#F4F2EC'; ctx.beginPath(); ctx.moveTo(-6, -24); ctx.lineTo(-10, -46); ctx.lineTo(10, -46); ctx.lineTo(6, -24); ctx.closePath(); ctx.fill(); ctx.restore(); },
     side() { sideHood('#2A2A30'); },
     body(L, F) { if (L === 'in' && F.view === 'side') { ctx.beginPath(); ctx.ellipse(0, 0, F.rx * 1.05, F.ry, 0, Math.PI * 1.08, Math.PI * 1.92); fs(null, '#F4F2EC', 7); } },
     tail(w) { ctx.save(); ctx.lineCap = 'round'; ctx.strokeStyle = INK; ctx.lineWidth = w + 15; ctx.stroke(); ctx.strokeStyle = '#2A2A30'; ctx.lineWidth = w + 10; ctx.stroke(); ctx.strokeStyle = '#F4F2EC'; ctx.lineWidth = w * 0.45; ctx.stroke(); ctx.restore(); } },
-  { id: 'c_tux', cat: 'toot', name: 'fancy tux n monocle', price: 1800, fur: '#1F1F26', light: '#FFFFFF', keep: true, fx: 'fancy',
+  { id: 'c_tux', cat: 'toot', name: 'fancy tux n monocle', price: 2700, fur: '#1F1F26', light: '#FFFFFF', keep: true, fx: 'fancy',
     head(L) { if (L !== 'front') return;
       ctx.beginPath(); ctx.moveTo(0, 11); ctx.bezierCurveTo(-8, 7, -18, 8, -22, 15); ctx.bezierCurveTo(-24, 9, -30, 9, -29, 13); ctx.bezierCurveTo(-26, 21, -12, 19, -6, 16); ctx.quadraticCurveTo(-2, 15, 0, 13);
       ctx.quadraticCurveTo(2, 15, 6, 16); ctx.bezierCurveTo(12, 19, 26, 21, 29, 13); ctx.bezierCurveTo(30, 9, 24, 9, 22, 15); ctx.bezierCurveTo(18, 8, 8, 7, 0, 11); ctx.closePath(); fs('#3A2A20', INK, 1.2);   // a twirly mustache
@@ -3351,7 +3356,7 @@ const COSTUMES = [
       if (L === 'back' && F.view === 'side') for (const k of [0, 1]) { ctx.save(); ctx.translate(-F.rx * 0.55, F.ry * 0.1); ctx.rotate(0.45 + k * 0.25 + Math.sin((F.t || 0) * 6 + k) * 0.06); rrect(-6, 0, 12, 32, 6); fs('#1F1F26', INK, 2); ctx.restore(); }
       if (L === 'in') { if (F.view === 'side') { ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.moveTo(F.rx, -F.ry * 0.5); ctx.lineTo(F.rx * 0.35, F.ry * 0.2); ctx.lineTo(F.rx * 0.6, F.ry); ctx.lineTo(F.rx, F.ry); ctx.closePath(); ctx.fill(); for (const k of [0.25, 0.55]) EF(F.rx * 0.72, k * F.ry, 1.8, 1.8, INK, 0); }
         else { ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.moveTo(-F.rx * 0.35, -F.ry); ctx.lineTo(0, F.ry * 0.6); ctx.lineTo(F.rx * 0.35, -F.ry); ctx.closePath(); ctx.fill(); } } } },
-  { id: 'c_rocket', cat: 'toot', name: 'toot rocket', price: 5000, fur: '#E3E9EE', light: '#C9D3DA', hood: '#E3E9EE', fx: 'blastoff',
+  { id: 'c_rocket', cat: 'toot', name: 'toot rocket', price: 7500, fur: '#E3E9EE', light: '#C9D3DA', hood: '#E3E9EE', fx: 'blastoff',
     hoodTop() { ctx.beginPath(); ctx.moveTo(-18, -38); ctx.quadraticCurveTo(-10, -66, 0, -74); ctx.quadraticCurveTo(10, -66, 18, -38); ctx.closePath(); fs('#E2463C', INK, 2.4); ell(-5, -56, 3, 8, 0.3); fs('rgba(255,255,255,0.4)', null); },
     side() { sideHood('#E3E9EE'); },
     body(L, F) {
@@ -3359,21 +3364,21 @@ const COSTUMES = [
       if (L === 'back' && F.view === 'front') for (const s of [-1, 1]) P([s * F.rx * 0.7, -F.ry * 0.2, s * F.rx * 1.45, F.ry * 1.0, s * F.rx * 0.6, F.ry * 0.8], '#E2463C', 2.2);
       if (L === 'in' && F.view === 'side') { EF(F.rx * 0.15, -F.ry * 0.05, 9, 9, '#63B0ED', 2.4); ell(F.rx * 0.15 - 3, -F.ry * 0.05 - 3, 3, 2); fs('rgba(255,255,255,0.7)', null); for (const u of [-0.5, 0.65]) line([u * F.rx, -F.ry, u * F.rx, F.ry], 'rgba(46,58,53,0.3)', 1.6); } } },
   // spicy
-  { id: 'c_cactus', cat: 'spicy', name: 'cactus (no touchy)', price: 70, fur: '#5FA35A', light: '#8CC57A', tailCol: '#5FA35A', hood: '#5FA35A', fx: 'spines',
+  { id: 'c_cactus', cat: 'spicy', name: 'cactus (no touchy)', price: 110, fur: '#5FA35A', light: '#8CC57A', tailCol: '#5FA35A', hood: '#5FA35A', fx: 'spines',
     hoodTop() { flower(0, -42, 7, '#F56E99'); for (let i = 0; i < 11; i++) { const a = Math.PI * 1.02 + i * 0.29; line([Math.cos(a) * 43, -4 + Math.sin(a) * 35, Math.cos(a) * 50, -4 + Math.sin(a) * 42], '#FFF6C8', 1.6); } },
     side() { sideHood('#5FA35A'); },
     body(L, F) { if (L === 'in') for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.ellipse(0, 0, Math.abs(i) * F.rx * 0.3 + 3, F.ry * 1.05, 0, i < 0 ? Math.PI / 2 : -Math.PI / 2, i < 0 ? Math.PI * 1.5 : Math.PI / 2); fs(null, 'rgba(40,90,40,0.45)', 2); }
       if (L === 'over') for (let i = 0; i < 12; i++) { const a = i / 12 * TAU, x = Math.cos(a) * F.rx, y = Math.sin(a) * F.ry; line([x, y, x * 1.12, y * 1.16], '#FFF6C8', 1.6); } },
     tail(w) { ctx.save(); ctx.setLineDash([2, 7]); ctx.strokeStyle = '#FFF6C8'; ctx.lineWidth = w + 6; ctx.lineCap = 'butt'; ctx.stroke(); ctx.restore(); } },
-  { id: 'c_pepper', cat: 'spicy', name: 'hot pepper', price: 300, fur: '#D8352B', light: '#F06A4E', tailCol: '#D8352B', hood: '#D8352B', fx: 'fire',
+  { id: 'c_pepper', cat: 'spicy', name: 'hot pepper', price: 450, fur: '#D8352B', light: '#F06A4E', tailCol: '#D8352B', hood: '#D8352B', fx: 'fire',
     hoodTop() { for (let i = 0; i < 5; i++) { const a = Math.PI + 0.35 + i * 0.6; P([Math.cos(a) * 14, -38 + Math.sin(a) * 4, Math.cos(a) * 28, -36 + Math.sin(a) * 10 + 4, Math.cos(a + 0.3) * 16, -38], '#5E9C4E', 1.6); } ctx.beginPath(); ctx.moveTo(0, -40); ctx.quadraticCurveTo(-2, -58, 12, -62); fs(null, INK, 7); ctx.strokeStyle = '#5E9C4E'; ctx.lineWidth = 4 * STYLE.ink; ctx.stroke(); ell(-18, -24, 10, 4, -0.5); fs('rgba(255,255,255,0.35)', null); },
     side() { sideHood('#D8352B'); },
     body(L, F) { if (L === 'in') { ell(-F.rx * 0.1, -F.ry * 0.5, F.rx * 0.6, F.ry * 0.14, -0.05); fs('rgba(255,255,255,0.35)', null); } } },
-  { id: 'c_lion', cat: 'spicy', name: 'lil lion', price: 1500, fur: '#E0A84E', light: '#F6D68E', tailCol: '#E0A84E', fx: 'rawr',
+  { id: 'c_lion', cat: 'spicy', name: 'lil lion', price: 2250, fur: '#E0A84E', light: '#F6D68E', tailCol: '#E0A84E', fx: 'rawr',
     head(L, hd, t) { if (L !== 'back') return; for (let i = 0; i < 15; i++) { const a = Math.PI * 0.9 + i * (Math.PI * 1.2 / 14) + Math.sin(t * 3 + i) * 0.02, r = 46 + (i % 2) * 5; EF(Math.cos(a) * r * 1.05, -4 + Math.sin(a) * r * 0.85, 14, 12, i % 2 ? '#B86A2E' : '#C97A36', 2, a); } },
     side() { ctx.save(); ctx.beginPath(); ctx.rect(-90, -90, 100, 180); ctx.clip(); for (let i = 0; i < 8; i++) { const a = Math.PI * 0.55 + i * 0.3; EF(Math.cos(a) * 36 - 4, -4 + Math.sin(a) * 30, 12, 10, i % 2 ? '#B86A2E' : '#C97A36', 2, a); } ctx.restore(); },
     body(L, F) { if (L === 'back' && F.view === 'side') for (let i = 0; i < 4; i++) { const u = 0.45 + i * 0.14; EF(u * F.rx, topAt(F, u) + 6, 11, 9, i % 2 ? '#B86A2E' : '#C97A36', 2); } } },
-  { id: 'c_dragon', cat: 'spicy', name: 'lil dragon', price: 5500, fur: '#5BAA6A', light: '#F2D68A', tailCol: '#5BAA6A', hood: '#5BAA6A', fx: 'dragonfire',
+  { id: 'c_dragon', cat: 'spicy', name: 'lil dragon', price: 8300, fur: '#5BAA6A', light: '#F2D68A', tailCol: '#5BAA6A', hood: '#5BAA6A', fx: 'dragonfire',
     hoodTop() { for (const s of [-1, 1]) { ctx.beginPath(); ctx.moveTo(s * 14, -36); ctx.quadraticCurveTo(s * 20, -56, s * 30, -60); ctx.quadraticCurveTo(s * 26, -44, s * 26, -34); ctx.closePath(); fs('#FFF3D6', INK, 1.8); } for (let i = 0; i < 4; i++) { const x = -18 + i * 12; P([x - 4, -38, x + 1, -50, x + 5, -38], '#F0943A', 1.4); } for (const s of [-1, 1]) P([s * 42, -12, s * 56, -18, s * 46, -2], '#4E9A5E', 1.8); },
     side() { sideHood('#5BAA6A'); },
     body(L, F) { if (L === 'back') { wingsBack(F, 'dragon'); spikesBack(F, '#F0943A', 5, 10); }
@@ -3382,11 +3387,11 @@ const COSTUMES = [
   // megachonk: his costumes are drawn on his own shapes (chonkCos: the egg of his body, the mochi of his head)
   // any cat (Adam, Nov 6: "Yeah let's do an 8bit pixel cat", instead of a certain famous rainbow cat): the cat itself, in chunky
   // 8-bit pixels, every pose, hats and all (page.js pixelDraw); lands with a 1UP
-  { id: 'c_pixel', cat: '*', name: '8-bit kitteh', price: 1600, pixel: true, fx: 'pixel' },
-  { id: 'c_cake', cat: 'chonk', name: 'i iz cake', price: 150, fur: '#F2D49A', light: '#FFF4E2', fx: 'sprinkles' },
-  { id: 'c_hotdog', cat: 'chonk', name: 'hot dog', price: 500, fur: '#C8553D', light: '#FFF4E2', fx: 'mustard' },
-  { id: 'c_sumo', cat: 'chonk', name: 'sumo', price: 2000, fx: 'dust' },
-  { id: 'c_dino', cat: 'chonk', name: 'chonky dino', price: 7000, fur: '#6DBE6A', light: '#F2E29A', tailCol: '#6DBE6A', fx: 'rawr' },
+  { id: 'c_pixel', cat: '*', name: '8-bit kitteh', price: 2400, pixel: true, fx: 'pixel' },
+  { id: 'c_cake', cat: 'chonk', name: 'i iz cake', price: 230, fur: '#F2D49A', light: '#FFF4E2', fx: 'sprinkles' },
+  { id: 'c_hotdog', cat: 'chonk', name: 'hot dog', price: 750, fur: '#C8553D', light: '#FFF4E2', fx: 'mustard' },
+  { id: 'c_sumo', cat: 'chonk', name: 'sumo', price: 3000, fx: 'dust' },
+  { id: 'c_dino', cat: 'chonk', name: 'chonky dino', price: 10500, fur: '#6DBE6A', light: '#F2E29A', tailCol: '#6DBE6A', fx: 'rawr' },
 ];
 const COS = {}; for (const c of COSTUMES) { c.slot = 'suit'; COS[c.id] = c; }
 for (const id of ['c_shork', 'c_loaf', 'c_spider', 'c_vamp', 'c_skunk', 'c_rocket']) COS[id].noIn = ['front'];   // (nothing inside the body from the front)
@@ -3442,59 +3447,59 @@ const SHOES = [
     if (v === 'sole') { ell(0, 0, hw * 1.05, hh * 1.1); fs('#63B0ED', INK, 1.6); ell(0, -hh * 0.2, hw * 0.6, hh * 0.6); fs('#8DC8F2', null); return; }
     rrect(-hw * 1.15, hh * 0.75, hw * 2.4, hh * 0.45, hh * 0.2); fs('#63B0ED', INK, 1.4);
     ctx.beginPath(); if (v === 'front') { ctx.moveTo(-hw * 0.8, hh * 0.85); ctx.lineTo(0, -hh * 0.1); ctx.lineTo(hw * 0.8, hh * 0.85); } else { ctx.moveTo(-hw * 0.6, hh * 0.85); ctx.quadraticCurveTo(hw * 0.2, -hh * 0.6, hw * 0.75, hh * 0.85); } fs(null, INK, 3.4); ctx.strokeStyle = '#F4C84A'; ctx.lineWidth = 2 * STYLE.ink; ctx.stroke(); } },
-  { id: 's_slippers', name: 'fuzzy slipperz', price: 90, draw(v, hw, hh) {   // pink bunny slippers
+  { id: 's_slippers', name: 'fuzzy slipperz', price: 140, draw(v, hw, hh) {   // pink bunny slippers
     const fuzz = (rx, ry) => { ctx.beginPath(); for (let k = 0; k <= 18; k++) { const a = k / 18 * TAU, r = k % 2 ? 1 : 1.12; ctx.lineTo(Math.cos(a) * rx * r, Math.sin(a) * ry * r); } ctx.closePath(); fs('#F7B6CC', INK, 1.4); };
     if (v === 'sole') { fuzz(hw * 1.05, hh * 1.05); return; }
     for (const s of v === 'front' ? [-1, 1] : [1]) { ctx.save(); ctx.translate(s * hw * 0.45 + (v === 'side' ? hw * 0.4 : 0), -hh * 0.6); ctx.rotate(s * 0.3); ell(0, -hh * 0.9, hw * 0.22, hh * 0.9); fs('#F7B6CC', INK, 1.2); ell(0, -hh * 0.9, hw * 0.1, hh * 0.6); fs('#FFFFFF', null); ctx.restore(); }
     ctx.save(); ctx.translate(0, hh * 0.15); fuzz(hw * 1.15, hh * 0.95); ctx.restore();
     if (v === 'front') { for (const s of [-1, 1]) { ell(s * hw * 0.35, -hh * 0.05, hw * 0.1, hw * 0.1); fs(INK, null); } ell(0, hh * 0.25, hw * 0.12, hw * 0.08); fs('#E2574C', null); } else { ell(hw * 0.6, -hh * 0.05, hw * 0.09, hw * 0.09); fs(INK, null); } } },
-  { id: 's_clogs', name: 'holey cloggz', price: 140, draw(v, hw, hh) {
+  { id: 's_clogs', name: 'holey cloggz', price: 210, draw(v, hw, hh) {
     if (v === 'sole') { ell(0, 0, hw * 1.05, hh * 1.1); fs('#6FBF6A', INK, 1.6); for (let i = 0; i < 4; i++) line([-hw * 0.6, -hh * 0.5 + i * hh * 0.35, hw * 0.6, -hh * 0.5 + i * hh * 0.35], 'rgba(46,58,53,0.3)', 2); return; }
     if (v === 'front') shoeFront(hw * 1.05, hh); else shoeSide(hw * 1.05, hh * 1.05); fs('#6FBF6A', INK, 1.6);
     for (const [x, y] of [[-0.4, -0.3], [0.1, -0.35], [0.55, -0.1], [-0.15, 0.2], [0.35, 0.3]]) { ell(x * hw, y * hh, hw * 0.1, hw * 0.1); fs('#3E7E3E', null); } } },
-  { id: 's_sneakers', name: 'sneakerz', price: 200, draw: (v, hw, hh) => sneaker(v, hw, hh, '#FFFFFF', '#E2574C') },
-  { id: 's_ballet', name: 'ballerina toez', price: 300, draw(v, hw, hh) {
+  { id: 's_sneakers', name: 'sneakerz', price: 300, draw: (v, hw, hh) => sneaker(v, hw, hh, '#FFFFFF', '#E2574C') },
+  { id: 's_ballet', name: 'ballerina toez', price: 450, draw(v, hw, hh) {
     if (v === 'sole') { ell(0, 0, hw, hh * 1.05); fs('#F7B6CC', INK, 1.6); return; }
     for (let k = 0; k < 3; k++) line([-hw * 0.8, -hh * (0.6 + k * 0.7), hw * 0.8, -hh * (1 + k * 0.7)], '#F48CB6', 1.8);
     if (v === 'front') shoeFront(hw, hh * 0.85); else shoeSide(hw, hh * 0.85); fs('#F7B6CC', INK, 1.4); ell(0, -hh * 0.2, hw * 0.25, hh * 0.18); fs('#F48CB6', null); } },
-  { id: 's_rainboots', name: 'puddle stompers', price: 450, draw(v, hw, hh) {
+  { id: 's_rainboots', name: 'puddle stompers', price: 680, draw(v, hw, hh) {
     if (v === 'sole') { ell(0, 0, hw * 1.05, hh * 1.1); fs('#3A3A40', INK, 1.6); for (let i = 0; i < 4; i++) line([-hw * 0.5, -hh * 0.6 + i * hh * 0.4, hw * 0.5, -hh * 0.6 + i * hh * 0.4], '#5A5A62', 2.4); return; }
     if (v === 'front') shoeFront(hw, hh, 1.3); else shoeSide(hw, hh, 1.8); fs('#F6C93C', INK, 1.8); soleBits(hw, hh, '#3A3A40'); line([-hw * 0.7, -hh * 1.4, -hw * 0.2, -hh * 1.6], 'rgba(255,255,255,0.6)', 2); } },
-  { id: 's_flippers', name: 'flipperz', price: 600, draw(v, hw, hh) {
+  { id: 's_flippers', name: 'flipperz', price: 900, draw(v, hw, hh) {
     const fin = () => { ctx.beginPath(); ctx.moveTo(-hw * 0.6, -hh * 0.4); ctx.lineTo(hw * 2.6, -hh * 0.9); ctx.quadraticCurveTo(hw * 3.0, hh * 0.1, hw * 2.6, hh * 1.0); ctx.lineTo(-hw * 0.6, hh * 1.05); ctx.closePath(); fs('#3FB59A', INK, 1.6); for (const y of [-0.2, 0.3]) line([hw * 0.4, y * hh, hw * 2.4, y * hh * 1.6], 'rgba(46,58,53,0.3)', 1.4); };
     if (v === 'side') { fin(); shoeSide(hw, hh); fs('#3FB59A', INK, 1.6); return; }
     if (v === 'sole') { ctx.beginPath(); ctx.moveTo(-hw * 0.8, hh * 0.9); ctx.lineTo(-hw * 1.5, -hh * 2.2); ctx.quadraticCurveTo(0, -hh * 2.6, hw * 1.5, -hh * 2.2); ctx.lineTo(hw * 0.8, hh * 0.9); ctx.closePath(); fs('#3FB59A', INK, 1.6); return; }
     ctx.beginPath(); ctx.moveTo(-hw, hh * 0.2); ctx.lineTo(-hw * 1.9, hh * 1.2); ctx.quadraticCurveTo(0, hh * 1.6, hw * 1.9, hh * 1.2); ctx.lineTo(hw, hh * 0.2); ctx.closePath(); fs('#3FB59A', INK, 1.6); shoeFront(hw, hh * 0.9); fs('#3FB59A', INK, 1.6); } },
-  { id: 's_clown', name: 'honk honk shoes', price: 800, fx: 'honk', draw(v, hw, hh) {
+  { id: 's_clown', name: 'honk honk shoes', price: 1200, fx: 'honk', draw(v, hw, hh) {
     if (v === 'sole') { ell(0, -hh * 0.4, hw * 1.3, hh * 1.6); fs('#E2463C', INK, 1.8); return; }
     if (v === 'front') { ell(0, hh * 0.2, hw * 1.6, hh * 1.05); fs('#E2463C', INK, 1.8); ell(-hw * 0.5, -hh * 0.2, hw * 0.4, hh * 0.25, -0.3); fs('rgba(255,255,255,0.4)', null); }
     else { ell(hw * 0.6, hh * 0.2, hw * 1.7, hh * 0.95); fs('#E2463C', INK, 1.8); ell(hw * 0.9, -hh * 0.2, hw * 0.5, hh * 0.22, -0.2); fs('rgba(255,255,255,0.4)', null); }
     for (const s of [-1, 1]) line([0, -hh * 0.6, s * hw * 0.5, -hh * 1.1], '#F4C84A', 2.4); } },
-  { id: 's_skates', name: 'toe bean skates', price: 1000, fx: 'skates', draw(v, hw, hh) {   // pink boots, yellow wheels
+  { id: 's_skates', name: 'toe bean skates', price: 1500, fx: 'skates', draw(v, hw, hh) {   // pink boots, yellow wheels
     const wheel = (x, y, r) => { EF(x, y, r, r, '#F4C84A', 1.4); EF(x, y, r * 0.35, r * 0.35, '#FFFDF6', 0); };
     if (v === 'sole') { ell(0, 0, hw, hh * 1.1); fs('#F48CB6', INK, 1.6); for (const [x, y] of [[-0.55, -0.55], [0.55, -0.55], [-0.55, 0.55], [0.55, 0.55]]) wheel(x * hw, y * hh, hh * 0.32); return; }
     const r = Math.min(hw, hh) * 0.42;
     if (v === 'front') { wheel(-hw * 0.55, hh * 1.2, r); wheel(hw * 0.55, hh * 1.2, r); shoeFront(hw, hh, 0.6); } else { wheel(-hw * 0.6, hh * 1.25, r); wheel(hw * 0.65, hh * 1.25, r); shoeSide(hw, hh, 0.8); }
     fs('#F48CB6', INK, 1.6); rrect(-hw * 1.05, hh * 0.7, hw * 2.15, hh * 0.38, hh * 0.15); fs('#FFFDF6', INK, 1);
     ell(v === 'front' ? 0 : hw * 0.2, -hh * 0.1, hw * 0.2, hh * 0.2); fs('#FFFDF6', null); } },
-  { id: 's_lightup', name: 'blinky sneakerz', price: 1400, draw(v, hw, hh, t) { sneaker(v, hw, hh, '#FFFFFF', '#63B0ED');
+  { id: 's_lightup', name: 'blinky sneakerz', price: 2100, draw(v, hw, hh, t) { sneaker(v, hw, hh, '#FFFFFF', '#63B0ED');
     if (v !== 'sole') for (let i = 0; i < 4; i++) { const on = Math.floor(t * 8 + i) % 4; ell(-hw * 0.75 + i * hw * 0.5, hh * 0.86, hw * 0.12, hh * 0.13); fs(RAINBOW[(on + i) % 6], null); } } },
-  { id: 's_ice', name: 'ice skatez', price: 1800, draw(v, hw, hh) {
+  { id: 's_ice', name: 'ice skatez', price: 2700, draw(v, hw, hh) {
     if (v === 'sole') { ell(0, 0, hw, hh * 1.1); fs('#FFFFFF', INK, 1.6); line([0, -hh * 1.3, 0, hh * 1.3], '#B9C2C7', 3.4); return; }
     if (v === 'front') { line([0, hh * 1.05, 0, hh * 1.6], '#B9C2C7', 3); shoeFront(hw, hh, 0.7); }
     else { ctx.beginPath(); ctx.moveTo(-hw * 1.1, hh * 1.5); ctx.lineTo(hw * 1.1, hh * 1.5); ctx.quadraticCurveTo(hw * 1.6, hh * 1.5, hw * 1.4, hh * 0.9); fs(null, INK, 3.6); ctx.strokeStyle = '#D9E0E4'; ctx.lineWidth = 2 * STYLE.ink; ctx.stroke(); for (const x of [-0.6, 0.5]) line([x * hw, hh, x * hw, hh * 1.45], '#B9C2C7', 1.6); shoeSide(hw, hh, 0.9); }
     fs('#FFFFFF', INK, 1.6); for (let k = 0; k < 3; k++) line([-hw * 0.3, -hh * (0.6 + k * 0.4), hw * 0.3, -hh * (0.6 + k * 0.4)], '#B9C2C7', 1.2); } },
-  { id: 's_heels', name: 'fancy heelz', price: 2200, draw(v, hw, hh) {
+  { id: 's_heels', name: 'fancy heelz', price: 3300, draw(v, hw, hh) {
     if (v === 'sole') { ell(0, -hh * 0.2, hw, hh * 0.9); fs('#C8283A', INK, 1.6); rrect(-hw * 0.25, hh * 0.6, hw * 0.5, hh * 0.5, 2); fs('#2B2B30', INK, 1); return; }
     if (v === 'front') { shoeFront(hw, hh * 0.8); fs('#C8283A', INK, 1.6); ell(0, -hh * 0.3, hw * 0.3, hh * 0.18); fs('#F4C84A', INK, 0.8); return; }
     P([-hw * 0.95, hh * 0.4, -hw * 0.6, hh * 0.45, -hw * 0.8, hh * 1.7, -hw * 0.95, hh * 1.7], '#2B2B30', 1.2);
     ctx.beginPath(); ctx.moveTo(-hw * 1.05, -hh * 0.5); ctx.quadraticCurveTo(-hw * 1.05, hh * 0.5, -hw * 0.6, hh * 0.5); ctx.quadraticCurveTo(0, hh * 0.8, hw * 0.6, hh * 1.05); ctx.quadraticCurveTo(hw * 1.4, hh * 1.05, hw * 1.2, hh * 0.3); ctx.quadraticCurveTo(hw * 0.5, -hh * 0.3, -hw * 0.2, -hh * 0.2); ctx.closePath(); fs('#C8283A', INK, 1.6); } },
-  { id: 's_cowboy', name: 'yeehaw bootz', price: 2800, draw(v, hw, hh) {
+  { id: 's_cowboy', name: 'yeehaw bootz', price: 4200, draw(v, hw, hh) {
     if (v === 'sole') { ell(0, 0, hw * 1.05, hh * 1.1); fs('#8A5A34', INK, 1.6); rrect(-hw * 0.5, hh * 0.3, hw, hh * 0.6, 2); fs('#5A3A22', null); return; }
     if (v === 'front') shoeFront(hw, hh, 1.4); else shoeSide(hw, hh, 1.9, 1.1); fs('#A86E3E', INK, 1.8); soleBits(hw, hh, '#5A3A22');
     ctx.beginPath(); ctx.moveTo(-hw * 0.5, -hh * 2.1); ctx.quadraticCurveTo(0, -hh * 1.2, hw * 0.4, -hh * 2.0); fs(null, '#F4C84A', 1.4); ell(0, -hh * 0.8, hw * 0.16, hh * 0.16); fs('#F4C84A', null);
     if (v === 'side') { ctx.save(); ctx.translate(-hw * 1.15, hh * 0.3); starPath(0, 0, hh * 0.45); fs('#C9CED3', INK, 1); ctx.restore(); } } },
-  { id: 's_moon', name: 'moon bootz', price: 4500, draw(v, hw, hh) {
+  { id: 's_moon', name: 'moon bootz', price: 6800, draw(v, hw, hh) {
     if (v === 'sole') { ell(0, 0, hw * 1.15, hh * 1.2); fs('#C9CED3', INK, 1.8); for (let i = 0; i < 3; i++) line([-hw * 0.7, -hh * 0.5 + i * hh * 0.5, hw * 0.7, -hh * 0.5 + i * hh * 0.5], '#9AA3A8', 3); return; }
     ctx.save(); ctx.scale(1.15, 1.08); if (v === 'front') shoeFront(hw, hh, 1.2); else shoeSide(hw, hh, 1.6); ctx.restore(); fs('#E3E8EA', INK, 2);
     for (const y of [-1.2, -0.4]) { rrect(-hw * 1.2, hh * y, hw * 2.4, hh * 0.32, hh * 0.15); fs('#9AA3A8', null); } soleBits(hw * 1.1, hh * 1.05, '#7A7F86'); } },
@@ -3671,21 +3676,21 @@ const TRAILS = [
   { id: 't_zzz', name: 'zzz', price: 15, emit: 'zzz', gap: 40 },
   { id: 't_bones', name: 'fish bonez', price: 25, emit: 'bones', gap: 30 },
   { id: 't_bubbles', name: 'bubblez', price: 40, emit: 'bubbles', gap: 18 },
-  { id: 't_hearts', name: 'luv u', price: 80, emit: 'hearts', gap: 22 },
-  { id: 't_notes', name: 'music notez', price: 120, emit: 'notes', gap: 26 },
-  { id: 't_confetti', name: 'confetti', price: 200, emit: 'confetti', gap: 9 },
-  { id: 't_leaves', name: 'fall leafs', price: 250, emit: 'leaves', gap: 16 },
-  { id: 't_petals', name: 'flower petalz', price: 300, emit: 'petals', gap: 12 },
-  { id: 't_speed', name: 'zoom lines', price: 400, emit: 'speed', gap: 10 },
-  { id: 't_tp', name: 'toilet paper', price: 450, ribbon: 'tp' },
-  { id: 't_pizza', name: 'pizza party', price: 600, emit: 'pizza', gap: 34 },
-  { id: 't_sparkles', name: 'sparklez', price: 800, emit: 'sparkles', gap: 8 },
-  { id: 't_yarn', name: 'runaway yarn', price: 1000, ribbon: 'yarn' },
-  { id: 't_snow', name: 'snowflakez', price: 1200, emit: 'snow', gap: 12 },
-  { id: 't_cloud', name: 'my own lil cloud', price: 1600, cloud: true },
-  { id: 't_fire', name: 'hot zoomies', price: 2500, emit: 'fire', gap: 7 },
-  { id: 't_rainbow', name: 'rainbow', price: 3000, ribbon: 'rainbow' },
-  { id: 't_glitter', name: 'glitter bomb', price: 5000, emit: 'glitter', gap: 5 },
+  { id: 't_hearts', name: 'luv u', price: 120, emit: 'hearts', gap: 22 },
+  { id: 't_notes', name: 'music notez', price: 180, emit: 'notes', gap: 26 },
+  { id: 't_confetti', name: 'confetti', price: 300, emit: 'confetti', gap: 9 },
+  { id: 't_leaves', name: 'fall leafs', price: 380, emit: 'leaves', gap: 16 },
+  { id: 't_petals', name: 'flower petalz', price: 450, emit: 'petals', gap: 12 },
+  { id: 't_speed', name: 'zoom lines', price: 600, emit: 'speed', gap: 10 },
+  { id: 't_tp', name: 'toilet paper', price: 680, ribbon: 'tp' },
+  { id: 't_pizza', name: 'pizza party', price: 900, emit: 'pizza', gap: 34 },
+  { id: 't_sparkles', name: 'sparklez', price: 1200, emit: 'sparkles', gap: 8 },
+  { id: 't_yarn', name: 'runaway yarn', price: 1500, ribbon: 'yarn' },
+  { id: 't_snow', name: 'snowflakez', price: 1800, emit: 'snow', gap: 12 },
+  { id: 't_cloud', name: 'my own lil cloud', price: 2400, cloud: true },
+  { id: 't_fire', name: 'hot zoomies', price: 3750, emit: 'fire', gap: 7 },
+  { id: 't_rainbow', name: 'rainbow', price: 4500, ribbon: 'rainbow' },
+  { id: 't_glitter', name: 'glitter bomb', price: 7500, emit: 'glitter', gap: 5 },
   { id: 't_money', name: 'make it rain', price: 30000, emit: 'money', gap: 16 },
   { id: 't_comet', name: 'comet tail', earned: true, emit: 'comet', gap: 6 },
 ];
@@ -3857,34 +3862,34 @@ const POSTS = [
     ctx.save(); ctx.translate(x - 54, top + 12); ctx.rotate(-0.5); clShape({ shape: 'bone', size: 9, col: '' }, 1, t); ctx.restore();   // a fish bone poking out
     rrect(x - 56, top, 112, 16, 5); fs('#B3BBC0', INK, 2.4); rrect(x + 10, top - 6, 26, 8, 4); fs('#7A7F86', INK, 1.6);
     toy(x - 44, top + 16, t, '#F4C84A'); } },
-  { id: 'p_hydrant', name: 'fire hydrant', price: 80, draw(p, t, F) {
+  { id: 'p_hydrant', name: 'fire hydrant', price: 120, draw(p, t, F) {
     const x = p.x, top = p.top, H = F - top;
     rrect(x - 46, F - 14, 92, 14, 4); fs('#C2332B', INK, 2.4);
     rrect(x - 30, top + 22, 60, H - 34, 8); fs('#E2463C', INK, 2.4); ell(x - 16, top + H * 0.5, 6, H * 0.3); fs('rgba(255,255,255,0.22)', null);
     for (const s of [-1, 1]) { rrect(x + s * 40 - 12, top + H * 0.42, 24, 22, 5); fs('#C2332B', INK, 2); ell(x + s * 52, top + H * 0.42 + 11, 7, 7); fs('#F4C84A', INK, 1.6); }
     rrect(x - 38, top + 14, 76, 12, 5); fs('#C2332B', INK, 2.2); pad(x, top, 92, '#E2463C'); ell(x, top - 2, 8, 5); fs('#F4C84A', INK, 1.6);
     toy(x + 40, top + 14, t, '#63B0ED'); } },
-  { id: 'p_books', name: 'book stack', price: 150, draw(p, t, F) {
+  { id: 'p_books', name: 'book stack', price: 230, draw(p, t, F) {
     const x = p.x, top = p.top; let y = F, i = 0;
     while (y > top + 2) { const h = Math.min(y - top, 15 + (i * 7) % 10), w = 86 + ((i * 37) % 30), off = ((i * 53) % 17) - 8, col = BOOK_COLORS[i % BOOK_COLORS.length];
       rrect(x - w / 2 + off, y - h, w, h, 3); fs(col, INK, 2.2); ctx.fillStyle = '#FFFDF6'; ctx.fillRect(x + w / 2 + off - 10, y - h + 3, 6, h - 6); line([x - w / 2 + off + 10, y - h / 2, x - w / 2 + off + 26, y - h / 2], 'rgba(255,255,255,0.6)', 2);
       y -= h; i++; }
     toy(x + 36, top + 6, t); } },
-  { id: 'p_cactus', name: 'cactus', price: 250, draw(p, t, F) {
+  { id: 'p_cactus', name: 'cactus', price: 380, draw(p, t, F) {
     const x = p.x, top = p.top, H = F - top;
     for (const [s, y0, h] of [[-1, 0.55, 0.3], [1, 0.38, 0.32]]) { const ax = x + s * 44, ay = top + H * y0; ctx.beginPath(); ctx.moveTo(x, ay + 10); ctx.lineTo(ax, ay + 10); ctx.lineTo(ax, ay - H * h); fs(null, INK, 20); ctx.strokeStyle = '#5FA35A'; ctx.lineWidth = 15; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.stroke(); }
     rrect(x - 26, top + 8, 52, H - 30, 22); fs('#5FA35A', INK, 2.4); for (const k of [-12, 0, 12]) line([x + k, top + 22, x + k, F - 30], 'rgba(40,90,40,0.45)', 2);
     for (let i = 0; i < 9; i++) { const yy = top + 26 + i * (H - 60) / 9, s = i % 2 ? 1 : -1; line([x + s * 26, yy, x + s * 32, yy - 3], '#FFF6C8', 1.6); }
     poly([x - 40, F - 30, x + 40, F - 30, x + 32, F, x - 32, F]); fs('#D97B4A', INK, 2.4); rrect(x - 44, F - 34, 88, 9, 3); fs('#E58E5C', INK, 2);
     pad(x, top, 70, '#F7B6CC'); flower(x + 30, top - 2, 6, '#F56E99'); } },
-  { id: 'p_banana', name: 'banana', price: 400, draw(p, t, F) {
+  { id: 'p_banana', name: 'banana', price: 600, draw(p, t, F) {
     const x = p.x, top = p.top, H = F - top;
     ctx.beginPath(); ctx.moveTo(x - 20, F - 4); ctx.bezierCurveTo(x - 50, F - H * 0.4, x - 34, top + H * 0.3, x - 18, top + 16); ctx.lineTo(x + 20, top + 16); ctx.bezierCurveTo(x + 4, top + H * 0.35, x - 4, F - H * 0.35, x + 22, F - 4); ctx.closePath(); fs('#F6D44A', INK, 2.4);
     ctx.beginPath(); ctx.moveTo(x - 6, F - 8); ctx.bezierCurveTo(x - 28, F - H * 0.4, x - 16, top + H * 0.3, x - 2, top + 20); fs(null, 'rgba(160,120,30,0.4)', 2);
     rrect(x - 10, F - 8, 26, 8, 3); fs('#6B4A2A', INK, 1.6);
     for (const [a, l] of [[-2.6, 44], [-0.5, 44], [-1.57, 30]]) { ctx.save(); ctx.translate(x, top + 14); ctx.rotate(a); ctx.beginPath(); ctx.moveTo(0, -8); ctx.quadraticCurveTo(l * 0.6, -14, l, 4); ctx.quadraticCurveTo(l * 0.5, 10, 0, 8); ctx.closePath(); fs('#F6D44A', INK, 2); ctx.restore(); }
     pad(x, top, 64, '#FFF6C8'); toy(x + 38, top + 12, t, '#7A5A2A'); } },
-  { id: 'p_icecream', name: 'ice cream', price: 600, draw(p, t, F) {
+  { id: 'p_icecream', name: 'ice cream', price: 900, draw(p, t, F) {
     const x = p.x, top = p.top, H = F - top;
     rrect(x - 34, F - 12, 68, 12, 4); fs('#B9C7BE', INK, 2.2);
     poly([x - 40, top + 30, x + 40, top + 30, x + 6, F - 12, x - 6, F - 12]); fs('#E2A55B', INK, 2.4); ctx.save(); poly([x - 40, top + 30, x + 40, top + 30, x + 6, F - 12, x - 6, F - 12]); ctx.clip(); for (let k = -6; k < 8; k++) { line([x - 50 + k * 14, top + 30, x - 50 + k * 14 + H, F], 'rgba(150,95,40,0.5)', 2); line([x + 50 - k * 14, top + 30, x + 50 - k * 14 - H, F], 'rgba(150,95,40,0.5)', 2); } ctx.restore();
@@ -3892,7 +3897,7 @@ const POSTS = [
     for (const dx of [-30, -6, 18, 34]) { ell(x + dx, top + 34, 5, 7); fs('#F7B6CC', null); }
     pad(x, top, 84, '#FFF3D6'); for (let i = 0; i < 9; i++) line([x - 34 + i * 8, top + 4 + (i % 2) * 4, x - 31 + i * 8, top + 6 + (i % 2) * 4], RAINBOW[i % 6], 2.2);
     ell(x + 30, top - 6, 7, 7); fs('#E2574C', INK, 1.6); line([x + 31, top - 12, x + 36, top - 20], '#6B8E3A', 1.6); } },
-  { id: 'p_fish', name: 'giant fish', price: 800, draw(p, t, F) {
+  { id: 'p_fish', name: 'giant fish', price: 1200, draw(p, t, F) {
     const x = p.x, top = p.top, H = F - top, wag = Math.sin(t * 3) * 3;
     poly([x - 4, F - 26, x - 34 + wag, F, x + 34 + wag, F, x + 4, F - 26]); fs('#E58E5C', INK, 2.2);   // standing on its tail
     ctx.beginPath(); ctx.moveTo(x, F - 22); ctx.bezierCurveTo(x - 50, F - H * 0.45, x - 46, top + 30, x, top + 12); ctx.bezierCurveTo(x + 46, top + 30, x + 50, F - H * 0.45, x, F - 22); ctx.closePath(); fs('#F59A6E', INK, 2.4);
@@ -3900,19 +3905,19 @@ const POSTS = [
     for (const s of [-1, 1]) poly([x + s * 30, top + H * 0.45, x + s * 48, top + H * 0.36, x + s * 36, top + H * 0.56], '#E58E5C', 1.8);
     EF(x - 12, top + 34, 7, 7, '#FFFDF6', 1.6); ell(x - 11, top + 35, 3.4, 3.4); fs(INK, null); ell(x + 6, top + 30, 5, 3); fs('#C2502E', INK, 1.4);   // its eye, a little pout
     pad(x, top, 70, '#9ED3F0'); toy(x + 34, top + 12, t, '#FFFDF6'); } },
-  { id: 'p_tp', name: 'tp tower', price: 1000, draw(p, t, F) {
+  { id: 'p_tp', name: 'tp tower', price: 1500, draw(p, t, F) {
     const x = p.x, top = p.top; let y = F, row = 0;
     while (y > top + 6) { const n = row % 2 ? 2 : 3, h = Math.min(30, y - top - 2); for (let i = 0; i < n; i++) { const cx = x + (i - (n - 1) / 2) * 34; rrect(cx - 16, y - h, 32, h, 6); fs('#FFFFFF', INK, 2); ell(cx, y - h + 3, 16, 3.5); fs('#F4F1E8', INK, 1.2); ell(cx, y - h + 3, 5, 1.6); fs('#B9A58A', null); line([cx - 16, y - h * 0.4, cx + 16, y - h * 0.4], 'rgba(46,58,53,0.15)', 1.2); } y -= h; row++; }
     ctx.beginPath(); ctx.moveTo(x + 50, top + 22); ctx.quadraticCurveTo(x + 62, (top + F) / 2, x + 54, F - 2); fs(null, INK, 9); ctx.stroke(); ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 6; ctx.stroke();   // a strip hanging off it
     pad(x, top, 104, '#FFFFFF'); } },
-  { id: 'p_sushi', name: 'giant sushi', price: 1400, draw(p, t, F) {
+  { id: 'p_sushi', name: 'giant sushi', price: 2100, draw(p, t, F) {
     const x = p.x, top = p.top, H = F - top;
     rrect(x - 52, F - 12, 104, 12, 4); fs('#C99963', INK, 2.2);   // a wooden board
     rrect(x - 40, top + 8, 80, H - 20, 10); fs('#2F3A30', INK, 2.4); ell(x - 26, top + H * 0.5, 6, H * 0.3); fs('rgba(255,255,255,0.12)', null);
     ell(x, top + 10, 40, 12); fs('#FBF8F0', INK, 2.4); ell(x, top + 10, 18, 6); fs('#F59A6E', null); ell(x + 8, top + 10, 6, 3); fs('#7DBF5A', null);
     for (let i = 0; i < 14; i++) { const a = i * 0.45; ell(x + Math.cos(a) * 30, top + 10 + Math.sin(a) * 8, 2.4, 1.4, a); fs('rgba(46,58,53,0.14)', null); }
     ctx.save(); ctx.translate(x + 50, F - 22); rrect(-3, -40, 6, 40, 2); fs('#E8D3A8', INK, 1.4); ctx.rotate(0.3); rrect(4, -42, 6, 42, 2); fs('#E8D3A8', INK, 1.4); ctx.restore(); } },   // (chopsticks)
-  { id: 'p_lighthouse', name: 'lighthouse', price: 2000, draw(p, t, F) {
+  { id: 'p_lighthouse', name: 'lighthouse', price: 3000, draw(p, t, F) {
     const x = p.x, top = p.top, H = F - top, body = () => poly([x - 36, F, x - 22, top + 40, x + 22, top + 40, x + 36, F]);
     body(); fs('#FFFDF6', INK, 2.4); ctx.save(); body(); ctx.clip(); for (let k = 0; k < 4; k++) { ctx.fillStyle = '#E2463C'; ctx.fillRect(x - 40, top + 40 + k * (H - 40) / 4 + (H - 40) / 8, 80, (H - 40) / 8); } ctx.restore(); body(); fs(null, INK, 2.4);
     rrect(x - 8, F - 26, 16, 26, 7); fs('#6E4423', INK, 1.8);
@@ -3920,14 +3925,14 @@ const POSTS = [
     const a = t * 1.6, c = Math.cos(a); ctx.save(); ctx.globalAlpha = 0.25 + 0.2 * Math.abs(c); poly([x, top + 29, x + c * 150, top + 10, x + c * 150, top + 48]); fs('#FFF3B8', null); ctx.restore();   // the light going round
     for (let k = -2; k <= 2; k++) line([x + k * 12, top + 2, x + k * 12, top + 14], INK, 1.6);
     pad(x, top, 96, '#E2463C'); } },
-  { id: 'p_pizza', name: 'leaning tower of pizza', price: 3000, draw(p, t, F) {
+  { id: 'p_pizza', name: 'leaning tower of pizza', price: 4500, draw(p, t, F) {
     const x = p.x, top = p.top, H = F - top, n = Math.max(3, Math.round((H - 14) / 34)), h = (H - 14) / n;
     for (let i = 0; i < n; i++) { const y = F - (i + 1) * h, dx = (i + 0.5) * 2.4 - n * 1.2;   // each floor a little further over: it leans (the top's still level)
       rrect(x - 40 + dx, y, 80, h, 4); fs('#F6C95A', INK, 2.2); ctx.fillStyle = '#E8A85A'; ctx.fillRect(x - 40 + dx, y + h - 6, 80, 5);
       for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.arc(x - 24 + k * 24 + dx, y + h - 6, 7, Math.PI, 0); ctx.lineTo(x - 17 + k * 24 + dx, y + h - 6); fs('#8A5634', INK, 1.4); }
       for (const [px, py] of [[-28, 0.3], [6, 0.25], [26, 0.35]]) { ell(x + px + dx + (i % 2) * 6, y + h * py, 4.5, 4.5); fs('#D8352B', INK, 1); } ell(x - 10 + dx, y + 4, 10, 3); fs('#FFE9A8', null); }
     pad(x + n * 1.2, top, 100, '#F6C95A'); for (const k of [-30, -6, 20]) { ell(x + k + n * 1.2, top + 6, 4, 3); fs('#D8352B', null); } } },
-  { id: 'p_castle', name: 'castle', price: 4500, draw(p, t, F) {
+  { id: 'p_castle', name: 'castle', price: 6800, draw(p, t, F) {
     const x = p.x, top = p.top, H = F - top;
     rrect(x - 42, top + 14, 84, H - 14, 2); fs('#C9C3B5', INK, 2.4);
     ctx.save(); rrect(x - 42, top + 14, 84, H - 14, 2); ctx.clip(); for (let y = top + 18, r = 0; y < F; y += 16, r++) for (let bx = x - 44 - (r % 2) * 14; bx < x + 44; bx += 28) { rrect(bx + 1, y, 26, 14, 2); fs(r % 3 ? '#D6D0C2' : '#BDB6A6', 'rgba(46,58,53,0.25)', 1); } ctx.restore();
@@ -3935,7 +3940,7 @@ const POSTS = [
     ctx.beginPath(); ctx.moveTo(x - 6, top + H * 0.42); ctx.arc(x, top + H * 0.42, 6, Math.PI, 0); ctx.lineTo(x + 6, top + H * 0.42 + 14); ctx.lineTo(x - 6, top + H * 0.42 + 14); ctx.closePath(); fs('#2E3A35', INK, 1.6);
     rrect(x - 50, top, 100, 16, 3); fs('#C9C3B5', INK, 2.4); for (const k of [-44, -20, 4, 28]) { rrect(x + k, top - 12, 16, 14, 2); fs('#C9C3B5', INK, 2); }
     line([x + 42, top - 12, x + 42, top - 52], INK, 2.2); const w = Math.sin(t * 5) * 3; poly([x + 42, top - 52, x + 68, top - 46 + w, x + 42, top - 38]); fs('#E2574C', INK, 1.6); } },
-  { id: 'p_rocket', name: 'rocket', price: 7000, draw(p, t, F) {
+  { id: 'p_rocket', name: 'rocket', price: 10500, draw(p, t, F) {
     const x = p.x, top = p.top, H = F - top;
     for (const s of [-1, 1]) poly([x + s * 24, F - H * 0.45, x + s * 48, F - 4, x + s * 20, F - 18], '#E2463C', 2.2);
     ctx.beginPath(); ctx.moveTo(x - 26, F - 18); ctx.lineTo(x - 26, top + 50); ctx.quadraticCurveTo(x - 24, top + 16, x, top + 10); ctx.quadraticCurveTo(x + 24, top + 16, x + 26, top + 50); ctx.lineTo(x + 26, F - 18); ctx.closePath(); fs('#E9EEF2', INK, 2.4);
@@ -3957,7 +3962,7 @@ function drawPost(id, p, t) { const P2 = POSTS_BY[id]; if (P2 && P2.draw) P2.dra
 // ---------- teh crib (Adam, Nov 6: "be able to buy each cat accesories that it can use in its own little "room" or space
 // where it lives... a cat house, a ball, etc."): each cat's own room, with a few spots (the bed corner, the floor left and
 // right, the window, the wall) and the things u got it, and the cat wanders round using them, on a loop. Things for the
-// room are bought once and go in any cat's room (store.d.crib[cat] = { spot: id }). The room is 600 x 300 (the floor at
+// room are bought for one cat's room (since Nov 6, like everything but posts; store.d.crib[cat] = { spot: id }). The room is 600 x 300 (the floor at
 // 250), drawn to fit the screen. ----------
 const CRIB_F = 250, CRIB_SPOTS = { bed: 95, floorL: 240, floorR: 405, window: 300, wall: 530 };
 const CRIB = [
@@ -3965,15 +3970,15 @@ const CRIB = [
   { id: 'cr_cucumber', name: 'da cucumber', price: 15, spot: 'floor', line: 'AAAAAA. cucumbr.' },
   { id: 'cr_cup', name: 'cup on a table', price: 25, spot: 'floor', line: '*stares at u. pushes it.*' },
   { id: 'cr_ball', name: 'jingle ball', price: 40, spot: 'floor', line: 'mine. all mine.' },
-  { id: 'cr_yarn', name: 'yarn ball', price: 60, spot: 'floor', line: 'yarn iz life' },
-  { id: 'cr_plant', name: 'plant (2 knock over)', price: 90, spot: 'floor', line: 'oops. it fell.' },
-  { id: 'cr_dot', name: 'da red dot', price: 150, spot: 'wall', line: 'i will catch u, dot' },
-  { id: 'cr_bed', name: 'donut bed', price: 250, spot: 'bed', line: 'making biscuits. then nap tiem.' },
-  { id: 'cr_tunnel', name: 'crinkle tunnel', price: 350, spot: 'floor', line: 'crinkle crinkle zoom' },
-  { id: 'cr_perch', name: 'birb tv', price: 500, spot: 'window', line: 'birb tv. 10/10.' },
-  { id: 'cr_house', name: 'lil house', price: 700, spot: 'bed', line: 'nap tiem. do not disturb.' },
-  { id: 'cr_tank', name: 'fish tv', price: 1200, spot: 'wall', line: 'fishies. i just look.' },
-  { id: 'cr_vacuum', name: 'robot vacuum', price: 2000, spot: 'floor', line: 'vroom vroom. i am driving.' },
+  { id: 'cr_yarn', name: 'yarn ball', price: 90, spot: 'floor', line: 'yarn iz life' },
+  { id: 'cr_plant', name: 'plant (2 knock over)', price: 140, spot: 'floor', line: 'oops. it fell.' },
+  { id: 'cr_dot', name: 'da red dot', price: 230, spot: 'wall', line: 'i will catch u, dot' },
+  { id: 'cr_bed', name: 'donut bed', price: 380, spot: 'bed', line: 'making biscuits. then nap tiem.' },
+  { id: 'cr_tunnel', name: 'crinkle tunnel', price: 530, spot: 'floor', line: 'crinkle crinkle zoom' },
+  { id: 'cr_perch', name: 'birb tv', price: 750, spot: 'window', line: 'birb tv. 10/10.' },
+  { id: 'cr_house', name: 'lil house', price: 1050, spot: 'bed', line: 'nap tiem. do not disturb.' },
+  { id: 'cr_tank', name: 'fish tv', price: 1800, spot: 'wall', line: 'fishies. i just look.' },
+  { id: 'cr_vacuum', name: 'robot vacuum', price: 3000, spot: 'floor', line: 'vroom vroom. i am driving.' },
   { id: 'cr_throne', name: 'da throne', price: 25000, spot: 'bed', line: 'bow before me, hooman' },
   { id: 'cr_goldbowl', name: 'golden fish bowl', earned: true, spot: 'wall', line: 'a golden fishie. ooh.' },
 ];
@@ -4139,20 +4144,20 @@ const MORE_WEAR = [
   { id: 'catears', slot: 'hat', name: 'cat ear headband', price: 45, draw() {   // a cat... wearing cat ears
     ctx.beginPath(); ctx.ellipse(0, -14, 34, 12, 0, Math.PI * 1.08, Math.PI * 1.92); fs(null, INK, 6); ctx.stroke(); ctx.strokeStyle = '#2B2B30'; ctx.lineWidth = 3.4 * STYLE.ink; ctx.stroke();
     for (const s of [-1, 1]) { P([s * 8, -24, s * 18, -46, s * 28, -22], '#2B2B30', 1.8); P([s * 13, -25, s * 18, -38, s * 23, -24], '#F59AC0', 0); } } },
-  { id: 'medal', slot: 'neck', name: 'participation medal', price: 60, draw() { P([-9, 19, -3, 19, 1, 29, -4, 30], '#63B0ED', 1.2); P([9, 19, 3, 19, -1, 29, 4, 30], '#E2574C', 1.2); EF(0, 35, 7.5, 7.5, '#C98A44', 1.4); EF(0, 35, 5, 5, '#E2A55B', 0); starPath(0, 35, 3); fs('#FFF3D6', null); } },
-  { id: 'tie', slot: 'neck', name: 'office tie', price: 250, draw() {   // business cat
+  { id: 'medal', slot: 'neck', name: 'participation medal', price: 90, draw() { P([-9, 19, -3, 19, 1, 29, -4, 30], '#63B0ED', 1.2); P([9, 19, 3, 19, -1, 29, 4, 30], '#E2574C', 1.2); EF(0, 35, 7.5, 7.5, '#C98A44', 1.4); EF(0, 35, 5, 5, '#E2A55B', 0); starPath(0, 35, 3); fs('#FFF3D6', null); } },
+  { id: 'tie', slot: 'neck', name: 'office tie', price: 380, draw() {   // business cat
     P([-5, 20, 5, 20, 3.5, 26, -3.5, 26], '#3E66A8', 1.4); ctx.save(); P([-3.5, 26, 3.5, 26, 7, 44, 0, 50, -7, 44], '#3E66A8', 1.4); poly([-3.5, 26, 3.5, 26, 7, 44, 0, 50, -7, 44]); ctx.clip(); for (let y = 24; y < 52; y += 6) line([-8, y, 8, y - 5], '#F4C84A', 1.6); ctx.restore(); } },
-  { id: 'mushroom', slot: 'hat', name: 'mushroom hat', price: 500, draw() {
+  { id: 'mushroom', slot: 'hat', name: 'mushroom hat', price: 750, draw() {
     ctx.beginPath(); ctx.moveTo(-36, -18); ctx.bezierCurveTo(-36, -58, 36, -58, 36, -18); ctx.quadraticCurveTo(0, -24, -36, -18); ctx.closePath(); fs('#E2463C', INK, 2.2);
     for (const [x, y, r] of [[-18, -32, 5], [4, -42, 6], [20, -28, 4.5], [-4, -27, 3.5], [28, -20, 3]]) { ell(x, y, r, r * 0.85); fs('#FFFDF6', null); } } },
-  { id: 'frog', slot: 'hat', name: 'froggy hat', price: 900, draw() {
+  { id: 'frog', slot: 'hat', name: 'froggy hat', price: 1350, draw() {
     ell(0, -20, 34, 7); fs('#6FBF6A', INK, 2.2); ctx.beginPath(); ctx.moveTo(-24, -20); ctx.quadraticCurveTo(-24, -42, 0, -42); ctx.quadraticCurveTo(24, -42, 24, -20); ctx.closePath(); fs('#6FBF6A', INK, 2.2);
     for (const s of [-1, 1]) { EF(s * 12, -44, 8, 8, '#6FBF6A', 2); EF(s * 12, -44, 5, 5, '#FFFDF6', 0); EF(s * 12, -43, 2.6, 2.6, INK, 0); }
     ctx.beginPath(); ctx.moveTo(-8, -30); ctx.quadraticCurveTo(0, -25, 8, -30); fs(null, INK, 1.6); ell(-17, -27, 3.5, 2); fs('rgba(240,150,150,0.7)', null); ell(17, -27, 3.5, 2); fs('rgba(240,150,150,0.7)', null); } },
-  { id: 'grad', slot: 'hat', name: 'smort cap', price: 1800, draw() {   // a graduation cap: big brain
+  { id: 'grad', slot: 'hat', name: 'smort cap', price: 2700, draw() {   // a graduation cap: big brain
     ctx.beginPath(); ctx.ellipse(0, -21, 20, 7, 0, Math.PI, 0); ctx.lineTo(18, -16); ctx.quadraticCurveTo(0, -12, -18, -16); ctx.closePath(); fs('#2B2B30', INK, 2);
     P([-34, -28, 0, -40, 34, -28, 0, -16], '#2B2B30', 2); EF(0, -28, 3, 2, GOLD, 1); ctx.beginPath(); ctx.moveTo(0, -28); ctx.quadraticCurveTo(20, -26, 24, -14); fs(null, GOLD, 2); rrect(21, -15, 6, 9, 2); fs(GOLD, INK, 1); } },
-  { id: 'halo', slot: 'hat', name: 'lil halo', price: 2500, draw() {   // an angel (allegedly)
+  { id: 'halo', slot: 'hat', name: 'lil halo', price: 3750, draw() {   // an angel (allegedly)
     ell(0, -42, 26, 8); fs(null, 'rgba(255,236,150,0.55)', 9); ell(0, -42, 24, 7); fs(null, INK, 6); fs(null, GOLD, 3.6); ell(-10, -45, 6, 1.4); fs('rgba(255,255,255,0.8)', null); } },
   { id: 'boxcrown', slot: 'hat', name: 'box crown', earned: true, draw() {   // (comes with new levels: find it)
     poly([-20, -18, -22, -38, -12, -28, -4, -42, 4, -28, 14, -42, 22, -30, 20, -18]); fs('#D9A86A', INK, 2); ctx.fillStyle = '#C48F50'; ctx.fillRect(-3, -36, 6, 18); line([-21, -24, 21, -24], 'rgba(46,58,53,0.3)', 1.2); } },
@@ -4164,6 +4169,8 @@ for (const it of MORE_WEAR) it.at = Infinity;
 // teh crib, line: megachonk's line); earned: u can't buy it, u find it in the levels (coming with new levels)
 // Prices (Nov 6, with the rebuilt wreck-its): a typical player has about $5,000 after the kitchen and $13,000 after the moon,
 // so the junk bin is one kitchen try and the top shelf ($20,000 to the $50,000 crown) is a few playthroughs (docs/PHYSICS_GAME.md).
+// Then (Adam, Nov 6: "the prices are probably a little bit low on some of them"): everything from $60 to under the top shelf
+// went up by half (the junk bin and the top shelf as they were), and each cat buys its own things (perCat, below).
 const SHOP = [];
 function addToShop(list, kind) { for (const it of list) { it.kind = kind; SHOP.push(it); } }
 addToShop(CLOSET.filter(c => c.slot === 'hat').concat(MORE_WEAR.filter(c => c.slot === 'hat')), 'hat'); addToShop(CLOSET.filter(c => c.slot === 'neck').concat(MORE_WEAR.filter(c => c.slot === 'neck')), 'neck');
@@ -4178,7 +4185,13 @@ function metCats() {   // toast, and every cat in a level you've won (and megach
 }
 // what can be bought now: not the earned ones, nor a cat's own things before u've met it
 const buyable = it => !!it && !it.earned && !it.free && it.price > 0 && (it.kind !== 'suit' || it.cat === '*' || metCats().has(it.cat)) && (it.kind !== 'line' || metCats().has('chonk'));
-const affordable = () => { const bill = store.d.bill || 0, met = metCats(); return SHOP.filter(it => !it.earned && !it.free && it.price <= bill && (it.kind !== 'suit' || it.cat === '*' || met.has(it.cat)) && (it.kind !== 'line' || met.has('chonk')) && !owns(it.id)).length; };   // (the dot on the closet button)
+// Each cat's things are bought for that cat (Adam, Nov 6: "you should have to buy each item for each cat... right now I bought
+// a pair of shoes with one cat but now it shows up on all the cats"), so buying stores 'id@cat'. A scratching post is the
+// whole game's (every cat is thrown from it), so it stays one purchase. Anything bought or earned before then is every cat's.
+const perCat = it => it.kind !== 'post';
+const ownedBy = (it, cat) => !it.id || !!it.free || owns(it.id, perCat(it) ? cat : null);
+const catsFor = (it, met) => !perCat(it) ? ['toast'] : it.kind === 'line' ? ['chonk'] : it.kind === 'suit' && it.cat !== '*' ? [it.cat] : [...met];   // who could still want it
+const affordable = () => { const bill = store.d.bill || 0, met = metCats(); return SHOP.filter(it => !it.earned && !it.free && it.price <= bill && (it.kind !== 'suit' || it.cat === '*' || met.has(it.cat)) && (it.kind !== 'line' || met.has('chonk')) && catsFor(it, met).some(c => !ownedBy(it, c))).length; };   // (the dot on the closet button)
 // for the levels that hide them (coming): window.__fits.earn('boxcrown') puts an earned thing in teh closet
 function earnItem(id) { const it = shopItem(id); if (!it || owns(id)) return false; store.d.owned = [...ownedSet(), id]; store.save(); return true; }
 
@@ -4258,7 +4271,7 @@ function renderCloset() {
   // the shelves, each with how many u have of it
   const tabs = $('clTabs'), keepScroll = tabs.scrollLeft; tabs.innerHTML = '';
   for (const [k, label] of closetTabs(cat)) {
-    const all = tabItems(k, cat), mine = all.filter(it => owns(it.id) || it.free).length;
+    const all = tabItems(k, cat), mine = all.filter(it => ownedBy(it, cat)).length;
     const b = document.createElement('button'); b.className = 'cl-tab' + (k === closetTab ? ' on' : '') + (k === 'top' ? ' gold' : ''); b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', String(k === closetTab));
     b.innerHTML = `<span>${label}</span><span class="n">${mine}/${all.length}</span>`; b.setAttribute('aria-label', `${label}, ${mine} of ${all.length}`);
     b.addEventListener('click', () => { closetTab = k; closetBuy = null; closetTry = null; closetMsg = null; Snd.fx('pop', 0.6); renderCloset(); $('clGrid').scrollTop = 0; });
@@ -4272,12 +4285,12 @@ function renderCloset() {
   const list = tabItems(closetTab, cat), top = closetTab === 'top', grid = $('clGrid'); grid.innerHTML = ''; grid.className = 'cl-grid' + (top ? ' top' : '');
   if (NONE_TABS.has(closetTab)) grid.appendChild(closetTile({ id: null, kind: closetTab, slot: closetTab, name: 'none', price: 0 }, cat, bill, false));
   for (const it of list) grid.appendChild(closetTile(it, cat, bill, top));
-  const mine = list.filter(it => owns(it.id) || it.free).length; $('clCount').textContent = `${mine}/${list.length}`;
-  const next = list.find(it => buyable(it) && !owns(it.id) && it.price > bill), can = list.find(it => buyable(it) && !owns(it.id) && it.price <= bill);
+  const mine = list.filter(it => ownedBy(it, cat)).length; $('clCount').textContent = `${mine}/${list.length}`;
+  const next = list.find(it => buyable(it) && !ownedBy(it, cat) && it.price > bill), can = list.find(it => buyable(it) && !ownedBy(it, cat) && it.price <= bill);
   $('clNext').textContent = closetMsg || (can ? 'u can buyz stuffz! tap it' : next ? `next: ${next.name} 4 ${money(next.price)}` : list.some(it => it.earned && !owns(it.id)) ? 'some r hidden in da levels' : 'u haz evryting. purrfect.');
 }
 function closetTile(it, cat, bill, top) {
-  const have = !it.id || owns(it.id) || it.free, on = it.id ? wornNow(it, cat) : !((store.d.wear[cat] || {})[it.slot]), earned = it.earned && !have, can = !have && !earned && buyable(it) && it.price <= bill;
+  const have = ownedBy(it, cat), on = it.id ? wornNow(it, cat) : !((store.d.wear[cat] || {})[it.slot]), earned = it.earned && !have, can = !have && !earned && buyable(it) && it.price <= bill;
   const buying = !!it.id && closetBuy === it.id, trying = closetTry === it && !have;
   const b = document.createElement('button'); b.className = 'cl-item' + (top ? ' top' : '') + (on ? ' on' : '') + (have ? '' : earned ? ' earned' : can ? ' forsale' : ' locked') + (buying ? ' buying' : '') + (trying ? ' try' : '');
   b.setAttribute('aria-label', have ? `${it.name}${on ? ', on' : ''}` : earned ? `${it.name}, find it in the levels` : `${it.name}, ${money(it.price)}`);
@@ -4291,7 +4304,7 @@ function closetTile(it, cat, bill, top) {
 }
 function closetTap(it, cat, el) {
   Snd.init();
-  const bill = store.d.bill || 0, have = !it.id || owns(it.id) || it.free, pitch = CATS[cat].pitch;
+  const bill = store.d.bill || 0, have = ownedBy(it, cat), pitch = CATS[cat].pitch;
   if (!it.id) { putOn({ kind: it.kind, slot: it.slot, id: null }, cat, false); closetTry = closetBuy = closetMsg = null; store.save(); Snd.fx('pop'); renderCloset(); return; }
   if (have) {   // yours: on, or (tapped again) off
     const on = wornNow(it, cat); putOn(it, cat, !on || it.kind === 'post' && it.free); closetTry = closetBuy = null; closetMsg = on ? null : pick([`${it.name}. lookin gud`, 'i iz fashun', 'so pretty. wow.']);
@@ -4302,7 +4315,7 @@ function closetTap(it, cat, el) {
   if (!buyable(it) || it.price > bill) { closetBuy = null; closetMsg = `break ${money(it.price - bill)} more stuff 4 dis`; Snd.fx('bonk', 0.4); renderCloset(); const b2 = [...$('clGrid').children].find(x => x.classList.contains('try')); if (b2) { b2.classList.remove('nope'); void b2.offsetWidth; b2.classList.add('nope'); } return; }
   if (closetBuy !== it.id) { closetBuy = it.id; closetMsg = `tap again 2 buy da ${it.name} 4 ${money(it.price)}`; Snd.fx('pop'); renderCloset(); return; }
   // bought: off the bill, and on the cat
-  store.d.bill = bill - it.price; store.d.billShown = store.d.bill; store.d.owned = [...ownedSet(), it.id]; closetBuy = null; closetTry = null; putOn(it, cat, true); store.save();
+  store.d.bill = bill - it.price; store.d.billShown = store.d.bill; store.d.owned = [...ownedSet(), perCat(it) ? it.id + '@' + cat : it.id]; closetBuy = null; closetTry = null; putOn(it, cat, true); store.save();
   Snd.fx('coins'); Snd.fx('star'); Snd.voice('mrrp', pitch, 0.8); if (it.price >= BIG_PRIZE) Snd.fx('win', 0.6);
   closetMsg = it.id === 'c_taco' ? 'tacocat. backwards: tacocat. i iz a palindrome' : it.price >= TOP_SHELF ? `u got da ${it.name}!!! from da top shelf. legend.` : `u bought da ${it.name}! lookin gud`;
   renderCloset();
@@ -6046,15 +6059,8 @@ function drawItem(it, t) {
     case 'lemonade': rrect(-w / 2, -h / 2 + 6, w, h - 6, 5); fs('rgba(255,236,150,0.85)', null); ell(4, -h / 2 + 12, 5, 5); fs('#F4E15A', INK, 1); line([0, -h / 2 - 8, 2, -h / 2 + 12], '#F56E75', 2.4);
       rrect(-w / 2, -h / 2 + 6, w, h - 6, 5); fs(null, INK, 2); line([-w / 2 + 4, -h / 2 + 12, -w / 2 + 4, h / 2 - 6], 'rgba(255,255,255,0.8)', 2); break;
     case 'frisbee': ell(0, 0, w / 2, h / 2 + 1); fs('#F56E75', INK, 2); ell(0, -1, w / 2 - 8, 2); fs('rgba(255,255,255,0.45)', null); break;
-    case 'dog': {   // a doggo, curled up asleep in somebody's spot (in a little helmet on the moon)
-      const br = Math.sin(t * 2.2 + it.n) * 1.2;
-      ctx.beginPath(); ctx.moveTo(-w / 2 + 8, 4); ctx.quadraticCurveTo(-w / 2 - 14, -10, -w / 2 - 6, -20); fs(null, INK, 7); ctx.beginPath(); ctx.moveTo(-w / 2 + 8, 4); ctx.quadraticCurveTo(-w / 2 - 14, -10, -w / 2 - 6, -20); fs(null, '#D2A06A', 4);
-      rrect(-w / 2, -h / 2 + 4 - br, w, h - 4 + br, 18); fs('#D2A06A', INK, 2.4); ell(-6, 6, 22, 9); fs('#FFFDF6', null); ell(-18, -h / 2 + 10, 10, 6); fs('#8F6A40', null);
-      const hx = w / 2 - 14, hy = -2;
-      ell(hx, hy, 17, 14); fs('#D2A06A', INK, 2.2); ell(hx + 9, hy + 5, 9, 6); fs('#FFFDF6', INK, 1.4); ell(hx + 15, hy + 3, 3.2, 2.6); fs(INK, null);
-      ell(hx - 9, hy - 2, 6, 12, 0.3); fs('#8F6A40', INK, 1.6);   // the floppy ear
-      ctx.beginPath(); ctx.moveTo(hx - 2, hy - 2); ctx.quadraticCurveTo(hx + 2, hy + 1, hx + 6, hy - 2); fs(null, INK, 1.8);   // asleep
-      if (sim && sim.level.suit) { ell(hx + 2, hy - 2, 24, 21); fs('rgba(210,236,250,0.18)', 'rgba(46,58,53,0.6)', 1.8); ctx.beginPath(); ctx.arc(hx + 2, hy - 2, 19, -2.6, -1.9); fs(null, 'rgba(255,255,255,0.8)', 3); }
+    case 'dog': {   // a doggo asleep in somebody's spot: chin on its paws (in a puffy suit and a globe on the moon)
+      drawDoggo('sleep', { t, n: it.n, suit: !!(sim && sim.level.suit) });
       if (!it._zz || t - it._zz > 2.4) { it._zz = t; if (Snd.ok('snore', 3000)) Snd.fx('snore', 0.4); }
       ctx.restore(); symbol('z', b.position.x + w / 2 + 6 + ((t * 0.6) % 1) * 10, b.position.y - h / 2 - 10 - ((t * 0.6) % 1) * 22, 0.7, Math.sin(((t * 0.6) % 1) * Math.PI)); ctx.save(); ctx.translate(b.position.x, b.position.y); ctx.rotate(b.angle);
       break; }
@@ -6135,8 +6141,11 @@ function breakFx(e) {
 // ---------- page state, layout, camera ----------
 let sim = null, levelIdx = 0, paused = true, acc = 0, lastT = performance.now(), rotateOk = false;
 let aim = null, lastTrail = [], demo = null, firstShot = true, hintTimer = 0;
-// After two losses on a level, paw prints show a throw that works (the solver's path). Aim close to it and the throw
-// snaps to it exactly, so the next cat's paw prints stay right too. Throw somewhere else and they go away for this try.
+// After two losses on a level, paw prints show a throw that works: the first throw of the solver's path, and only that one
+// (Adam, Nov 6: "i think the hints might be too much... especially if we want players to feel challenged and figure things
+// out on their own", then "we can still give the first paw print help, but after that no more hints"; build.py bundles just
+// the first throw). Aim close to the paws and the throw snaps to them exactly, and an early tap waits for the ring. Throw
+// somewhere else and they go away for this try. From the second cat on, you're on your own.
 let hint = null, resExtra = false, resThen = null;   // (resThen: a postcard or teh end, after the result)
 const hintNow = () => hint && hint.ok && sim && !sim.extraCats && sim.catIdx < hint.path.length ? hint.path[sim.catIdx] : null;
 const nearHint = (shot, h) => Math.abs(shot.angle - h.a * Math.PI / 180) < 5 * Math.PI / 180 && Math.abs(shot.power - h.p) < 0.07;
@@ -6312,7 +6321,7 @@ const isLocked = i => !unlock.owned && LEVELS[i] && LEVELS[i].world !== FREE_WOR
 // say the kitchen to advance to the next level" (docs/NEXT_LEVELS.md, star gates). So:
 // - Each world opens with stars earned anywhere before it, wreck-its included (Adam, Nov 6: "let's switch it to accumulate
 //   stars to open up more levels"): about 1.5 a level so far, so a kid stuck in one world can go back and earn stars anywhere.
-//   The paw prints earn about 2.2 a level.
+//   (Full paw-print paths earned about 2.2 a level; since Nov 6 the paws show only the first throw, so the rest is the player's.)
 // - Inside a world, a win opens the next level, as before.
 // - A world that has opened stays open (it's remembered), and so does any level already won. Saves from the old rule
 //   (all stars together, 1.25 a level) keep every world that rule had open.
@@ -6558,7 +6567,7 @@ function refreshResBill() {
   const bill = store.d.bill || 0, el = $('resBill'); if (!el) return;
   el._count = null; el.textContent = money(bill); store.d.billShown = bill; store.save();
   const pr = $('resGoals').querySelector('.goal.prize'); if (pr) { const nu = prizeRow(bill); if (nu) pr.outerHTML = nu; else pr.remove(); }
-  for (const u of $('resGoals').querySelectorAll('.goal.unlock')) { const id = u.querySelector('.ico').dataset.item, it = shopItem(id); if (!it || owns(id) || it.price > bill) u.remove(); }
+  for (const u of $('resGoals').querySelectorAll('.goal.unlock')) { const id = u.querySelector('.ico').dataset.item, it = shopItem(id); if (!it || ownsAny(id) || it.price > bill) u.remove(); }
   const dot = $('resShopDot'); if (dot) dot.hidden = affordable() <= (store.d.closetSeen || 0);
 }
 // The shop button on the result card (Adam, Nov 6: "when a level ends add a shop button but it needs to be cat meme cute like a
@@ -6568,7 +6577,7 @@ const SHOP_BAG = '<svg width="17" height="17" viewBox="0 0 18 18" aria-hidden="t
 function showResult(r) {
   const L = sim.level;
   if (!attract) tallyBill();
-  const billFrom = store.d.billShown != null ? store.d.billShown : store.d.bill, billTo = store.d.bill, fresh = SHOP.filter(c => buyable(c) && !owns(c.id) && c.price > billFrom && c.price <= billTo).sort((x, y) => x.price - y.price);   // (anything in teh closet)
+  const billFrom = store.d.billShown != null ? store.d.billShown : store.d.bill, billTo = store.d.bill, fresh = SHOP.filter(c => buyable(c) && !ownsAny(c.id) && c.price > billFrom && c.price <= billTo).sort((x, y) => x.price - y.price);   // (anything in teh closet)
   store.d.billShown = billTo;
   const prevStars = store.d.stars[L.id] || 0; resThen = null;
   if (r.won && !sim._nap) { if (L.id === END_LEVEL && !store.d.endSeen) resThen = () => showEnding(); else if (!prevStars && lastOfWorld(L) && POSTCARD[L.world]) { const next = levelIdx + 1; resThen = () => showPostcard(L.world, () => (next < LEVELS.length ? startLevel(next) : showLevels())); } }
@@ -6658,6 +6667,10 @@ function showTitle() {
   const bill = store.d.bill || 0; $('tBill').hidden = !bill; $('tBill').innerHTML = `u owes da hooman <b>${money(bill)}</b>`;
   showScreen('scrTitle');
   startAttract(attractNext);
+  // In the app, sound starts with the title (Adam, Nov 6: "when I first opened the app... I have to touch the screen in order
+  // for it to start making sounds"). The app lets the page play without a touch (mediaTypesRequiringUserActionForPlayback = []);
+  // a browser doesn't, so there the first touch still starts it.
+  if (NATIVE) Snd.init();
 }
 $('scrTitle').addEventListener('pointerdown', e => { if (e.target.closest('button')) return; Snd.init(); if (Snd.master && attract) Snd.master.gain.value = 0.35; Snd.voice(['meow', 'mrrp', 'mew', 'huh'][Math.floor(Math.random() * 4)], rand(0.85, 1.25), 0.8); });
 $('tPlay').addEventListener('click', () => {
@@ -7477,15 +7490,80 @@ function drawCataChonk(t) {
     basketPart(sim.level.perch, true);
   }
 }
+// A doggo (Adam, Nov 6: the moon doggos "do not look like dogs": they were a tan pill with a white oval, a hot dog in a
+// bun). Now a chibi dog in the cats' style: a big round head, a snout with a black nose, long floppy ears, four legs with
+// paws, a curly tail, a red collar with a gold tag, tan with a brown saddle and cream muzzle, chest and paws. On the space
+// and moon levels it wears the cats' white puffy suit (red cuffs, the chest panel) and their glass globe with the antenna.
+// 'sleep': lying down facing right, chin on its front paws, eyes shut, breathing (fits the 92 x 42 item, centred).
+// 'run': galloping off scared (a hiss woke it): eyes wide, brows up, ears flying back, tongue out, legs going.
+const DOG = { fur: '#D7A468', dark: '#8C6239', cream: '#FFF4E2', nose: '#3A2C26' };
+function drawDoggo(pose, o) {
+  const t = o.t || 0, n = o.n || 0, suit = o.suit, body = suit ? SUIT_COL : DOG.fur, paw = suit ? SUIT_COL : DOG.cream;
+  const cuff = (x, y, w) => { if (suit) { line([x - w / 2, y, x + w / 2, y], INK, 6.4); line([x - w / 2, y, x + w / 2, y], RED, 3.6); } };
+  const tail = (x, y, a) => {   // a curly tail with a cream tip (out of a suit sleeve on the moon)
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.bezierCurveTo(x - 14, y - 4 + a, x - 18, y - 22 + a, x - 6, y - 26 + a);
+    fs(null, INK, 9); fs(null, DOG.fur, 5.4);
+    ell(x - 6, y - 26 + a, 3.4, 3.4); fs(DOG.cream, INK, 1.4);
+    if (suit) { ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 7, y - 2 + a * 0.2); fs(null, INK, 11); fs(null, SUIT_COL, 7.6); line([x - 6.5, y - 4 + a * 0.2, x - 7.5, y + 0.5 + a * 0.2], RED, 3); }
+  };
+  const ear = (x, y, len, swing) => {   // a long floppy ear hanging from the top of the head (swing: radians, + = back)
+    ctx.save(); ctx.translate(x, y); ctx.rotate(swing);
+    ctx.beginPath(); ctx.moveTo(-5, 0); ctx.bezierCurveTo(-11, len * 0.35, -9, len, -1, len); ctx.bezierCurveTo(7, len, 8, len * 0.4, 5, 0); ctx.closePath();
+    fs(DOG.dark, INK, 2); ctx.restore();
+  };
+  const head = (x, y, s, mood) => {   // the head (s = scale), facing right
+    ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
+    if (mood === 'run') ear(-4, -12, 20, 1.15 + Math.sin(t * 26) * 0.25);   // the far ear, flying back
+    ell(0, 0, 17, 15); fs(DOG.fur, INK, 2.2);
+    ell(-6, -7, 6.5, 5.5, -0.3); fs(DOG.dark, null);   // a brown patch over the eye side
+    ell(12, 5, 11, 8.5); fs(DOG.cream, INK, 2);   // the muzzle
+    ell(21, 1.5, 4.6, 3.6); fs(DOG.nose, INK, 1.2); ell(20, 0, 1.6, 1); fs('rgba(255,255,255,0.7)', null);   // the nose
+    if (mood === 'sleep') {
+      ctx.beginPath(); ctx.moveTo(1, -3); ctx.quadraticCurveTo(5, 1, 9, -3); fs(null, INK, 1.9);   // eye shut
+      ctx.beginPath(); ctx.moveTo(13, 9); ctx.quadraticCurveTo(16, 11.5, 20, 9); fs(null, INK, 1.4);   // smol mouth
+    } else {
+      ell(5, -4, 5, 5.6); fs('#FFFFFF', INK, 1.6); ell(7, -3.5, 2.6, 3); fs(INK, null); ell(7.8, -4.8, 1, 1); fs('#FFFFFF', null);   // eye wide
+      line([0, -12, 9, -14], INK, 1.8);   // brow up (worried)
+      ctx.beginPath(); ctx.moveTo(11, 9); ctx.quadraticCurveTo(17, 15, 23, 8); ctx.closePath(); fs('#7A2E2E', INK, 1.4);   // mouth open
+      const tw = Math.sin(t * 30) * 2.5; ctx.beginPath(); ctx.moveTo(13, 11); ctx.quadraticCurveTo(10 + tw, 22, 5 + tw, 20); ctx.quadraticCurveTo(9, 15, 15, 12); fs('#F08A8A', INK, 1.2);   // tongue flapping
+    }
+    if (mood === 'sleep') ear(-4, -11, 22, 0.25 + Math.sin(t * 2.2 + n) * 0.04); else ear(-2, -12, 20, 0.95 + Math.sin(t * 26 + 1) * 0.3);   // the near ear
+    ctx.restore();
+  };
+  const globe = (x, y, rx, ry) => { ell(x, y, rx, ry); fs(GLASS, GLASS_EDGE, 2); ctx.beginPath(); ctx.ellipse(x, y, rx * 0.86, ry * 0.87, 0, -2.12, -1.6); fs(null, GLASS_SHINE, 3.4);
+    const ax = x - rx * 0.2, ay = y - ry * 0.98; line([ax, ay, ax + 3, ay - 12], INK, 2); ell(ax + 3.4, ay - 13, 3.6, 3.6); fs(RED, INK, 1.2); };
+  if (pose === 'sleep') {
+    const br = Math.sin(t * 2.2 + n) * 0.025;
+    tail(-36, 8, Math.sin(t * 1.1 + n) * 2);
+    ell(-26, 9, 15, 11); fs(body, INK, 2.2);   // the back leg, tucked
+    ell(-17, 18, 8, 4.5); fs(paw, INK, 1.8); cuff(-17, 15, 12);
+    ctx.save(); ctx.translate(-6, 6); ctx.scale(1 + br, 1 + br * 1.6);
+    ell(0, 0, 32, 14); fs(body, INK, 2.4);   // the body, lying down
+    if (!suit) { ell(-10, -6, 15, 6.5, -0.1); fs(DOG.dark, null); ell(10, 5, 14, 7); fs(DOG.cream, null); }
+    else suitPanel(8, 0, 0.8);
+    ctx.restore();
+    for (const [x, k] of [[22, 0], [32, 1]]) { rrect(x - 10, 13 + k, 19, 8.5, 4.2); fs(paw, INK, 1.8); if (!suit) { line([x + 3, 15 + k, x + 3, 18 + k], INK, 1.1); line([x + 6, 15 + k, x + 6, 18 + k], INK, 1.1); } cuff(x - 6, 13 + k + 4, 0.1); }
+    if (!suit) { line([12, -6, 14, 10], INK, 6.6); line([12, -6, 14, 10], RED, 3.8); ell(15, 9, 3, 3); fs(GOLD, INK, 1.1); }   // the collar and tag
+    head(28, 0, 1, 'sleep');
+    if (suit) globe(31, 0, 25, 21);
+  } else {   // 'run'
+    const ph = t * 24, leg = (x, y, a) => { ctx.save(); ctx.translate(x, y); ctx.rotate(a); rrect(-4.5, 0, 9, 15, 4.5); fs(body, INK, 1.8); ell(1, 15, 6.5, 4); fs(paw, INK, 1.6); cuff(0, 12, 9); ctx.restore(); };
+    leg(-22, 4, Math.sin(ph) * 0.7); leg(14, 4, -Math.sin(ph + 1) * 0.7);   // far legs
+    tail(-28, -2, Math.sin(t * 30) * 4);
+    ell(-4, 0, 28, 13); fs(body, INK, 2.4);   // the body, stretched out
+    if (!suit) { ell(-10, -6, 14, 6, -0.1); fs(DOG.dark, null); ell(8, 5, 12, 6); fs(DOG.cream, null); } else suitPanel(6, 0, 0.8);
+    leg(-16, 6, -Math.sin(ph) * 0.7); leg(18, 6, Math.sin(ph + 1) * 0.7);   // near legs
+    if (!suit) { line([17, -10, 21, 6], INK, 6.6); line([17, -10, 21, 6], RED, 3.8); ell(22, 6, 3, 3); fs(GOLD, INK, 1.1); }
+    head(32, -12, 1, 'run');
+    if (suit) globe(35, -12, 25, 21);
+    for (const k of [0, 1]) { const ty = ((t * 2 + k * 0.5) % 1); ell(18 - k * 6, -34 - ty * 8, 2, 3); fs('rgba(140,200,240,' + (1 - ty) + ')', null); }   // sweat drops
+  }
+}
 function drawDogs(dt) {
   if (!fx.dogs) return;
   for (const g of fx.dogs) {
     g.t += dt; g.x += g.dir * (260 + g.t * 120) * dt; const hop = Math.abs(Math.sin(g.t * (sim.grav < 1 ? 5 : 12))) * (sim.grav < 1 ? 70 : 18);
-    ctx.save(); ctx.translate(g.x, g.y0 - hop); ctx.scale(g.dir, 1);
-    for (const [x, a] of [[-26, 0.6], [-14, -0.5], [14, 0.6], [26, -0.5]]) { ctx.save(); ctx.translate(x, 8); ctx.rotate(a * Math.sin(g.t * 24)); rrect(-4, 0, 8, 18, 4); fs('#D2A06A', INK, 1.6); ctx.restore(); }
-    rrect(-38, -14, 70, 30, 14); fs('#D2A06A', INK, 2.2); ell(34, -14, 15, 12); fs('#D2A06A', INK, 2); ell(41, -10, 6, 4); fs('#FFFDF6', INK, 1.2);
-    ell(36, -18, 4, 4); fs('#FFFDF6', INK, 1.2); ell(37, -18, 2, 2); fs(INK, null); ell(26, -24, 5, 11, -0.9 - Math.sin(g.t * 20) * 0.3); fs('#8F6A40', INK, 1.4);   // ear flapping
-    line([-38, -8, -54, -22 + Math.sin(g.t * 30) * 6], INK, 4); ctx.restore();
+    ctx.save(); ctx.translate(g.x, g.y0 - hop); ctx.scale(g.dir, 1); drawDoggo('run', { t: g.t, n: 0, suit: !!sim.level.suit }); ctx.restore();
   }
   fx.dogs = fx.dogs.filter(g => g.t < 3);
 }
