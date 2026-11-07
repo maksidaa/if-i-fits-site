@@ -67,6 +67,10 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: var(--wall);
   background: var(--paper); color: var(--ink); box-shadow: 0 3px 0 var(--ink); }
 .btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
 .btn.go { background: var(--go); color: #fff; }
+.btn.danger { background: var(--red); color: #fff; }
+.reset-card { text-align: center; }
+.reset-say { font-weight: 700; margin: 6px 0 14px; }
+.reset-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .btn-row.one { grid-template-columns: 1fr; }
 .btn-row .btn { font-size: 16px; padding: 10px 8px; }
@@ -374,10 +378,19 @@ body.attract #hud, body.attract #hint { display: none; }
       <button class="toggle" id="tglRestore" hidden>restore purchase</button>
       <button class="toggle" id="tglHelp">help</button>
       <button class="toggle" id="tglPrivacy">privacy</button>
+      <button class="toggle" id="tglReset">start over</button>
     </div>
   </div>
 </div>
 
+<!-- start over (Adam, Nov 7: "I also wish there was a way to reset my game"): progress goes, the purchase and the settings stay -->
+<div class="overlay" id="scrReset" hidden>
+  <div class="card reset-card">
+    <h2 class="title">start over?</h2>
+    <p class="reset-say">ur stars, levels, cash n closet go poof.<br>ur unlock stays.</p>
+    <div class="reset-row"><button class="btn" id="resetNo">keep my game</button><button class="btn danger" id="resetYes">start over</button></div>
+  </div>
+</div>
 <!-- privacy and help, inside the game (Apple wants the privacy policy reachable in the app; this works offline and needs no
      app update). The same text as the website's privacy page (docs/PRIVACY.md); keep them the same. -->
 <div class="overlay" id="scrInfo" hidden>
@@ -401,6 +414,7 @@ body.attract #hud, body.attract #hint { display: none; }
       <ul>
         <li><b>Play:</b> touch anywhere and pull back to aim, let go to fling. Land a cat in every spot (the dashed boxes). Tap while a cat flies, or just after it lands, for its trick.</li>
         <li><b>Stars:</b> one for every spot filled, one for cats left over, one for enough mess. Worlds open as you earn stars.</li>
+        <li><b>Start over:</b> the start over button under the levels clears your stars, levels, cash and closet. Your purchase and settings stay.</li>
         <li><b>Stuck?</b> After a miss you can ask for 1 more cat. Lose a level twice and paw prints show a first throw that works. The rest is up to you.</li>
         <li><b>Sound and vibration:</b> in the pause card (the button at the top left during a level). The game plays sound even on silent.</li>
         <li><b>The Whole Game:</b> "restore purchase" on the level list restores it with the same Apple ID. Family Sharing works.</li>
@@ -1185,13 +1199,20 @@ const FITS = (() => {
       furniture: [{ kind: 'strut', x0: 1060, x1: 1160, top: 120, bottom: 580 }, { kind: 'console', x0: 760, x1: 900, top: 470 }, { kind: 'pad', x0: 560, x1: 760, top: 230 }],
       spots: [{ kind: 'box', x0: 1064, x1: 1156, bottom: 120, h: 56, cat: 'street' }, sb(900, 280, 1040, 400), sb(600, 100, 740, 220)],
       items: [fl('snack', 820, 470), fl('fishbowl', 980, 470), fl('wrench', 450, 300), fl('duckie', 1000, 200)] }, SPACE_SP),
-    // mission control: every trick in the station
-    Object.assign({ id: 'sp8', name: 'space 8', world: 'space', title: 'mission control', w: 1300, perch: { x: 330, top: 430 },
-      lineup: ['toot', 'chaos', 'void', 'street', 'toast', 'toot', 'chaos', 'void', 'street'], spareGoal: 2, messGoal: 80,
-      furniture: [{ kind: 'pad', x0: 0, x1: 180, top: 230 }, { kind: 'strut', x0: 760, x1: 790, top: 0, bottom: 322 },
-                  { kind: 'strut', x0: 1200, x1: 1300, top: 120, bottom: 580 }, { kind: 'console', x0: 1040, x1: 1200, top: 470 }],
-      spots: [{ kind: 'box', x0: 20, x1: 160, bottom: 230, cat: 'chaos' }, sb(960, 130, 1120, 300, 'toot'), sb(560, 340, 640, 388, 'void'), { kind: 'box', x0: 1204, x1: 1296, bottom: 120, h: 56, cat: 'street' }, sb(520, 200, 660, 310)],
-      items: [fl('fishbowl', 1100, 470), fl('snack', 700, 470), fl('duckie', 820, 470), fl('wrench', 450, 450), fl('snack', 140, 120)] }, SPACE_SP),
+    // mission control: every trick in the station. Rebuilt Nov 7 (Adam: "how is space 8 even possible to pass?" ... "When I aim the
+    // street cat always hits the lowest box"): every cat has its own box, in throwing order, and nothing sits in a lane.
+    // toast: the big box up on the left (aim at its mouth). street cat: the box on top of the tall strut; claws out, a flat throw
+    // grabs the console, climbs it, runs to the strut and climbs that, a bit higher (to 12 degrees) grabs the strut itself,
+    // and it hops into the box (the lane from the cat tree to them is empty). sir toots: the tall box behind the
+    // hanging strut, out of sight of any straight throw; fly in low under the strut and toot up into it. the void: the tiny
+    // box on the hanging strut; squish right away and fly straight in. chaos: the box behind the cat tree; zoom right away
+    // at the big box's bottom corner and she comes back off it and the ceiling into her box.
+    Object.assign({ id: 'sp8', name: 'space 8', world: 'space', title: 'mission control', tip: 'evry cat haz its own box!', w: 1300, perch: { x: 330, top: 430 },
+      lineup: ['toast', 'street', 'toot', 'void', 'chaos', 'street', 'toot', 'void', 'chaos'], spareGoal: 2, messGoal: 80,
+      furniture: [{ kind: 'pad', x0: 0, x1: 230, top: 230 }, { kind: 'strut', x0: 650, x1: 680, top: 0, bottom: 288 },
+                  { kind: 'strut', x0: 1200, x1: 1300, top: 120, bottom: 580 }, { kind: 'console', x0: 1040, x1: 1200, top: 350 }],
+      spots: [{ kind: 'box', x0: 10, x1: 210, bottom: 230, cat: 'chaos' }, sb(1000, 4, 1130, 210, 'toot'), sb(560, 248, 650, 302, 'void'), { kind: 'box', x0: 1204, x1: 1296, bottom: 120, h: 56, cat: 'street' }, sb(500, 60, 640, 220)],
+      items: [fl('fishbowl', 1100, 350), fl('snack', 700, 470), fl('duckie', 820, 470), fl('wrench', 450, 450), fl('snack', 140, 120)] }, SPACE_SP),
     // the zero g party: little floating blocks of fishbowls and fragile boxes all over the station (they break when hit,
     // so a throw clears a path, not the room)
     Object.assign({ id: 'spx', name: 'zero g party', world: 'space', mode: 'mess', title: 'wreck it', tip: 'zero g party. break stuff.', w: 1500, perch: PERCH,
@@ -1202,6 +1223,8 @@ const FITS = (() => {
                 cloud(x, y, 2, 2, 46, 44, k % 2 ? ['fragile', 'fishbowl'] : ['fishbowl', 'fragile'])),
               fl('snack', 880, 360), fl('snack', 1140, 180), fl('snack', 1380, 400), fl('duckie', 360, 300), fl('wrench', 1040, 540)] }, SPACE_SP),
     // ---- world: moon ----
+    // (The spots are craters to the physics; `look` draws one as a satellite dish or a hollowed cheese wheel instead, Adam, Nov 7:
+    // the moon's spots "don't really look like anything", then "mix them". The doggo crater on moon 2 and the buried one on moon 7 stay craters.)
     // teh moon, wide (Nov 6): spicy (she hisses: stop dead and drop; doggos run from her). Low gravity, outdoors under open sky (fling a cat up hard enough and it leaves the moon: ESCAPE_Y), 1,700 to 1,850 wide for the long floaty throws; craters, landers, cheese, aliens
     // one small step: a crater out at a real moon distance, a big mesa behind it
     Object.assign({ id: 'mn1', name: 'moon 1', world: 'moon', title: 'one smol step', w: 1700, perch: PERCH,
@@ -1213,43 +1236,43 @@ const FITS = (() => {
     Object.assign({ id: 'mn2', name: 'moon 2', world: 'moon', title: 'hisss', tip: 'a doggo iz in ur crater. hiss at it!', w: 1750, perch: PERCH, newCat: 'spicy',
       lineup: ['spicy', 'toast', 'spicy'], spareGoal: 1, messGoal: 20,
       furniture: [{ kind: 'pillar', x0: 860, x1: 1080, top: 400, moon: true }, { kind: 'pillar', x0: 1480, x1: 1750, top: 300, moon: true }],
-      spots: [{ kind: 'crater', x0: 908, x1: 1032, bottom: 400, cat: 'spicy' }, { kind: 'crater', x0: 1280, x1: 1470, bottom: 580 }],
+      spots: [{ kind: 'crater', x0: 908, x1: 1032, bottom: 400, cat: 'spicy' }, { kind: 'crater', x0: 1280, x1: 1470, bottom: 580, look: 'dish' }],
       items: [{ kind: 'dog', x: 970, bottom: 394 }, al(1375, 574), al(1600, 300), { kind: 'cheese', x: 640, bottom: 580 }, { kind: 'flag', x: 1700, bottom: 300 }] }, MOON_MN),
     // moon bounce: everything bounces higher up here
     Object.assign({ id: 'mn3', name: 'moon 3', world: 'moon', title: 'moon bounce', w: 1800, perch: PERCH,
       lineup: ['toast', 'chaos', 'toast', 'chaos'], spareGoal: 1, messGoal: 30,
       furniture: [{ kind: 'lander', x0: 940, x1: 1100, top: 380 }, { kind: 'pillar', x0: 1600, x1: 1800, top: 300, moon: true }],
-      spots: [{ kind: 'box', x0: 960, x1: 1084, bottom: 380 }, { kind: 'crater', x0: 1420, x1: 1590, bottom: 580 }],
+      spots: [{ kind: 'box', x0: 960, x1: 1084, bottom: 380 }, { kind: 'crater', x0: 1420, x1: 1590, bottom: 580, look: 'cheese' }],
       items: [al(1505, 574), al(1700, 300), { kind: 'rock', x: 760, bottom: 580 }, { kind: 'cheese', x: 1650, bottom: 300 }, { kind: 'cheese', x: 1240, bottom: 580 }] }, MOON_MN),
     // the moon is made of cheese. the void fits in the little crater between the wedges
     Object.assign({ id: 'mn4', name: 'moon 4', world: 'moon', title: 'cheez moon', w: 1800, perch: PERCH,
       lineup: ['void', 'toast', 'void', 'toast'], spareGoal: 1, messGoal: 60,
       furniture: [{ kind: 'pillar', x0: 720, x1: 960, top: 420, moon: true }, { kind: 'pillar', x0: 1020, x1: 1210, top: 320, moon: true }, { kind: 'pillar', x0: 1540, x1: 1800, top: 320, moon: true }],
-      spots: [{ kind: 'shoebox', x0: 890, x1: 950, bottom: 420, cat: 'void' }, { kind: 'crater', x0: 1340, x1: 1530, bottom: 580 }, { kind: 'crater', x0: 1045, x1: 1185, bottom: 320 }],
+      spots: [{ kind: 'shoebox', x0: 890, x1: 950, bottom: 420, cat: 'void' }, { kind: 'crater', x0: 1340, x1: 1530, bottom: 580, look: 'cheese' }, { kind: 'crater', x0: 1045, x1: 1185, bottom: 320, look: 'cheese' }],
       items: [...pots(['cheese', 'cheese', 'cheese'], 730, 420, 6), al(1440, 574), al(1115, 314), { kind: 'cheese', x: 580, bottom: 580 }, { kind: 'cheese', x: 1640, bottom: 320 }, al(1720, 320), { kind: 'cheese', x: 1270, bottom: 580 }] }, MOON_MN),
     // the lander: a box on top. the street cat climbs the leg (no ceiling up here, so a big lob gets there too)
     Object.assign({ id: 'mn5', name: 'moon 5', world: 'moon', title: 'teh lander', w: 1800, perch: PERCH,
       lineup: ['street', 'toast', 'street', 'toast'], spareGoal: 1, messGoal: 30,
       furniture: [{ kind: 'lander', x0: 1560, x1: 1700, top: 110 }, { kind: 'dish', x: 680, top: 420 }],
-      spots: [{ kind: 'box', x0: 1570, x1: 1690, bottom: 110, h: 56, cat: 'street' }, { kind: 'crater', x0: 900, x1: 1080, bottom: 580 }],
+      spots: [{ kind: 'box', x0: 1570, x1: 1690, bottom: 110, h: 56, cat: 'street' }, { kind: 'crater', x0: 900, x1: 1080, bottom: 580, look: 'dish' }],
       items: [{ kind: 'flag', x: 1240, bottom: 580 }, { kind: 'rover', x: 560, bottom: 580 }, al(990, 574), al(1630, 110), { kind: 'cheese', x: 1400, bottom: 580 }, al(1760, 580)] }, MOON_MN),
     // aliens! everywhere. they hop off when you come close
     Object.assign({ id: 'mn6', name: 'moon 6', world: 'moon', title: 'aliens!', w: 1800, perch: { x: 330, top: 430, cataDX: -104 },
       lineup: ['chaos', 'toot', 'toast', 'chaos', 'toot'], spareGoal: 1, messGoal: 30,
       furniture: [{ kind: 'lander', x0: 10, x1: 170, top: 230 }, { kind: 'lander', x0: 880, x1: 1040, top: 360 }, { kind: 'pillar', x0: 1160, x1: 1300, top: 340, moon: true }, { kind: 'pillar', x0: 1580, x1: 1800, top: 320, moon: true }],
-      spots: [{ kind: 'box', x0: 20, x1: 160, bottom: 230, cat: 'chaos' }, { kind: 'box', x0: 896, x1: 1024, bottom: 360 }, { kind: 'crater', x0: 1390, x1: 1570, bottom: 580 }],
+      spots: [{ kind: 'box', x0: 20, x1: 160, bottom: 230, cat: 'chaos' }, { kind: 'box', x0: 896, x1: 1024, bottom: 360 }, { kind: 'crater', x0: 1390, x1: 1570, bottom: 580, look: 'dish' }],
       items: [al(90, 224), al(960, 354), al(1230, 334), al(700, 580), al(1100, 580), al(1350, 580), al(1480, 574), al(1690, 320), { kind: 'cheese', x: 790, bottom: 580 }, { kind: 'cheese', x: 1190, bottom: 340 }] }, MOON_MN),
     // moon rocks: a crater buried under heavy rocks. only a chonk can dig them out
     Object.assign({ id: 'mn7', name: 'moon 7', world: 'moon', title: 'moon rocks', tip: 'only a chonk can move dis.', w: 1800, perch: PERCH,
       lineup: ['unit', 'toast', 'unit', 'toast'], spareGoal: 1, messGoal: 30,
       furniture: [{ kind: 'pillar', x0: 560, x1: 780, top: 440, moon: true }, { kind: 'pillar', x0: 904, x1: 1100, top: 440, moon: true }, { kind: 'pillar', x0: 1600, x1: 1800, top: 300, moon: true }],
-      spots: [{ kind: 'crater', x0: 780, x1: 904, bottom: 580, cat: 'unit' }, { kind: 'crater', x0: 1400, x1: 1590, bottom: 580 }],
+      spots: [{ kind: 'crater', x0: 780, x1: 904, bottom: 580, cat: 'unit' }, { kind: 'crater', x0: 1400, x1: 1590, bottom: 580, look: 'cheese' }],
       items: [{ kind: 'slab', x: 842, bottom: 440 }, ...stack('rock', 842, 426, 2), { kind: 'cheese', x: 620, bottom: 440 }, { kind: 'rover', x: 1000, bottom: 440 }, al(1495, 574), al(1700, 300), { kind: 'rock', x: 1260, bottom: 580 }] }, MOON_MN),
     // moon doggos: three of them, asleep in three craters (hiss once and they all run, if they're close enough), and a shoebox out on the far mesa
     Object.assign({ id: 'mn8', name: 'moon 8', world: 'moon', title: 'moon doggos', tip: 'hiss near teh doggos', w: 1850, perch: PERCH,
       lineup: ['spicy', 'toot', 'spicy', 'void', 'spicy', 'toast', 'spicy', 'void'], spareGoal: 1, messGoal: 30,
       furniture: [{ kind: 'pillar', x0: 700, x1: 900, top: 420, moon: true }, { kind: 'pillar', x0: 1320, x1: 1440, top: 400, moon: true }, { kind: 'pillar', x0: 1440, x1: 1560, top: 300, moon: true }],
-      spots: [{ kind: 'crater', x0: 738, x1: 862, bottom: 420, cat: 'spicy' }, { kind: 'crater', x0: 950, x1: 1090, bottom: 580, cat: 'spicy' }, { kind: 'crater', x0: 1150, x1: 1290, bottom: 580, cat: 'spicy' },
+      spots: [{ kind: 'crater', x0: 738, x1: 862, bottom: 420, cat: 'spicy' }, { kind: 'crater', x0: 950, x1: 1090, bottom: 580, cat: 'spicy', look: 'dish' }, { kind: 'crater', x0: 1150, x1: 1290, bottom: 580, cat: 'spicy', look: 'cheese' },
               { kind: 'shoebox', x0: 1375, x1: 1435, bottom: 400, cat: 'void' }],
       items: [{ kind: 'dog', x: 800, bottom: 414 }, { kind: 'dog', x: 1020, bottom: 574 }, { kind: 'dog', x: 1220, bottom: 574 }, al(620, 580), al(1650, 580), { kind: 'cheese', x: 560, bottom: 580 }, al(1345, 400), al(1500, 300), { kind: 'rover', x: 1760, bottom: 580 }] }, MOON_MN),
     // to da moon: every cat, every trick
@@ -1258,7 +1281,7 @@ const FITS = (() => {
       furniture: [{ kind: 'lander', x0: 10, x1: 170, top: 230 }, { kind: 'pillar', x0: 560, x1: 760, top: 440, moon: true }, { kind: 'pillar', x0: 884, x1: 1000, top: 440, moon: true },
                   { kind: 'lander', x0: 1210, x1: 1350, top: 260 }, { kind: 'pillar', x0: 1440, x1: 1580, top: 360, moon: true }, { kind: 'pillar', x0: 1580, x1: 1720, top: 270, moon: true }],
       spots: [{ kind: 'box', x0: 20, x1: 160, bottom: 230, cat: 'chaos' }, { kind: 'crater', x0: 760, x1: 884, bottom: 580, cat: 'unit' }, { kind: 'shoebox', x0: 1510, x1: 1570, bottom: 360, cat: 'void' },
-              { kind: 'box', x0: 1220, x1: 1340, bottom: 260, h: 56 }, { kind: 'crater', x0: 1040, x1: 1164, bottom: 580, cat: 'spicy' }],
+              { kind: 'box', x0: 1220, x1: 1340, bottom: 260, h: 56 }, { kind: 'crater', x0: 1040, x1: 1164, bottom: 580, cat: 'spicy', look: 'dish' }],
       items: [{ kind: 'slab', x: 822, bottom: 440 }, ...stack('rock', 822, 426, 2), al(90, 224), { kind: 'dog', x: 1102, bottom: 574 }, al(1280, 260), { kind: 'cheese', x: 610, bottom: 440 }, { kind: 'flag', x: 950, bottom: 440 }, { kind: 'rover', x: 460, bottom: 580 }, { kind: 'cheese', x: 1470, bottom: 360 }, { kind: 'cheese', x: 1650, bottom: 270 }, al(1790, 580)] }, MOON_MN),
     // the moon party: cheese by the cat tree, a mesa with a cheese tower, a rover convoy (goldfish driving), cheese on the
     // lander, teh tallest cheese tower, more rovers, a rover and cheese on the far mesa (unchanged: 1,500 wide)
@@ -1286,7 +1309,7 @@ const FITS = (() => {
       // a cat's own jumps up (a toot, the hop onto a ledge after a climb) in low gravity: the upward push scales with the square
       // root of the gravity, so they go exactly as high as on Earth, only slower (at full strength a toot made sir toots a rocket
       // on the moon, and the street cat's hop off the top of a climb sailed right over the box it was climbing to)
-      this.jumpK = this.grav > 0 && this.grav < 1 ? Math.sqrt(this.grav) : 1;
+      this.lowG = this.grav > 0 && this.grav < 1; this.jumpK = this.lowG ? Math.sqrt(this.grav) : 1;
       engine.gravity.y = this.grav;
       this.world = engine.world;
       this.rand = mulberry(level.id.split('').reduce((a, c) => a * 31 + c.charCodeAt(0), 7));
@@ -1462,6 +1485,7 @@ const FITS = (() => {
       if (this.plowSlow) { const pc = this.active; if (pc && pc.body && pc.def.pound) M.Body.setVelocity(pc.body, { x: pc.body.velocity.x * this.plowSlow, y: pc.body.velocity.y * this.plowSlow }); this.plowSlow = null; }
       if (!this.pendingShock && cat && cat.def.pound && cat.slamming && cat.state === 'fly' && cat.body && cat.flyT > 12 && cat.body.speed < 1) { cat.slamming = false; this.pendingShock = { cat }; }   // (came to rest on a pile of light stuff: that's his landing)
       if (this.pendingShock) this.shock(this.pendingShock.cat);
+      if (this.pendingLand) this.landOn(this.pendingLand);
       if ((this.held || this.heldCount) && !(this.active && this.active.def.pound && this.active.slamming && this.active.state === 'fly')) {
         if (this.held) { for (const it of this.held) this.toBreak.add(it); this.held = null; }
         if (this.heldCount) { const hc = this.heldCount; this.heldCount = null; for (const it of hc) this.count(it); }
@@ -1562,16 +1586,19 @@ const FITS = (() => {
     // Time stands still while u aim, so the next cat waits till the last one has landed (Adam, Nov 6, warehouse 2: a cat
     // slid slowly down the end of the belt, counted as stopped, and was frozen in mid-air over the crate when the next cat
     // was ready). Before the next cat hops up, and again before u can aim, it waits while a loose cat is still falling or
-    // sliding (not riding a belt), or is dazed in a box it fits and about to sit in it, for 4 s at most in all.
+    // sliding (not riding a belt), or is dazed in a box it fits and about to sit in it, for 4 s at most in all. It also waits
+    // for things still falling or flying up (Adam, Nov 7, moon 9: "an odd freeze... some stuff just stuck in the air": a THOOM
+    // had thrown things up, and in low gravity they were still coming down), 8 s at most on the moon. Not in space, where
+    // things float on.
     holdTurn() {
       const busy = this.cats.some(c => {
         const b = c.body; if (!b || b.isStatic || !LOOSE[c.state] || c.state === 'fly') return false;
         const riding = this.belts && this.belts.some(bb => { const f = bb.plugin.belt; return Math.abs(b.bounds.max.y - bb.bounds.min.y) <= 5 && b.position.x >= f.x0 - 4 && b.position.x <= f.x1 + 4; });
         if (b.speed > 0.15 && !riding) return true;   // (sliding slowly down something counts)
         return c.state === 'dazed' && this.spots.some(s => !s.filled && this.inZone(s, b.position, c) && this.fits(s, c));
-      });
+      }) || (this.grav > 0 && this.items.some(it => { const b = it.body; return b && !it.broken && !it.hang && !b.isStatic && !b.isSleeping && Math.abs(b.velocity.y) > 0.4; }));
       if (!busy) { this.held4 = 0; return false; }
-      return ++this.held4 < 240;
+      return ++this.held4 < (this.lowG ? 480 : 240);
     }
 
     next() {
@@ -1619,7 +1646,7 @@ const FITS = (() => {
       M.Composite.add(this.world, body);
       M.Body.setVelocity(body, this.launchVel(angle, power, d));
       if (d.catapult) M.Body.setAngularVelocity(body, len(body.velocity.x, body.velocity.y) / CATA.R);
-      Object.assign(c, { body, baseMass: body.mass, hissT: 0, hissDrop: false, touched: false, inSpotT: 0, ghostT: 0, loaf: false, pinballT: 0, clawsOut: false, cling: null, scamperT: 0, splat: null, slid: false, tippedIn: false, waitT: null, faceDir: 1, pushed: false, hat: null, shrink: 1, dashT: 0, tooHeavy: false, state: 'fly', flyT: 0, rest: 0, bonked: false, abilityUsed: false, trail: [], brokeDuring: 0, assistT: 0, scramble: 0, stomped: 0, zoomed: false, slamming: !!d.pound, fellThrough: false });
+      Object.assign(c, { body, baseMass: body.mass, hissT: 0, hissDrop: false, touched: false, inSpotT: 0, ghostT: 0, loaf: false, pinballT: 0, clawsOut: false, cling: null, scamperT: 0, splat: null, slid: false, tippedIn: false, waitT: null, faceDir: 1, pushed: false, hat: null, shrink: 1, dashT: 0, tooHeavy: false, state: 'fly', flyT: 0, rest: 0, bonked: false, abilityUsed: false, trail: [], brokeDuring: 0, assistT: 0, scramble: 0, stomped: 0, zoomed: false, slamming: !!d.pound, slammed: false, fellThrough: false });
       this.state = 'fly'; this.lastShot = { angle, power }; this.tick = 0;
       this.emit('launch', { cat: c, angle, power });
       return true;
@@ -2154,7 +2181,7 @@ const FITS = (() => {
             }
           }
           if (cat && cat.state === 'fly' && !cat.touched && !SLIPPERY[Y.label]) { cat.touched = true; if (!(cat.dashT > 0) && !cat.def.pound) X.frictionAir = this.grav ? Math.max(0.03, this.air) : this.air; }   // in space it keeps drifting   // a boing or a slide isn't touching down
-          if (cat && cat.slamming && cat.state === 'fly' && !Y.isSensor) {
+          if (cat && (cat.slamming || cat.slammed) && cat.state === 'fly' && !Y.isSensor) {
             // He plows through light things (Adam, Nov 6: "as soon as megachonk hits anything he stops immediately, like if he hits a
             // plant pot or glass he just stops right there, but I feel like his size and weight and density should make the physics
             // work differently"). Anything under a quarter of his weight doesn't count as landing: a breakable one smashes on the
@@ -2163,9 +2190,23 @@ const FITS = (() => {
             const hitItem = Y.plugin && Y.plugin.item, light = hitItem && !hitItem.broken && !Y.isStatic && Y.mass < X.mass * 0.25;
             if (light) {
               if ((hitItem.def.breakAt || hitItem.hp) && !(this.plowed && this.plowed.has(hitItem))) { (this.plowed || (this.plowed = new Set())).add(hitItem); this.toBreak.add(hitItem); this.plowSlow = (this.plowSlow || 1) * 0.9; this.emit('plow', { cat, item: hitItem, x: Y.position.x, y: Y.position.y }); }
+            } else if (cat.slammed) {
+              // after a THOOM against a wall or the ceiling he keeps plowing (above) till he lands, and the landing still puts his whole
+              // weight on what's under him: a heavy lid cracks and he drops into the box (kitchen 8, building 5), no second THOOM (landOn)
+              const ny = pair.collision.normal.y * (X === pair.bodyA ? 1 : -1);
+              if (ny < -0.55 && X.velocity.y > 0.3 && !this.pendingLand) { cat.slammed = false; this.pendingLand = { cat, vy: X.velocity.y }; }
             } else {
-              const ny = pair.collision.normal.y * (X === pair.bodyA ? 1 : -1);   // < 0: what he hit is under him
-              if ((X.velocity.y > 1.5 && X.velocity.y > Math.abs(X.velocity.x) * 0.35) || (ny < -0.55 && X.velocity.y > 1.2)) { cat.slamming = false; this.pendingShock = { cat, vy: X.velocity.y }; }   // (vy: how fast he was falling, from before the hit)
+              const sg = X === pair.bodyA ? 1 : -1, nx = pair.collision.normal.x * sg, ny = pair.collision.normal.y * sg;   // ny < 0: what he hit is under him
+              const landed = (X.velocity.y > 1.5 && X.velocity.y > Math.abs(X.velocity.x) * 0.35) || (ny < -0.55 && X.velocity.y > 1.2);
+              // A hard hit from any side is his THOOM too (Adam, Nov 7: "megachonk sometimes thooms shortly after it hits something or
+              // comes to a rest and then thooms"): slammed sideways into a wall, a mesa or a box, or up into the ceiling, he used to
+              // slide down and THOOM only when he landed, or came to rest (10-20 straight into the wall: as hard as any landing).
+              // A gentle touch on the ceiling at the top of a lob still isn't one. (jumpK: on the moon everything's slower.)
+              // In zero gravity there's no floor to land on: his first touch of anything solid is the THOOM (Adam, Nov 7, the zero g party:
+              // "he hits a lot of stuff in the middle of the screen and then thooms after hitting the far wall"; he plowed through the
+              // floating junk, brushed the ceiling and THOOMed only when he'd slowed to a stop)
+              const vn = -(X.velocity.x * nx + X.velocity.y * ny), slam = !landed && vn >= (this.grav ? 5 * this.jumpK : 1);
+              if (landed || slam) { cat.slamming = false; cat.slammed = slam; this.pendingShock = { cat, vy: X.velocity.y, slam }; }   // (vy: how fast he was falling, from before the hit)
             }
           }
           // slapstick: slam sideways into a wall or furniture and the cat sticks there flat, then slides down
@@ -2184,10 +2225,25 @@ const FITS = (() => {
     }
 
     // The absolute unit's BONK: everything close by gets thrown up and away.
+    // Megachonk landing after his THOOM went into a wall or the ceiling (Nov 7): what he lands on takes his whole weight, as in
+    // shock() (a heavy thing right under his middle that this cracks breaks under him, and he keeps falling), and he lands the
+    // way he does after a THOOM, only without a second one.
+    landOn({ cat: c, vy }) {
+      const M = this.M, b = c.body; this.pendingLand = null;
+      if (!b) return;
+      const heavy = this.items.filter(it => !it.broken && !it.hang && it.hp && it.body.mass >= b.mass * 0.25).map(it => it.body);
+      const hit = heavy.length ? M.Query.point(heavy, { x: b.position.x, y: b.bounds.max.y + 4 })[0] : null;
+      const it = hit && hit.plugin.item;
+      if (it && it.dmg + 40 + 6 >= it.hp) { it.dmg += 40 + 6; this.toBreak.add(it); c.fellThrough = true; this.emit('crack', { cat: c, item: it, x: hit.position.x, y: hit.position.y }); }
+      // and he lands as he does after a THOOM: no bounce, most of his sideways speed, his rolling shape
+      M.Body.setVelocity(b, { x: b.velocity.x * 0.72, y: c.fellThrough ? vy : 0 });
+      M.Body.setAngularVelocity(b, 0); b.frictionAir = this.grav ? Math.max(0.03, this.air) : this.air;
+      if (this.grav && !this.spots.some(s => !s.filled && this.inZone(s, b.position, c) && this.fits(s, c))) this.toMochi(c);
+    }
     // Megachonk lands HARD (Adam, Nov 4: "he should land HARD and then stuff breaks... he should break things he doesn't
     // touch"): everything near him jumps, then a beat later the breakables out to 200 shatter, nearest first.
     shock(c) {
-      const M = this.M, b = c.body, big = !!c.def.pound, R = big ? 300 : 130, near = big ? 200 : 80, fallVy = (this.pendingShock && this.pendingShock.vy) || 0;
+      const M = this.M, b = c.body, big = !!c.def.pound, R = big ? 300 : 130, near = big ? 200 : 80, fallVy = (this.pendingShock && this.pendingShock.vy) || 0, slam = !!(this.pendingShock && this.pendingShock.slam);
       this.pendingShock = null;
       if (!b) return;
       const x = b.position.x, y = b.position.y;
@@ -2219,11 +2275,12 @@ const FITS = (() => {
           if (it.hp) { it.dmg += 22 * k + 6; if (it.dmg >= it.hp) { this.toBreak.add(it); continue; } }
         }
         M.Sleeping.set(ib, false);
-        if (big) M.Body.setVelocity(ib, { x: ib.velocity.x + (dx / d) * 5 * k + (dx >= 0 ? 1.5 : -1.5), y: ib.velocity.y - (6 + 10 * k) });   // the floor jumps
+        if (big) M.Body.setVelocity(ib, { x: ib.velocity.x + (dx / d) * 5 * k + (dx >= 0 ? 1.5 : -1.5), y: ib.velocity.y - (6 + 10 * k) * this.jumpK });   // the floor jumps (on the moon as high as on Earth, only slower: Nov 7, at full strength it threw things 3.3 times as high, and they were still up there when the next cat was ready)
         else M.Body.setVelocity(ib, { x: (dx / d) * 8 * k + (dx >= 0 ? 3.5 : -3.5), y: -(8 + 8 * k) });
         M.Body.setAngularVelocity(ib, (dx >= 0 ? 0.25 : -0.25) * k);
       }
-      if (big) {   // megachonk lands like a sack of potatoes, no bounce, but a heavy one keeps going (Adam, Nov 6: "his size and weight
+      if (big && slam) { /* a THOOM against a wall or the ceiling isn't a landing: he bounces off it as before, and lands later (landOn) */ }
+      else if (big) {   // megachonk lands like a sack of potatoes, no bounce, but a heavy one keeps going (Adam, Nov 6: "his size and weight
         // and density should make the physics work differently"): he keeps most of his sideways speed and rolls on through things
         M.Body.setVelocity(b, { x: b.velocity.x * 0.72, y: c.fellThrough ? fallVy : 0 });   // (Adam: "he seems to come to a sudden halt instead of kind of bowling
         // balling": a heavy ball landing flat keeps about 5/7 of its speed and rolls; it used to keep 15%, then 40%. Through a lid he
@@ -2515,7 +2572,7 @@ const FITS = (() => {
 </script>
 
 <script>
-const HINTS = {"b1":[{"a":33,"p":0.84,"ab":null}],"b10":[{"a":36,"p":0.84,"ab":null}],"b2":[{"a":36,"p":0.9,"ab":null}],"b3":[{"a":42,"p":0.8,"ab":8}],"b4":[{"a":39,"p":0.86,"ab":8}],"b5":[{"a":48,"p":0.5,"ab":32}],"b6":[{"a":78,"p":0.56,"ab":null}],"b7":[{"a":6,"p":0.58,"ab":16}],"b8":[{"a":63,"p":0.58,"ab":null}],"b9":[{"a":48,"p":0.88,"ab":null}],"k1":[{"a":27,"p":0.9,"ab":null}],"k10":[{"a":87,"p":0.58,"ab":24}],"k11":[{"a":30,"p":0.56,"ab":16}],"k12":[{"a":24,"p":0.8,"ab":null}],"k2":[{"a":63,"p":0.5,"ab":null}],"k3":[{"a":42,"p":0.84,"ab":null}],"k4":[{"a":66,"p":0.68,"ab":null}],"k5":[{"a":45,"p":0.58,"ab":null}],"k6":[{"a":3,"p":0.24,"ab":null}],"k7":[{"a":15,"p":0.68,"ab":8}],"k8":[{"a":18,"p":0.8,"ab":24}],"k9":[{"a":9,"p":0.72,"ab":24}],"mn1":[{"a":36,"p":0.84,"ab":null}],"mn2":[{"a":30,"p":0.9,"ab":86}],"mn3":[{"a":39,"p":0.92,"ab":null}],"mn4":[{"a":21,"p":0.9,"ab":86}],"mn5":[{"a":42,"p":0.94,"ab":8}],"mn6":[{"a":36,"p":0.88,"ab":60}],"mn7":[{"a":15,"p":0.92,"ab":null}],"mn8":[{"a":30,"p":0.84,"ab":132}],"mn9":[{"a":63,"p":0.98,"ab":null}],"pk1":[{"a":24,"p":0.8,"ab":null}],"pk10":[{"a":72,"p":0.68,"ab":null}],"pk2":[{"a":24,"p":0.82,"ab":null}],"pk3":[{"a":27,"p":0.82,"ab":8}],"pk4":[{"a":66,"p":0.72,"ab":null}],"pk5":[{"a":27,"p":0.7,"ab":32}],"pk6":[{"a":42,"p":0.82,"ab":8}],"pk7":[{"a":33,"p":0.86,"ab":null}],"pk8":[{"a":75,"p":0.58,"ab":8}],"pk9":[{"a":63,"p":0.7,"ab":null}],"sp1":[{"a":3,"p":0.58,"ab":null}],"sp2":[{"a":54,"p":0.76,"ab":null}],"sp3":[{"a":6,"p":0.5,"ab":40}],"sp4":[{"a":15,"p":0.58,"ab":null}],"sp5":[{"a":6,"p":0.58,"ab":16}],"sp6":[{"a":6,"p":0.58,"ab":8}],"sp7":[{"a":15,"p":0.62,"ab":8}],"sp8":[{"a":39,"p":0.58,"ab":null}],"wh1":[{"a":27,"p":0.8,"ab":null}],"wh10":[{"a":33,"p":0.84,"ab":null}],"wh2":[{"a":21,"p":0.9,"ab":null}],"wh3":[{"a":36,"p":0.84,"ab":8}],"wh4":[{"a":45,"p":0.94,"ab":8}],"wh5":[{"a":3,"p":0.68,"ab":8}],"wh6":[{"a":21,"p":0.9,"ab":8}],"wh7":[{"a":39,"p":0.96,"ab":16}],"wh8":[{"a":63,"p":0.9,"ab":null}],"wh9":[{"a":27,"p":0.9,"ab":24}]};
+const HINTS = {"b1":[{"a":33,"p":0.84,"ab":null}],"b10":[{"a":36,"p":0.84,"ab":null}],"b2":[{"a":36,"p":0.9,"ab":null}],"b3":[{"a":42,"p":0.8,"ab":8}],"b4":[{"a":39,"p":0.86,"ab":8}],"b5":[{"a":48,"p":0.5,"ab":32}],"b6":[{"a":78,"p":0.56,"ab":null}],"b7":[{"a":6,"p":0.58,"ab":16}],"b8":[{"a":63,"p":0.58,"ab":null}],"b9":[{"a":48,"p":0.88,"ab":null}],"k1":[{"a":27,"p":0.9,"ab":null}],"k10":[{"a":87,"p":0.58,"ab":24}],"k11":[{"a":30,"p":0.56,"ab":16}],"k12":[{"a":24,"p":0.8,"ab":null}],"k2":[{"a":63,"p":0.5,"ab":null}],"k3":[{"a":42,"p":0.84,"ab":null}],"k4":[{"a":66,"p":0.68,"ab":null}],"k5":[{"a":45,"p":0.58,"ab":null}],"k6":[{"a":3,"p":0.24,"ab":null}],"k7":[{"a":15,"p":0.68,"ab":8}],"k8":[{"a":18,"p":0.8,"ab":24}],"k9":[{"a":9,"p":0.72,"ab":24}],"mn1":[{"a":36,"p":0.84,"ab":null}],"mn2":[{"a":30,"p":0.9,"ab":86}],"mn3":[{"a":39,"p":0.92,"ab":null}],"mn4":[{"a":21,"p":0.9,"ab":86}],"mn5":[{"a":42,"p":0.94,"ab":8}],"mn6":[{"a":36,"p":0.88,"ab":60}],"mn7":[{"a":15,"p":0.92,"ab":null}],"mn8":[{"a":30,"p":0.84,"ab":132}],"mn9":[{"a":63,"p":0.98,"ab":null}],"pk1":[{"a":24,"p":0.8,"ab":null}],"pk10":[{"a":72,"p":0.68,"ab":null}],"pk2":[{"a":24,"p":0.82,"ab":null}],"pk3":[{"a":27,"p":0.82,"ab":8}],"pk4":[{"a":66,"p":0.72,"ab":null}],"pk5":[{"a":27,"p":0.7,"ab":32}],"pk6":[{"a":42,"p":0.82,"ab":8}],"pk7":[{"a":33,"p":0.86,"ab":null}],"pk8":[{"a":75,"p":0.58,"ab":8}],"pk9":[{"a":63,"p":0.7,"ab":null}],"sp1":[{"a":3,"p":0.58,"ab":null}],"sp2":[{"a":54,"p":0.76,"ab":null}],"sp3":[{"a":6,"p":0.5,"ab":40}],"sp4":[{"a":15,"p":0.58,"ab":null}],"sp5":[{"a":6,"p":0.58,"ab":16}],"sp6":[{"a":6,"p":0.58,"ab":8}],"sp7":[{"a":15,"p":0.62,"ab":8}],"sp8":[{"a":57,"p":0.58,"ab":null}],"wh1":[{"a":27,"p":0.8,"ab":null}],"wh10":[{"a":33,"p":0.84,"ab":null}],"wh2":[{"a":21,"p":0.9,"ab":null}],"wh3":[{"a":36,"p":0.84,"ab":8}],"wh4":[{"a":45,"p":0.94,"ab":8}],"wh5":[{"a":3,"p":0.68,"ab":8}],"wh6":[{"a":21,"p":0.9,"ab":8}],"wh7":[{"a":39,"p":0.96,"ab":16}],"wh8":[{"a":63,"p":0.9,"ab":null}],"wh9":[{"a":27,"p":0.9,"ab":24}]};
 </script>
 
 <script>
@@ -5228,7 +5285,7 @@ function symbol(kind, x, y, s = 1, a = 1) {
 }
 
 // ---------- icons for the HUD and menus ----------
-function spotIcon(kind, filled) {
+function spotIcon(kind, filled, look) {   // (look: a moon spot's drawing, craterBack)
   const fill = filled ? '#5E9C6E' : '#fff';
   const ears = filled ? `<path d="M10 9 L12 2 L16 8 Z M22 8 L26 2 L28 9 Z" fill="${ORANGE}" stroke="${INK}" stroke-width="1.6" stroke-linejoin="round"/>` : '';
   let body;
@@ -5240,7 +5297,7 @@ function spotIcon(kind, filled) {
   else if (kind === 'flowerbox') body = `<path d="M10 14 V7 M19 14 V5 M28 14 V8" stroke="#6FAE62" stroke-width="2.2" stroke-linecap="round"/><circle cx="10" cy="6" r="2.6" fill="#F56E75"/><circle cx="19" cy="4.5" r="2.6" fill="${GOLD}"/><circle cx="28" cy="7" r="2.6" fill="#BD7AE3"/><rect x="3" y="14" width="32" height="12" rx="2" fill="${fill}" stroke="${INK}" stroke-width="2.2"/>`;
   else if (kind === 'sidebox') body = `<rect x="8" y="7" width="24" height="20" rx="2" fill="${filled ? fill : '#D2A06A'}" stroke="${INK}" stroke-width="2.2"/><path d="M8 7 L3 3 M8 27 L3 31" stroke="${INK}" stroke-width="2.2" stroke-linecap="round"/><rect x="8" y="11" width="18" height="12" fill="#8F6A40"/>`;
   else if (kind === 'pod') body = `<rect x="7" y="8" width="24" height="19" rx="8" fill="${filled ? fill : '#C9D2D6'}" stroke="${INK}" stroke-width="2.2"/><circle cx="19" cy="17" r="4" fill="#BFE3F2" stroke="${INK}" stroke-width="1.4"/>`;
-  else if (kind === 'crater') body = `<path d="M2 22 Q6 13 12 15 L26 15 Q32 13 36 22 Z" fill="${filled ? fill : '#B9B6AE'}" stroke="${INK}" stroke-width="2.2" stroke-linejoin="round"/>`;
+  else if (kind === 'crater') body = craterIcon(look, filled, fill);
   else if (kind === 'crate') body = `<rect x="5" y="9" width="28" height="18" rx="1.5" fill="${filled ? fill : '#D2A06A'}" stroke="${INK}" stroke-width="2.2"/><path d="M5 18 H33 M12 9 V27 M26 9 V27" stroke="${INK}" stroke-width="1.4" opacity="0.6"/>`;
   else if (kind === 'birdbath') body = `<path d="M4 11 H34 Q32 20 19 20 Q6 20 4 11 Z" fill="${fill}" stroke="${INK}" stroke-width="2.2" stroke-linejoin="round"/><path d="M16 20 V27 H22 V20" fill="${fill}" stroke="${INK}" stroke-width="2"/><path d="M10 14 H28" stroke="#7FB6E0" stroke-width="2"/>`;
   else if (kind === 'sandbox') body = `<rect x="3" y="15" width="32" height="11" rx="2" fill="${filled ? fill : '#F2D9A0'}" stroke="${INK}" stroke-width="2.2"/><path d="M26 15 L28 8 L32 8 L33 15" fill="#F56E75" stroke="${INK}" stroke-width="1.6"/>`;
@@ -5844,10 +5901,59 @@ function drawPondFront(f, t) {
   for (let x = f.x0 + 30; x < f.x1 - 20; x += 46) line([x + Math.sin(t + x) * 4, top + 8, x + 16 + Math.sin(t + x) * 4, top + 8], 'rgba(255,255,255,0.7)', 2);
   for (const x of [f.x0 + 40, f.x1 - 60]) { ell(x, top + 2, 14, 4); fs('#6FAE62', INK, 1.2); }   // lily pads
 }
+// The moon's landing spots (Adam, Nov 7: "the landing spots don't really look like anything"; he picked "mix them"): every one
+// is a crater to the physics (walls 12 thick, 26 high, the floor 6 up), drawn as its level's `look`: 'crater' (a raised rim,
+// a dark hole, pebbles), 'dish' (a satellite dish lying face up, a red light blinking on its antenna) or 'cheese' (a cheese
+// wheel, hollowed out: da moon iz made of cheez). They were flat grey bumps on grey ground.
+function craterBack(s) {
+  const cx = (s.x0 + s.x1) / 2, W = s.x1 - s.x0, look = s.look || 'crater';
+  if (look === 'crater') {   // a real crater: the far rim, light, and the dark hole inside
+    ell(cx, s.rim + 3, W / 2 + 12, 14); fs('#D6D2C9', INK, 2.2);
+    ell(cx, s.rim + 5, W / 2 - 2, 9); fs('#4A4743', null);
+    ell(cx - W * 0.12, s.rim + 2, W * 0.22, 3); fs('rgba(255,255,255,0.10)', null);
+  } else if (look === 'dish') {   // a satellite dish lying face up: its antenna arm at the back, a red light blinking
+    const t = performance.now() / 1000, ax = s.x1 + 6, ay = s.rim - 34;
+    line([s.x1 - 14, s.rim + 4, ax, ay], INK, 5); line([s.x1 - 14, s.rim + 4, ax, ay], '#AEB7BC', 2.6);
+    ell(ax, ay, 6, 6); fs('#DDE2E5', INK, 1.8); ell(ax, ay - 8, 3, 3); fs((t % 1.2) < 0.6 ? '#F56E75' : '#8E3B40', INK, 1.2);
+    ell(cx, s.rim + 3, W / 2 + 4, 10); fs('#B7C4CB', INK, 2.2);
+    ell(cx, s.rim + 3, W * 0.22, 4.5); fs(null, 'rgba(46,58,53,0.22)', 1.6);
+  } else {   // a cheese wheel, hollowed out (da moon iz made of cheez)
+    ell(cx, s.rim + 3, W / 2 + 2, 10); fs('#DA9A33', INK, 2.2);
+    for (const [dx, r] of [[-0.25, 4], [0.18, 3], [0.32, 2.4]]) { ell(cx + W * dx, s.rim + 3, r * 1.4, r * 0.7); fs('#C2832A', null); }
+  }
+}
+function craterFront(s) {
+  const cx = (s.x0 + s.x1) / 2, W = s.x1 - s.x0, look = s.look || 'crater';
+  if (look === 'crater') {   // the near rim: a raised ring of moon dust, lighter than the ground, with pebbles
+    ctx.beginPath(); ctx.moveTo(s.x0 - 24, s.bottom); ctx.quadraticCurveTo(s.x0 - 12, s.rim + 1, s.x0 + 8, s.rim + 5);
+    ctx.quadraticCurveTo(cx, s.rim + 13, s.x1 - 8, s.rim + 5); ctx.quadraticCurveTo(s.x1 + 12, s.rim + 1, s.x1 + 24, s.bottom); ctx.closePath(); fs('#BEBAB1', INK, 2.2);
+    ctx.beginPath(); ctx.moveTo(s.x0 - 8, s.rim + 7); ctx.quadraticCurveTo(s.x0, s.rim + 3, s.x0 + 10, s.rim + 7); ctx.quadraticCurveTo(cx, s.rim + 14, s.x1 - 10, s.rim + 7);
+    ctx.quadraticCurveTo(s.x1, s.rim + 3, s.x1 + 8, s.rim + 7); fs(null, '#E6E2DA', 2);
+    for (const [dx, dy, r] of [[-0.3, 17, 3], [0.05, 20, 2.2], [0.28, 16, 2.6], [-0.08, 15, 1.6]]) { ell(cx + W * dx, s.rim + dy, r * 1.3, r); fs('#A9A59C', null); }
+    for (const [x, r] of [[s.x0 - 30, 4], [s.x1 + 30, 5], [s.x1 + 40, 3]]) { ell(x, s.bottom - r + 1, r * 1.3, r); fs('#B3AFA6', INK, 1.4); }
+  } else if (look === 'dish') {   // the dish: white, with panel seams and a little stand
+    ctx.beginPath(); ctx.moveTo(s.x0 - 4, s.rim + 3); ctx.bezierCurveTo(s.x0 + 6, s.bottom - 1, s.x1 - 6, s.bottom - 1, s.x1 + 4, s.rim + 3);
+    ctx.quadraticCurveTo(cx, s.rim + 15, s.x0 - 4, s.rim + 3); ctx.closePath(); fs('#EEF2F3', INK, 2.4);
+    for (const k of [-0.28, 0, 0.28]) { ctx.beginPath(); ctx.moveTo(cx + W * k * 1.5, s.rim + 10); ctx.quadraticCurveTo(cx + W * k * 0.9, s.bottom - 10, cx + W * k * 0.5, s.bottom - 4); fs(null, 'rgba(46,58,53,0.18)', 1.5); }
+    ctx.beginPath(); ctx.moveTo(s.x0 + 4, s.rim + 6); ctx.quadraticCurveTo(cx, s.rim + 16, s.x1 - 4, s.rim + 6); fs(null, '#FFFFFF', 2);
+    rrect(cx - 12, s.bottom - 5, 24, 5, 2); fs('#9AA3A8', INK, 1.6);
+  } else {   // the cheese: holes, and the rind along the bottom
+    ctx.beginPath(); ctx.moveTo(s.x0 - 4, s.rim + 3); ctx.lineTo(s.x0, s.bottom - 8); ctx.quadraticCurveTo(s.x0, s.bottom, s.x0 + 10, s.bottom); ctx.lineTo(s.x1 - 10, s.bottom);
+    ctx.quadraticCurveTo(s.x1, s.bottom, s.x1, s.bottom - 8); ctx.lineTo(s.x1 + 4, s.rim + 3); ctx.quadraticCurveTo(cx, s.rim + 14, s.x0 - 4, s.rim + 3); ctx.closePath(); fs('#F4C84A', INK, 2.4);
+    rrect(s.x0 + 1, s.bottom - 7, W - 2, 6, 3); fs('#E3A23A', null);
+    for (const [dx, dy, r] of [[-0.32, 14, 4], [-0.08, 18, 3], [0.15, 13, 4.5], [0.36, 17, 3]]) { ell(cx + W * dx, s.rim + dy, r * 1.25, r); fs('#E2AE34', 'rgba(46,58,53,0.3)', 1.2); }
+    ctx.beginPath(); ctx.moveTo(s.x0 + 4, s.rim + 6); ctx.quadraticCurveTo(cx, s.rim + 15, s.x1 - 4, s.rim + 6); fs(null, '#FFE08A', 2);
+  }
+}
+function craterIcon(look, filled, fill) {
+  if (!look || look === 'crater') return `<path d="M1 27 Q5 13 12 16 Q19 20 26 16 Q33 13 37 27 Z" fill="${filled ? fill : '#BEBAB1'}" stroke="${INK}" stroke-width="2.2" stroke-linejoin="round"/><ellipse cx="19" cy="14" rx="10" ry="3.6" fill="#4A4743" stroke="${INK}" stroke-width="1.8"/>`;
+  if (look === 'dish') return `<path d="M30 12 L34 4" stroke="${INK}" stroke-width="2.2"/><circle cx="34" cy="4" r="2.6" fill="#F56E75" stroke="${INK}" stroke-width="1.4"/><path d="M3 12 Q8 28 19 28 Q30 28 35 12 Q19 18 3 12 Z" fill="${filled ? fill : '#EEF2F3'}" stroke="${INK}" stroke-width="2.2" stroke-linejoin="round"/>`;
+  return `<path d="M3 12 L5 25 Q5 27 8 27 H30 Q33 27 33 25 L35 12 Q19 18 3 12 Z" fill="${filled ? fill : '#F4C84A'}" stroke="${INK}" stroke-width="2.2" stroke-linejoin="round"/><circle cx="12" cy="20" r="2.4" fill="#E2AE34"/><circle cx="24" cy="22" r="2" fill="#E2AE34"/>`;
+}
 function drawSpotBack(s) {
   if (s.kind === 'sidebox') { ctx.fillStyle = '#8F6A40'; ctx.fillRect(s.x0, s.y0 + 4, s.x1 - s.x0, s.y1 - s.y0 - 8); return; }
   if (s.kind === 'pod') { ctx.fillStyle = '#3B3F44'; ctx.fillRect(s.ix0, s.rim, s.ix1 - s.ix0, s.bottom - s.rim); return; }
-  if (s.kind === 'crater') { ell((s.x0 + s.x1) / 2, s.rim + 6, (s.ix1 - s.ix0) / 2, 8); fs('#8F8C86', null); return; }
+  if (s.kind === 'crater') { craterBack(s); return; }
   if (s.kind === 'crate') { ctx.fillStyle = '#8F6A40'; ctx.fillRect(s.ix0, s.rim, s.ix1 - s.ix0, s.bottom - s.rim); return; }
   if (s.kind === 'birdbath') { const cx = (s.x0 + s.x1) / 2; if (s.bottom < FLOOR - 4) { rrect(cx - 12, s.bottom - 2, 24, FLOOR - s.bottom + 2, 3); fs('#C9C3B6', INK, 2.2); rrect(cx - 24, FLOOR - 10, 48, 10, 3); fs('#B9B3A6', INK, 2); }
     ctx.fillStyle = '#9CC9E4'; ctx.fillRect(s.ix0, s.rim + 6, s.ix1 - s.ix0, s.floor - s.rim - 6); return; }
@@ -5879,11 +5985,7 @@ function drawSpotFront(s) {
     rrect(s.x0, s.rim, s.x1 - s.x0, s.bottom - s.rim, 12); fs('#C9D2D6', INK, 2.4); ell((s.x0 + s.x1) / 2, (s.rim + s.bottom) / 2 + 2, 9, 9); fs('#BFE3F2', INK, 1.8);
     rrect(s.x0 + 6, s.rim + 4, s.x1 - s.x0 - 12, 5, 2); fs('#F56E75', null); return;
   }
-  if (s.kind === 'crater') {   // a rocky crater rim
-    ctx.beginPath(); ctx.moveTo(s.x0 - 14, s.bottom); ctx.quadraticCurveTo(s.x0 - 4, s.rim - 6, s.x0 + 14, s.rim + 2); ctx.lineTo(s.x0 + 14, s.bottom); ctx.closePath(); fs('#A3A098', INK, 2.2);
-    ctx.beginPath(); ctx.moveTo(s.x1 + 14, s.bottom); ctx.quadraticCurveTo(s.x1 + 4, s.rim - 6, s.x1 - 14, s.rim + 2); ctx.lineTo(s.x1 - 14, s.bottom); ctx.closePath(); fs('#A3A098', INK, 2.2);
-    rrect(s.x0 + 10, s.floor, s.x1 - s.x0 - 20, s.bottom - s.floor + 2, 2); fs('#8F8C86', null); return;
-  }
+  if (s.kind === 'crater') { craterFront(s); return; }
   if (s.kind === 'crate') {   // a wooden shipping crate, stenciled with a fish
     rrect(s.x0, s.rim, s.x1 - s.x0, s.bottom - s.rim, 2); fs('#D2A06A', INK, 2.4);
     for (const y of [s.rim + 3, s.bottom - 9]) { rrect(s.x0, y, s.x1 - s.x0, 6, 1); fs('#B68A57', null); }
@@ -6478,7 +6580,7 @@ function updateHud() {
     f.classList.toggle('used', i < sim.catIdx || (i === sim.catIdx && !live));
     f.classList.toggle('now', live);
   });
-  $('spotsHud').innerHTML = sim.spots.map(s => spotIcon(s.kind, !!s.filled)).join('');
+  $('spotsHud').innerHTML = sim.spots.map(s => spotIcon(s.kind, !!s.filled, s.look)).join('');
   fitLineup();
 }
 // A long lineup (moon 9 has 13 cats) squeezes to fit the top bar on a phone: smaller faces, then the thrown ones go, then
@@ -6493,7 +6595,7 @@ function fitLineup() {
   const left = faces.filter(f => !f.hidden), tag = document.createElement('span'); tag.className = 'more'; lu.appendChild(tag);
   for (let k = left.length - 1; k > 0 && over(); k--) { left[k].hidden = true; tag.textContent = '+' + (left.length - k); }
 }
-const SCREENS = ['scrTitle', 'scrLevels', 'scrIntro', 'scrPause', 'scrResult', 'scrUnlock', 'scrCloset', 'scrEnd', 'scrCard', 'scrInfo', 'scrCrib'];   // (scrCrib: teh crib, closet.js)
+const SCREENS = ['scrTitle', 'scrLevels', 'scrIntro', 'scrPause', 'scrResult', 'scrUnlock', 'scrCloset', 'scrEnd', 'scrCard', 'scrInfo', 'scrCrib', 'scrReset'];   // (scrReset: start over)   // (scrCrib: teh crib, closet.js)
 // A safe moment for the app to swap in a newer page (2.0.1's update check while the game loads, Adam, Nov 6: "so they don't have to
 // close the game and reopen it"): only on the title or the level list with nothing else open. Never mid-level, paused, on a
 // result, in the closet or teh crib, on the unlock screen, a postcard or the ending. (Saves go out at once, so nothing is lost.)
@@ -6505,14 +6607,17 @@ const isLocked = i => !unlock.owned && LEVELS[i] && LEVELS[i].world !== FREE_WOR
 // certain number of stars on the previous levels before unlocking". Nov 6, sharper: "players have to get a certain # of stars on
 // say the kitchen to advance to the next level" (docs/NEXT_LEVELS.md, star gates). So:
 // - Each world opens with stars earned anywhere before it, wreck-its included (Adam, Nov 6: "let's switch it to accumulate
-//   stars to open up more levels"): about 1.5 a level so far, so a kid stuck in one world can go back and earn stars anywhere.
+//   stars to open up more levels"): 2.5 a level since Nov 7 (see WORLD_NEED), so a kid stuck in one world can go back and earn stars anywhere.
 //   (Full paw-print paths earned about 2.2 a level; since Nov 6 the paws show only the first throw, so the rest is the player's.)
 // - Inside a world, a win opens the next level, as before.
 // - A world that has opened stays open (it's remembered), and so does any level already won. Saves from the old rule
 //   (all stars together, 1.25 a level) keep every world that rule had open.
 // - Once the game is bought, the building is open (the purchase visibly unlocks something), and so is every wreck-it.
 // - Locks look different: a padlock only ever means buy, a star door means earn, and a dimmed card means win the one before.
-const WORLD_NEED = { building: 18, park: 33, warehouse: 48, space: 63, moon: 75 };   // stars from every level before the world
+// Nov 7, Adam: "opening a new world should be a bit challenging. It should require more than 2 stars per level and at least a
+// few 3 stars per level. Replay should be driven"; he picked 2.5 a level, with the mess goals as they are (it was about 1.4).
+// His own casual play got 30 stars from the kitchen and 22 from the building. 2.5 a level counts the wreck-its as levels.
+const WORLD_NEED = { building: 33, park: 60, warehouse: 88, space: 115, moon: 138 };   // stars from every level before the world
 const starsBefore = w => { const f = LEVELS.findIndex(L => L.world === w); return LEVELS.reduce((n, L, i) => n + (i < f ? store.d.stars[L.id] || 0 : 0), 0); };
 const OLD_WORLD_STARS = (() => { const need = {}; let regular = 0; LEVELS.forEach((L, i) => { if (i && L.world !== LEVELS[i - 1].world) need[L.world] = Math.round(regular * 1.25); if (L.mode !== 'mess') regular++; }); return need; })();
 function worldOpen(w) {   // has world w opened (and stayed open)?
@@ -6587,7 +6692,7 @@ function showIntro() {
   const f = $('introFaces'); f.innerHTML = '';
   L.lineup.forEach(t => f.appendChild(makeFace(t, 34)));
   const arrow = document.createElement('span'); arrow.className = 'arrow'; arrow.textContent = '→'; f.appendChild(arrow);
-  L.spots.forEach(s => { const w = document.createElement('span'); w.innerHTML = spotIcon(s.kind, false); f.appendChild(w.firstChild); });
+  L.spots.forEach(s => { const w = document.createElement('span'); w.innerHTML = spotIcon(s.kind, false, s.look); f.appendChild(w.firstChild); });
   if (L.mode === 'mess') { const b = document.createElement('span'); b.className = 'bill'; b.textContent = '$$$'; f.appendChild(b); }
   $('introGoals').innerHTML = goalRows(L, null);
   $('introTip').hidden = !L.tip; $('introTip').textContent = L.tip || '';
@@ -6624,7 +6729,7 @@ function showLevels() {
     b.innerHTML = `${L.newCat ? '<span class="newtag">new cat</span>' : L.mode === 'mess' ? '<span class="newtag">bonus</span>' : ''}<span class="name">${L.name}</span><span class="what">${L.title}</span><span class="stars">${[0, 1, 2].map(k => starSvg(k < st)).join('')}</span><span class="faces"></span>`;
     const faces = b.querySelector('.faces'); L.lineup.forEach(t => faces.appendChild(makeFace(t, 22)));
     if (L.newCat) b.querySelector('.newtag').appendChild(makeFace(L.newCat, 18));
-    const sp = document.createElement('span'); sp.className = 'spots'; sp.innerHTML = L.mode === 'mess' ? '<span class="bill">$$$</span>' : L.spots.map(s => spotIcon(s.kind, false)).join(''); faces.appendChild(sp);
+    const sp = document.createElement('span'); sp.className = 'spots'; sp.innerHTML = L.mode === 'mess' ? '<span class="bill">$$$</span>' : L.spots.map(s => spotIcon(s.kind, false, s.look)).join(''); faces.appendChild(sp);
     b.addEventListener('click', () => { Snd.init(); Snd.fx('pop'); startLevel(i); });
     list.appendChild(b);
   });
@@ -6673,6 +6778,22 @@ $('tglRestore').addEventListener('click', () => { Snd.init(); nativeSay({ type: 
 function showInfo(which) { Snd.init(); Snd.fx('pop'); $('infoTitle').textContent = which; $('infoPrivacy').hidden = which !== 'privacy'; $('infoHelp').hidden = which !== 'help'; showScreen('scrInfo'); }
 $('tglPrivacy').addEventListener('click', () => showInfo('privacy'));
 $('tglHelp').addEventListener('click', () => showInfo('help'));
+// Start over (Adam, Nov 7: "I also wish there was a way to reset my game"): every star, level, world door, the bill, teh closet
+// and teh crib, the introductions (new cats, megachonk), the yeeted cats: gone, after a yes on its own screen. The purchase
+// stays (Apple and the app hold it, not the save), and so do the settings. In place, no reload: the app's copy of the save
+// is replaced by this one as it's saved.
+$('tglReset').addEventListener('click', () => { Snd.init(); Snd.fx('pop'); showScreen('scrReset'); });
+$('resetNo').addEventListener('click', () => { Snd.fx('pop'); showLevels(); });
+$('resetYes').addEventListener('click', () => {
+  const d = store.d, keep = {};
+  for (const k of ['sound', 'amb', 'haptics', 'aimFull', 'reviewAsks']) if (d[k] !== undefined) keep[k] = d[k];
+  for (const k of Object.keys(d)) delete d[k];
+  Object.assign(d, { stars: {}, aimFull: false, sound: true, fails: {}, best: {}, bill: 0, wear: {}, billShown: 0, closetSeen: 0, owned: null, levelsV3: true, gates2: true }, keep);
+  store.save();
+  seenHint.clear(); ORBIT.cur = null; ORBIT.next = 0; firstShot = true;
+  Snd.fx('whoosh'); buzz('bonk', 0.6);
+  showLevels(); lvlSay('all fresh. i fits?', 3000);
+});
 $('infoDone').addEventListener('click', () => { Snd.fx('pop'); showLevels(); });
 function syncToggles() {
   for (const id of ['tglVib', 'tglVib2']) { $(id).hidden = !(NATIVE && NATIVE.haptics); $(id).innerHTML = `vibration: <b>${store.d.haptics === false ? 'off' : 'on'}</b>`; }
@@ -6812,7 +6933,7 @@ function showResult(r) {
 const ATTRACT = [
   { cat: 'toast', level: 'k10', a: 65, p: 0.5, ab: null },
   { cat: 'unit', level: 'kx', a: 25, p: 1, ab: 46 },
-  { cat: 'street', level: 'bx', a: 10, p: 0.9, ab: 58 },
+  { cat: 'street', level: 'b8', a: 14, p: 0.9, ab: 8 },   // (Nov 7: bx's throw stopped climbing after the wreck-it rebuild; on building 8 he grabs the fire escape's edge, runs along it through the plant pots and climbs the pillar)
   { cat: 'chaos', level: 'pkx', a: 10, p: 1, ab: 46 },
   { cat: 'chonk', level: 'k12', a: 59, p: 0.32, ab: null },
   { cat: 'void', level: 'whx', a: 15, p: 0.9, ab: 58 },
@@ -7167,6 +7288,10 @@ function drain() {
         burst(e.x, e.y - 30, 8, [c.def.fur, c.def.light], { g: 200, speed: 90, life: 0.6, shape: 'dot', size: 5 });
         Snd.voice('huh', c.def.pitch, 0.8);
         break; }
+      case 'crack':   // megachonk lands on a lid after his THOOM went into a wall: it cracks under him (core.js landOn)
+        Snd.fx('thud'); fx.shake = Math.max(fx.shake, 8); buzz('bonk', 0.7);
+        burst(e.x, e.y - 6, 10, ['#E9DCC4', '#D9C6A5', '#FFFFFF'], { g: -20, speed: 160, life: 0.6, shape: 'cloud', size: 12, drag: 2, spread: Math.PI * 2 });
+        break;
       case 'shock':
         if (e.big) {   // megachonk lands: the whole place jumps, everyone else jumps too and glares
           buzz('shock'); addText('THOOM', e.x, e.y - 90, INK, 46); Snd.fx('thoom'); Snd.fx('rumble'); fx.shake = Math.max(fx.shake, 18);
@@ -7438,6 +7563,15 @@ function drawSimCat(c, t) {
       }
       return;
     }
+    else if (!sim.grav) {   // in space: floating at its body's angle (Nov 7: ahead of the dazed poses, which stand on a floor: after a
+      // THOOM megachonk snapped upright into a sit in mid-air), turning with the spin it kept (core.js settle), and now and then
+      // (about every 4 s, a bit under a second) it scrambles its legs, trying to get traction on nothing (Adam, Nov 6: "occasionally,
+      // as they are kind of floating there, they kind of try to gain traction somewhere. Of course it doesn't happen")
+      const ph = (t * 0.95 + c.idx * 1.37) % 4.2, scr = ph < 0.85;
+      ctx.translate(b.position.x, b.position.y); ctx.rotate(b.angle); ctx.translate(0, d.h * 0.5 - 22 * K); ctx.scale(fl, 1);
+      if (scr) drawCat(d, 'walk', { eyes: 'wide', mouth: 'o' }, { t, scale: sv, phase: t * 36, earsBack: 0.5 });
+      else drawCat(d, 'sit', { eyes: rx.anger > 0 ? 'squint' : 'open', mouth: rx.anger > 0 ? 'frown' : 'flat' }, { t, scale: sv, look: { x: Math.sin(t * 1.3 + c.idx), y: Math.cos(t * 0.9) * 0.5 }, headTilt: Math.sin(t * 2) * 0.1 });
+    }
     else if (c.state === 'dazed' && c.bonked) {   // landed wrong: on all four paws, stiff as a board, googly eyes, a pogo boing or two
       const el = (c.dazeStart - c.dazeT) / 60, pogo = el < 0.7 ? Math.abs(Math.sin(el * 13)) * 16 * (1 - el / 0.7) : 0;
       ctx.translate(b.position.x, bottom - 33 * K - pogo); ctx.scale(fl, 1); drawCat(d, 'stiff', { eyes: 'googly', mouth: el < 0.5 ? 'o' : 'flat' }, { t, scale: sv, shiver: 1 });
@@ -7450,14 +7584,6 @@ function drawSimCat(c, t) {
     else if (c.state === 'idle') {   // missed, and hanging around: watches the flying cat, swishes, now and then a slow blink
       const bl = ((t * 0.7 + c.idx * 1.9) % 7) < 0.8;
       ctx.translate(b.position.x, bottom - 22 * K); ctx.scale(fl, 1); drawCat(d, 'sit', rx.anger > 0 ? { eyes: 'squint', mouth: 'frown' } : { eyes: bl ? 'closed' : 'open', mouth: 'w' }, { t: t + c.idx, scale: sv, earsBack: rx.anger > 0 ? 0.7 : 0, look: lookAt() });
-    }
-    else if (!sim.grav) {   // in space: floating at its body's angle, turning with the spin it kept (core.js settle), and now and then
-      // (about every 4 s, a bit under a second) it scrambles its legs, trying to get traction on nothing (Adam, Nov 6: "occasionally,
-      // as they are kind of floating there, they kind of try to gain traction somewhere. Of course it doesn't happen")
-      const ph = (t * 0.95 + c.idx * 1.37) % 4.2, scr = ph < 0.85;
-      ctx.translate(b.position.x, b.position.y); ctx.rotate(b.angle); ctx.translate(0, d.h * 0.5 - 22 * K); ctx.scale(fl, 1);
-      if (scr) drawCat(d, 'walk', { eyes: 'wide', mouth: 'o' }, { t, scale: sv, phase: t * 36, earsBack: 0.5 });
-      else drawCat(d, 'sit', { eyes: rx.anger > 0 ? 'squint' : 'open', mouth: rx.anger > 0 ? 'frown' : 'flat' }, { t, scale: sv, look: { x: Math.sin(t * 1.3 + c.idx), y: Math.cos(t * 0.9) * 0.5 }, headTilt: Math.sin(t * 2) * 0.1 });
     }
     else if (c.state === 'dazed') { ctx.translate(b.position.x, bottom - 22 * K); ctx.scale(fl, 1); drawCat(d, 'sit', { eyes: rx.anger > 0 ? 'squint' : 'open', mouth: rx.anger > 0 ? 'frown' : 'flat' }, { t, scale: sv, earsBack: rx.anger > 0 ? 0.7 : 0, headTilt: rx.anger > 0 ? 0 : Math.sin(t * 3) * 0.15, look: { x: Math.sin(t * 2), y: 0.3 } }); }
     else { ctx.translate(b.position.x, bottom - 22 * K); ctx.scale(fl, 1); const dig = rx.swipe > 0; drawCat(d, 'sit', rx.anger > 0 ? { eyes: 'squint', mouth: 'frown' } : dig ? { eyes: 'squint', mouth: 'w' } : { eyes: 'wide', mouth: 'o' }, { t, scale: sv, earsBack: rx.anger > 0 ? 0.7 : 0, pawOut: dig && Math.sin(t * 40) > 0, headTilt: dig ? 0.25 : 0 }); }

@@ -1,4 +1,4 @@
 {
- "manifest": "{\"native\":\"2.0\",\"seq\":202611062202,\"url\":\"https://maksidaa.github.io/if-i-fits-site/ota/2.0/202611062202.html\",\"sha256\":\"65d93c7aaffbedac0dc074537ef83c1dcc6f3f6f67c57d24c483849df74cee26\",\"size\":1650341,\"notes\":\"World doors at 2.5 stars a level: building 33, park 60, warehouse 88, space 115, moon 138 (opened worlds stay open)\",\"commit\":\"01c9e61\",\"created\":\"2026-11-07T04:02:07.419Z\"}",
- "signature": "2ZY079hSaMfwbFsAjJ2D1um3qEY8jLquGJWOpn/e6+03HD8srdebnTLTEuql0asOx0RfWtEatkj024NWQUlm2g=="
+ "manifest": "{\"native\":\"2.0\",\"seq\":202611062324,\"url\":\"https://maksidaa.github.io/if-i-fits-site/ota/2.0/202611062324.html\",\"sha256\":\"e154d2939f835c5ab324fb680598a315bb37b9193eaf18add4cc3b14769bfeb7\",\"size\":1654061,\"notes\":\"Space 8 rebuilt (every cat its own box); start over button; street cat title demo; megachonk THOOMs on first touch in space\",\"commit\":\"de3f11e\",\"created\":\"2026-11-07T05:24:44.351Z\"}",
+ "signature": "gWQTMp4dkEuA6XRLfYx2stphgzJrXzInSpWwqgvqjbWSJkZdrASOHx3iyEcj1yEhSpVw/hOQMiapbwlKRHrreg=="
 }
