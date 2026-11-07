@@ -1,4 +1,4 @@
 {
- "manifest": "{\"native\":\"2.0\",\"seq\":202611070942,\"url\":\"https://maksidaa.github.io/if-i-fits-site/ota/2.0/202611070942.html\",\"sha256\":\"9e24fd0fa0fac8255f590dec62f7b2e8eca194a91eca9af704ec228c1d97de79\",\"size\":1657210,\"notes\":\"Mess goals that couldn't be reached now match what can break; megachonk doesn't make biscuits\",\"commit\":\"c41c768\",\"created\":\"2026-11-07T15:42:41.061Z\"}",
- "signature": "+47u46sPmYSl/9YCyvZ33Ii6MBWCEDI05csslysyKhRmw8tMPqo9Vs6dvc3N+OCXKKm4a0H2NPL8jfm88lgXjw=="
+ "manifest": "{\"native\":\"2.0\",\"seq\":202611071212,\"url\":\"https://maksidaa.github.io/if-i-fits-site/ota/2.0/202611071212.html\",\"sha256\":\"d60f0e9c5444df835bfc0fe9cd95385dfb582765babbf8619aee5e39b73c34bc\",\"size\":1717617,\"notes\":\"World milestones (new-world moment, level marks, postcard album, perfect-world prizes); harder wreck-its\",\"commit\":\"485db44\",\"created\":\"2026-11-07T18:12:10.959Z\"}",
+ "signature": "/vB3A+NQvf38WB4ANFsR8cMsBieKgybPbtGLI1F6baqmHC9oZ6mNueTwQI/lKDcClsQpbEy4s+1tFjViLH2zRw=="
 }
