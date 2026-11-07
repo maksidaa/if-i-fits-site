@@ -313,7 +313,7 @@ body.attract #hud, body.attract #hint { display: none; }
   <button class="round-btn" id="menuBtn" aria-label="menu">
     <svg width="16" height="16" viewBox="0 0 18 16" aria-hidden="true"><rect x="2" y="1" width="4" height="14" rx="2" fill="#2E3A35"/><rect x="11" y="1" width="4" height="14" rx="2" fill="#2E3A35"/></svg>
   </button>
-  <button class="round-btn" id="retryBtn" aria-label="start over">
+  <button class="round-btn" id="retryBtn" aria-label="retry level">
     <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M16.2 7.2 A6.8 6.8 0 1 0 16.6 12" fill="none" stroke="#2E3A35" stroke-width="2.6" stroke-linecap="round"/><path d="M16.9 2.8 L16.5 7.6 L11.8 6.8" fill="none" stroke="#2E3A35" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </button>
   <div id="lvlLabel"></div>
@@ -378,17 +378,18 @@ body.attract #hud, body.attract #hint { display: none; }
       <button class="toggle" id="tglRestore" hidden>restore purchase</button>
       <button class="toggle" id="tglHelp">help</button>
       <button class="toggle" id="tglPrivacy">privacy</button>
-      <button class="toggle" id="tglReset">start over</button>
+      <button class="toggle" id="tglReset">reset game</button>
     </div>
   </div>
 </div>
 
-<!-- start over (Adam, Nov 7: "I also wish there was a way to reset my game"): progress goes, the purchase and the settings stay -->
+<!-- reset game (Adam, Nov 7: "I also wish there was a way to reset my game"; then "The game has 2 separate 'start over' buttons now": the
+     pause menu's, which restarts the level, is "retry" now, like the result card's): progress goes, the purchase and the settings stay -->
 <div class="overlay" id="scrReset" hidden>
   <div class="card reset-card">
-    <h2 class="title">start over?</h2>
+    <h2 class="title">reset game?</h2>
     <p class="reset-say">ur stars, levels, cash n closet go poof.<br>ur unlock stays.</p>
-    <div class="reset-row"><button class="btn" id="resetNo">keep my game</button><button class="btn danger" id="resetYes">start over</button></div>
+    <div class="reset-row"><button class="btn" id="resetNo">keep my game</button><button class="btn danger" id="resetYes">reset game</button></div>
   </div>
 </div>
 <!-- privacy and help, inside the game (Apple wants the privacy policy reachable in the app; this works offline and needs no
@@ -414,7 +415,7 @@ body.attract #hud, body.attract #hint { display: none; }
       <ul>
         <li><b>Play:</b> touch anywhere and pull back to aim, let go to fling. Land a cat in every spot (the dashed boxes). Tap while a cat flies, or just after it lands, for its trick.</li>
         <li><b>Stars:</b> one for every spot filled, one for cats left over, one for enough mess. Worlds open as you earn stars.</li>
-        <li><b>Start over:</b> the start over button under the levels clears your stars, levels, cash and closet. Your purchase and settings stay.</li>
+        <li><b>Reset game:</b> the reset game button under the levels clears your stars, levels, cash and closet. Your purchase and settings stay.</li>
         <li><b>Stuck?</b> After a miss you can ask for 1 more cat. Lose a level twice and paw prints show a first throw that works. The rest is up to you.</li>
         <li><b>Sound and vibration:</b> in the pause card (the button at the top left during a level). The game plays sound even on silent.</li>
         <li><b>The Whole Game:</b> "restore purchase" on the level list restores it with the same Apple ID. Family Sharing works.</li>
@@ -475,7 +476,7 @@ body.attract #hud, body.attract #hint { display: none; }
     <div class="eyebrow" id="pauseName">paused</div>
     <button class="btn go" id="pResume">back</button>
     <div class="btn-row">
-      <button class="btn" id="pRetry">start over</button>
+      <button class="btn" id="pRetry">retry</button>
       <button class="btn" id="pLevels">levels</button>
     </div>
     <div class="toggles">
@@ -1201,17 +1202,18 @@ const FITS = (() => {
       items: [fl('snack', 820, 470), fl('fishbowl', 980, 470), fl('wrench', 450, 300), fl('duckie', 1000, 200)] }, SPACE_SP),
     // mission control: every trick in the station. Rebuilt Nov 7 (Adam: "how is space 8 even possible to pass?" ... "When I aim the
     // street cat always hits the lowest box"): every cat has its own box, in throwing order, and nothing sits in a lane.
-    // toast: the big box up on the left (aim at its mouth). street cat: the box on top of the tall strut; claws out, a flat throw
-    // grabs the console, climbs it, runs to the strut and climbs that, a bit higher (to 12 degrees) grabs the strut itself,
-    // and it hops into the box (the lane from the cat tree to them is empty). sir toots: the tall box behind the
-    // hanging strut, out of sight of any straight throw; fly in low under the strut and toot up into it. the void: the tiny
-    // box on the hanging strut; squish right away and fly straight in. chaos: the box behind the cat tree; zoom right away
-    // at the big box's bottom corner and she comes back off it and the ceiling into her box.
+    // toast: the box up on the left (aim at its mouth, 56-60 degrees). street cat: the box on top of the tall strut; claws out, a
+    // flat throw (to 8 degrees, under the hanging strut) grabs the console, climbs it, runs to the strut and climbs that, and it
+    // hops into the box (the lane from the cat tree to them is empty). sir toots: the box behind the hanging strut, out of sight
+    // of any straight throw; fly in low under the strut and toot up into it (a power and a moment to hit). the void: the tiny box
+    // on the hanging strut; squish right away and fly straight in (30-32 degrees). chaos: the box behind the cat tree; zoom right
+    // away at the bottom corner of toast's box (52-54 degrees) and she comes back off it and the ceiling into her box.
+    // Tightened Nov 7 (Adam: "I beat space 8 on the first try. It might be too easy now."): smaller boxes, a lower hanging strut.
     Object.assign({ id: 'sp8', name: 'space 8', world: 'space', title: 'mission control', tip: 'evry cat haz its own box!', w: 1300, perch: { x: 330, top: 430 },
       lineup: ['toast', 'street', 'toot', 'void', 'chaos', 'street', 'toot', 'void', 'chaos'], spareGoal: 2, messGoal: 80,
-      furniture: [{ kind: 'pad', x0: 0, x1: 230, top: 230 }, { kind: 'strut', x0: 650, x1: 680, top: 0, bottom: 288 },
+      furniture: [{ kind: 'pad', x0: 0, x1: 210, top: 230 }, { kind: 'strut', x0: 650, x1: 680, top: 0, bottom: 345 },
                   { kind: 'strut', x0: 1200, x1: 1300, top: 120, bottom: 580 }, { kind: 'console', x0: 1040, x1: 1200, top: 350 }],
-      spots: [{ kind: 'box', x0: 10, x1: 210, bottom: 230, cat: 'chaos' }, sb(1000, 4, 1130, 210, 'toot'), sb(560, 248, 650, 302, 'void'), { kind: 'box', x0: 1204, x1: 1296, bottom: 120, h: 56, cat: 'street' }, sb(500, 60, 640, 220)],
+      spots: [{ kind: 'box', x0: 10, x1: 190, bottom: 230, cat: 'chaos' }, sb(1010, 30, 1120, 200, 'toot'), sb(560, 252, 650, 300, 'void'), { kind: 'box', x0: 1204, x1: 1296, bottom: 120, h: 56, cat: 'street' }, sb(500, 120, 610, 220)],
       items: [fl('fishbowl', 1100, 350), fl('snack', 700, 470), fl('duckie', 820, 470), fl('wrench', 450, 450), fl('snack', 140, 120)] }, SPACE_SP),
     // the zero g party: little floating blocks of fishbowls and fragile boxes all over the station (they break when hit,
     // so a throw clears a path, not the room)
@@ -6410,7 +6412,7 @@ let WAVE = null;   // while everyone waves bai (render sets it; drawCat puts a p
 function startYeet(e) {
   const c = e.cat, big = !!c.def.pound, dir = (e.vx || 0) < 0 ? -1 : 1;
   const y0 = reduceMotion ? Math.max(e.y, cam.y - view.availH / 2 / cam.z + 120 / cam.z) : e.y;   // (reduced motion: the camera stays put, so it goes from the top of the picture)
-  fx.yeet = { cat: c, def: c.def, big, dir, x0: e.x, y0, vx: (e.vx || 0) * 60, vy: Math.min(-90, (e.vy || -2) * 60), a0: e.angle || 0, spin: reduceMotion ? 0 : (big ? 4 : 7) * dir, t: 0, twinkled: false };
+  fx.yeet = { cat: c, def: c.def, big, dir, x0: e.x, y0, vx: (e.vx || 0) * 60, vy: Math.min(-90, (e.vy || -2) * 60), a0: e.angle || 0, spin: reduceMotion ? 0 : (big ? 4 : 7) * dir, spin0: reduceMotion ? 0 : (e.spin || 0) * 60, t: 0, twinkled: false };
   cam.mode = 'yeet'; cam.hold = 0; sim.frozen = true;   // (the physics waits for the show: core.js step)
   Snd.fx('yeet'); Snd.voice(big ? 'yowl' : 'meow', c.def.pitch * 1.25, 0.8);
   if (!attract) buzz('boing', 0.6);
@@ -6429,8 +6431,12 @@ function startYeet(e) {
 function endYeet() { fx.yeet = null; WAVE = null; if (sim) sim.frozen = false; if (cam.mode === 'yeet') cam.mode = 'auto'; }
 // where it is t s into the show: still going the way it left, faster and faster, and further away (s: how big it looks)
 function yeetAt(Y, t) {
-  const u = 1 - Math.exp(-t / 0.8), k = reduceMotion ? 0.35 : 1;   // (it slows down in the picture as it goes deeper into the sky)
-  return { x: Y.x0 + Y.vx * 0.8 * u * k, y: Y.y0 + (Y.vy * 0.8 - 260) * u * k, s: reduceMotion ? Math.max(0.05, 1 - t / (YEET.T * YEET.TW)) : 1 / (1 + 0.6 * t + 0.9 * t * t * t), a: Y.a0 + Y.spin * t };
+  // It goes on at exactly the speed and spin it left the physics with, then drifts on up, faster and faster away (Adam, Nov 7:
+  // "the cat launches at one speed and then suddenly yeets like a rocket": the show used to add about 325 px/s upward and a fixed
+  // fast spin the moment it took over). The extra climb builds from nothing to 200 px/s; it ends about as high as before.
+  const u = 1 - Math.exp(-t / 0.8), k = reduceMotion ? 0.35 : 1, up = 200 * (t - 0.8 * u), us = 1 - Math.exp(-t / 0.6);   // (it slows down in the picture as it goes deeper into the sky)
+  return { x: Y.x0 + Y.vx * 0.8 * u * k, y: Y.y0 + (Y.vy * 0.8 * u - up) * k, s: reduceMotion ? Math.max(0.05, 1 - t / (YEET.T * YEET.TW)) : 1 / (1 + 0.6 * t + 0.9 * t * t * t),
+    a: Y.a0 + Y.spin * t + ((Y.spin0 || 0) - Y.spin) * 0.6 * us };
 }
 function yeetCam(dt) {
   const Y = fx.yeet; Y.t += dt;
@@ -6595,7 +6601,7 @@ function fitLineup() {
   const left = faces.filter(f => !f.hidden), tag = document.createElement('span'); tag.className = 'more'; lu.appendChild(tag);
   for (let k = left.length - 1; k > 0 && over(); k--) { left[k].hidden = true; tag.textContent = '+' + (left.length - k); }
 }
-const SCREENS = ['scrTitle', 'scrLevels', 'scrIntro', 'scrPause', 'scrResult', 'scrUnlock', 'scrCloset', 'scrEnd', 'scrCard', 'scrInfo', 'scrCrib', 'scrReset'];   // (scrReset: start over)   // (scrCrib: teh crib, closet.js)
+const SCREENS = ['scrTitle', 'scrLevels', 'scrIntro', 'scrPause', 'scrResult', 'scrUnlock', 'scrCloset', 'scrEnd', 'scrCard', 'scrInfo', 'scrCrib', 'scrReset'];   // (scrReset: reset game)   // (scrCrib: teh crib, closet.js)
 // A safe moment for the app to swap in a newer page (2.0.1's update check while the game loads, Adam, Nov 6: "so they don't have to
 // close the game and reopen it"): only on the title or the level list with nothing else open. Never mid-level, paused, on a
 // result, in the closet or teh crib, on the unlock screen, a postcard or the ending. (Saves go out at once, so nothing is lost.)
@@ -6778,7 +6784,7 @@ $('tglRestore').addEventListener('click', () => { Snd.init(); nativeSay({ type: 
 function showInfo(which) { Snd.init(); Snd.fx('pop'); $('infoTitle').textContent = which; $('infoPrivacy').hidden = which !== 'privacy'; $('infoHelp').hidden = which !== 'help'; showScreen('scrInfo'); }
 $('tglPrivacy').addEventListener('click', () => showInfo('privacy'));
 $('tglHelp').addEventListener('click', () => showInfo('help'));
-// Start over (Adam, Nov 7: "I also wish there was a way to reset my game"): every star, level, world door, the bill, teh closet
+// Reset game (Adam, Nov 7: "I also wish there was a way to reset my game"; it was called start over, like the pause menu's level restart, now retry): every star, level, world door, the bill, teh closet
 // and teh crib, the introductions (new cats, megachonk), the yeeted cats: gone, after a yes on its own screen. The purchase
 // stays (Apple and the app hold it, not the save), and so do the settings. In place, no reload: the app's copy of the save
 // is replaced by this one as it's saved.
@@ -7452,6 +7458,21 @@ function drawSimCat(c, t) {
   ctx.save();
   if (rx.skate > 0 && c.state !== 'sit') ctx.translate(Math.sin((1 - rx.skate) * 15) * 14 * rx.skate * (rx.skateDir || 1), 0);   // roller skates: rolling on a bit after landing (drawing only)
   if (c.state === 'sit') {
+    // Megachonk stays the way he landed (Adam, Nov 7: "I also don't think megachonk should flip upright in normal levels, if he
+    // lands in a box upside down he should stay that way and hearts float up and he purrs"): tipped more than about 20 degrees,
+    // he's drawn at his body's angle, balled up as he rolled in (the mochi) or his sit turned however he flew in. The hearts,
+    // the purrrr and the purr come with the sit, as for every cat. Nearly upright, he sits up as before (below).
+    const lie = d.id === 'chonk' ? Math.atan2(Math.sin(b.angle), Math.cos(b.angle)) : 0;
+    if (Math.abs(lie) > 0.35) {
+      const purr = rx.sitT >= 0.6 && rx.sitT < PURR_SHOW && rx.purrOn, sq = rx.sitT >= 0 && rx.sitT < 0.6 ? 1 - 0.2 * Math.sin(rx.sitT / 0.6 * Math.PI) : 1;
+      const face = rx.cheer > 0 ? { eyes: 'happy', mouth: 'smile' } : { eyes: 'open', mouth: 'blep' }, stare = face.mouth === 'blep';
+      ctx.translate(b.position.x + (purr ? Math.sin(t * 80) * 0.9 : 0), b.position.y); ctx.rotate(b.angle);
+      if (c.mochi) { ctx.scale(1 + (1 - sq) * 0.5, sq); ctx.translate(0, MOCHI_DRAW.dy); drawCat(d, 'sit', face, { t, headY: MOCHI_DRAW.headY, scale: MOCHI_DRAW.s, look: { x: 0, y: 0 }, lids: stare ? chonkBlinks(t, c.idx + 1) : null, twitch: stare && !purr ? chonkTwitch(t, c.idx) : null }); }
+      else { ctx.translate(0, d.h * 0.5 - 22 * K); ctx.scale(rx.flip || 1, sq); drawCat(d, 'sit', face, { t, scale: sv, lids: stare ? chonkBlinks(t, c.idx + 1) : null, twitch: stare && !purr ? chonkTwitch(t, c.idx) : null }); }
+      ctx.restore();
+      if (purr) purrLines(b.position.x, b.position.y, t, 52, Math.min(1, (rx.sitT - 0.6) * 3, (PURR_SHOW - rx.sitT) * 3));
+      return;
+    }
     // (Adam, Nov 4: no flipping round when it lands in a box: it plops in, facing the way it came)
     let sq = 1; const fl = rx.flip || 1;
     if (rx.sitT >= 0 && rx.sitT < 0.6) { const k = rx.sitT / 0.6; sq = 1 - 0.25 * Math.sin(k * Math.PI); }
