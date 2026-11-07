@@ -67,6 +67,10 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: var(--wall);
   background: var(--paper); color: var(--ink); box-shadow: 0 3px 0 var(--ink); }
 .btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
 .btn.go { background: var(--go); color: #fff; }
+.btn.danger { background: var(--red); color: #fff; }
+.reset-card { text-align: center; }
+.reset-say { font-weight: 700; margin: 6px 0 14px; }
+.reset-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .btn-row.one { grid-template-columns: 1fr; }
 .btn-row .btn { font-size: 16px; padding: 10px 8px; }
@@ -374,10 +378,19 @@ body.attract #hud, body.attract #hint { display: none; }
       <button class="toggle" id="tglRestore" hidden>restore purchase</button>
       <button class="toggle" id="tglHelp">help</button>
       <button class="toggle" id="tglPrivacy">privacy</button>
+      <button class="toggle" id="tglReset">start over</button>
     </div>
   </div>
 </div>
 
+<!-- start over (Adam, Nov 7: "I also wish there was a way to reset my game"): progress goes, the purchase and the settings stay -->
+<div class="overlay" id="scrReset" hidden>
+  <div class="card reset-card">
+    <h2 class="title">start over?</h2>
+    <p class="reset-say">ur stars, levels, cash n closet go poof.<br>ur unlock stays.</p>
+    <div class="reset-row"><button class="btn" id="resetNo">keep my game</button><button class="btn danger" id="resetYes">start over</button></div>
+  </div>
+</div>
 <!-- privacy and help, inside the game (Apple wants the privacy policy reachable in the app; this works offline and needs no
      app update). The same text as the website's privacy page (docs/PRIVACY.md); keep them the same. -->
 <div class="overlay" id="scrInfo" hidden>
@@ -401,6 +414,7 @@ body.attract #hud, body.attract #hint { display: none; }
       <ul>
         <li><b>Play:</b> touch anywhere and pull back to aim, let go to fling. Land a cat in every spot (the dashed boxes). Tap while a cat flies, or just after it lands, for its trick.</li>
         <li><b>Stars:</b> one for every spot filled, one for cats left over, one for enough mess. Worlds open as you earn stars.</li>
+        <li><b>Start over:</b> the start over button under the levels clears your stars, levels, cash and closet. Your purchase and settings stay.</li>
         <li><b>Stuck?</b> After a miss you can ask for 1 more cat. Lose a level twice and paw prints show a first throw that works. The rest is up to you.</li>
         <li><b>Sound and vibration:</b> in the pause card (the button at the top left during a level). The game plays sound even on silent.</li>
         <li><b>The Whole Game:</b> "restore purchase" on the level list restores it with the same Apple ID. Family Sharing works.</li>
@@ -1185,13 +1199,20 @@ const FITS = (() => {
       furniture: [{ kind: 'strut', x0: 1060, x1: 1160, top: 120, bottom: 580 }, { kind: 'console', x0: 760, x1: 900, top: 470 }, { kind: 'pad', x0: 560, x1: 760, top: 230 }],
       spots: [{ kind: 'box', x0: 1064, x1: 1156, bottom: 120, h: 56, cat: 'street' }, sb(900, 280, 1040, 400), sb(600, 100, 740, 220)],
       items: [fl('snack', 820, 470), fl('fishbowl', 980, 470), fl('wrench', 450, 300), fl('duckie', 1000, 200)] }, SPACE_SP),
-    // mission control: every trick in the station
-    Object.assign({ id: 'sp8', name: 'space 8', world: 'space', title: 'mission control', w: 1300, perch: { x: 330, top: 430 },
-      lineup: ['toot', 'chaos', 'void', 'street', 'toast', 'toot', 'chaos', 'void', 'street'], spareGoal: 2, messGoal: 80,
-      furniture: [{ kind: 'pad', x0: 0, x1: 180, top: 230 }, { kind: 'strut', x0: 760, x1: 790, top: 0, bottom: 322 },
-                  { kind: 'strut', x0: 1200, x1: 1300, top: 120, bottom: 580 }, { kind: 'console', x0: 1040, x1: 1200, top: 470 }],
-      spots: [{ kind: 'box', x0: 20, x1: 160, bottom: 230, cat: 'chaos' }, sb(960, 130, 1120, 300, 'toot'), sb(560, 340, 640, 388, 'void'), { kind: 'box', x0: 1204, x1: 1296, bottom: 120, h: 56, cat: 'street' }, sb(520, 200, 660, 310)],
-      items: [fl('fishbowl', 1100, 470), fl('snack', 700, 470), fl('duckie', 820, 470), fl('wrench', 450, 450), fl('snack', 140, 120)] }, SPACE_SP),
+    // mission control: every trick in the station. Rebuilt Nov 7 (Adam: "how is space 8 even possible to pass?" ... "When I aim the
+    // street cat always hits the lowest box"): every cat has its own box, in throwing order, and nothing sits in a lane.
+    // toast: the big box up on the left (aim at its mouth). street cat: the box on top of the tall strut; claws out, a flat throw
+    // grabs the console, climbs it, runs to the strut and climbs that, a bit higher (to 12 degrees) grabs the strut itself,
+    // and it hops into the box (the lane from the cat tree to them is empty). sir toots: the tall box behind the
+    // hanging strut, out of sight of any straight throw; fly in low under the strut and toot up into it. the void: the tiny
+    // box on the hanging strut; squish right away and fly straight in. chaos: the box behind the cat tree; zoom right away
+    // at the big box's bottom corner and she comes back off it and the ceiling into her box.
+    Object.assign({ id: 'sp8', name: 'space 8', world: 'space', title: 'mission control', tip: 'evry cat haz its own box!', w: 1300, perch: { x: 330, top: 430 },
+      lineup: ['toast', 'street', 'toot', 'void', 'chaos', 'street', 'toot', 'void', 'chaos'], spareGoal: 2, messGoal: 80,
+      furniture: [{ kind: 'pad', x0: 0, x1: 230, top: 230 }, { kind: 'strut', x0: 650, x1: 680, top: 0, bottom: 288 },
+                  { kind: 'strut', x0: 1200, x1: 1300, top: 120, bottom: 580 }, { kind: 'console', x0: 1040, x1: 1200, top: 350 }],
+      spots: [{ kind: 'box', x0: 10, x1: 210, bottom: 230, cat: 'chaos' }, sb(1000, 4, 1130, 210, 'toot'), sb(560, 248, 650, 302, 'void'), { kind: 'box', x0: 1204, x1: 1296, bottom: 120, h: 56, cat: 'street' }, sb(500, 60, 640, 220)],
+      items: [fl('fishbowl', 1100, 350), fl('snack', 700, 470), fl('duckie', 820, 470), fl('wrench', 450, 450), fl('snack', 140, 120)] }, SPACE_SP),
     // the zero g party: little floating blocks of fishbowls and fragile boxes all over the station (they break when hit,
     // so a throw clears a path, not the room)
     Object.assign({ id: 'spx', name: 'zero g party', world: 'space', mode: 'mess', title: 'wreck it', tip: 'zero g party. break stuff.', w: 1500, perch: PERCH,
@@ -2160,7 +2181,7 @@ const FITS = (() => {
             }
           }
           if (cat && cat.state === 'fly' && !cat.touched && !SLIPPERY[Y.label]) { cat.touched = true; if (!(cat.dashT > 0) && !cat.def.pound) X.frictionAir = this.grav ? Math.max(0.03, this.air) : this.air; }   // in space it keeps drifting   // a boing or a slide isn't touching down
-          if (cat && cat.slamming && cat.state === 'fly' && !Y.isSensor) {
+          if (cat && (cat.slamming || cat.slammed) && cat.state === 'fly' && !Y.isSensor) {
             // He plows through light things (Adam, Nov 6: "as soon as megachonk hits anything he stops immediately, like if he hits a
             // plant pot or glass he just stops right there, but I feel like his size and weight and density should make the physics
             // work differently"). Anything under a quarter of his weight doesn't count as landing: a breakable one smashes on the
@@ -2169,6 +2190,11 @@ const FITS = (() => {
             const hitItem = Y.plugin && Y.plugin.item, light = hitItem && !hitItem.broken && !Y.isStatic && Y.mass < X.mass * 0.25;
             if (light) {
               if ((hitItem.def.breakAt || hitItem.hp) && !(this.plowed && this.plowed.has(hitItem))) { (this.plowed || (this.plowed = new Set())).add(hitItem); this.toBreak.add(hitItem); this.plowSlow = (this.plowSlow || 1) * 0.9; this.emit('plow', { cat, item: hitItem, x: Y.position.x, y: Y.position.y }); }
+            } else if (cat.slammed) {
+              // after a THOOM against a wall or the ceiling he keeps plowing (above) till he lands, and the landing still puts his whole
+              // weight on what's under him: a heavy lid cracks and he drops into the box (kitchen 8, building 5), no second THOOM (landOn)
+              const ny = pair.collision.normal.y * (X === pair.bodyA ? 1 : -1);
+              if (ny < -0.55 && X.velocity.y > 0.3 && !this.pendingLand) { cat.slammed = false; this.pendingLand = { cat, vy: X.velocity.y }; }
             } else {
               const sg = X === pair.bodyA ? 1 : -1, nx = pair.collision.normal.x * sg, ny = pair.collision.normal.y * sg;   // ny < 0: what he hit is under him
               const landed = (X.velocity.y > 1.5 && X.velocity.y > Math.abs(X.velocity.x) * 0.35) || (ny < -0.55 && X.velocity.y > 1.2);
@@ -2176,15 +2202,12 @@ const FITS = (() => {
               // comes to a rest and then thooms"): slammed sideways into a wall, a mesa or a box, or up into the ceiling, he used to
               // slide down and THOOM only when he landed, or came to rest (10-20 straight into the wall: as hard as any landing).
               // A gentle touch on the ceiling at the top of a lob still isn't one. (jumpK: on the moon everything's slower.)
-              const vn = -(X.velocity.x * nx + X.velocity.y * ny), slam = !landed && vn >= 5 * this.jumpK;
+              // In zero gravity there's no floor to land on: his first touch of anything solid is the THOOM (Adam, Nov 7, the zero g party:
+              // "he hits a lot of stuff in the middle of the screen and then thooms after hitting the far wall"; he plowed through the
+              // floating junk, brushed the ceiling and THOOMed only when he'd slowed to a stop)
+              const vn = -(X.velocity.x * nx + X.velocity.y * ny), slam = !landed && vn >= (this.grav ? 5 * this.jumpK : 1);
               if (landed || slam) { cat.slamming = false; cat.slammed = slam; this.pendingShock = { cat, vy: X.velocity.y, slam }; }   // (vy: how fast he was falling, from before the hit)
             }
-          } else if (cat && cat.slammed && cat.state === 'fly' && !Y.isSensor && !this.pendingLand) {
-            // ...and after a THOOM against a wall or the ceiling, the landing still puts his whole weight on what's under him: a
-            // heavy lid cracks and he drops into the box (kitchen 8, building 5), with no second THOOM (landOn)
-            const it = Y.plugin && Y.plugin.item, light = it && !it.broken && !Y.isStatic && Y.mass < X.mass * 0.25;
-            const ny = pair.collision.normal.y * (X === pair.bodyA ? 1 : -1);
-            if (!light && ny < -0.55 && X.velocity.y > 0.3) { cat.slammed = false; this.pendingLand = { cat, vy: X.velocity.y }; }
           }
           // slapstick: slam sideways into a wall or furniture and the cat sticks there flat, then slides down
           const splat = cat && !cat.def.catapult && cat.state === 'fly' && rel > 8 && (Y.label === 'wall' || Y.label === 'static') && Math.abs(X.velocity.x) > Math.abs(X.velocity.y) * 1.1 &&
@@ -2549,7 +2572,7 @@ const FITS = (() => {
 </script>
 
 <script>
-const HINTS = {"b1":[{"a":33,"p":0.84,"ab":null}],"b10":[{"a":36,"p":0.84,"ab":null}],"b2":[{"a":36,"p":0.9,"ab":null}],"b3":[{"a":42,"p":0.8,"ab":8}],"b4":[{"a":39,"p":0.86,"ab":8}],"b5":[{"a":48,"p":0.5,"ab":32}],"b6":[{"a":78,"p":0.56,"ab":null}],"b7":[{"a":6,"p":0.58,"ab":16}],"b8":[{"a":63,"p":0.58,"ab":null}],"b9":[{"a":48,"p":0.88,"ab":null}],"k1":[{"a":27,"p":0.9,"ab":null}],"k10":[{"a":87,"p":0.58,"ab":24}],"k11":[{"a":30,"p":0.56,"ab":16}],"k12":[{"a":24,"p":0.8,"ab":null}],"k2":[{"a":63,"p":0.5,"ab":null}],"k3":[{"a":42,"p":0.84,"ab":null}],"k4":[{"a":66,"p":0.68,"ab":null}],"k5":[{"a":45,"p":0.58,"ab":null}],"k6":[{"a":3,"p":0.24,"ab":null}],"k7":[{"a":15,"p":0.68,"ab":8}],"k8":[{"a":18,"p":0.8,"ab":24}],"k9":[{"a":9,"p":0.72,"ab":24}],"mn1":[{"a":36,"p":0.84,"ab":null}],"mn2":[{"a":30,"p":0.9,"ab":86}],"mn3":[{"a":39,"p":0.92,"ab":null}],"mn4":[{"a":21,"p":0.9,"ab":86}],"mn5":[{"a":42,"p":0.94,"ab":8}],"mn6":[{"a":36,"p":0.88,"ab":60}],"mn7":[{"a":15,"p":0.92,"ab":null}],"mn8":[{"a":30,"p":0.84,"ab":132}],"mn9":[{"a":63,"p":0.98,"ab":null}],"pk1":[{"a":24,"p":0.8,"ab":null}],"pk10":[{"a":72,"p":0.68,"ab":null}],"pk2":[{"a":24,"p":0.82,"ab":null}],"pk3":[{"a":27,"p":0.82,"ab":8}],"pk4":[{"a":66,"p":0.72,"ab":null}],"pk5":[{"a":27,"p":0.7,"ab":32}],"pk6":[{"a":42,"p":0.82,"ab":8}],"pk7":[{"a":33,"p":0.86,"ab":null}],"pk8":[{"a":75,"p":0.58,"ab":8}],"pk9":[{"a":63,"p":0.7,"ab":null}],"sp1":[{"a":3,"p":0.58,"ab":null}],"sp2":[{"a":54,"p":0.76,"ab":null}],"sp3":[{"a":6,"p":0.5,"ab":40}],"sp4":[{"a":15,"p":0.58,"ab":null}],"sp5":[{"a":6,"p":0.58,"ab":16}],"sp6":[{"a":6,"p":0.58,"ab":8}],"sp7":[{"a":15,"p":0.62,"ab":8}],"sp8":[{"a":39,"p":0.58,"ab":null}],"wh1":[{"a":27,"p":0.8,"ab":null}],"wh10":[{"a":33,"p":0.84,"ab":null}],"wh2":[{"a":21,"p":0.9,"ab":null}],"wh3":[{"a":36,"p":0.84,"ab":8}],"wh4":[{"a":45,"p":0.94,"ab":8}],"wh5":[{"a":3,"p":0.68,"ab":8}],"wh6":[{"a":21,"p":0.9,"ab":8}],"wh7":[{"a":39,"p":0.96,"ab":16}],"wh8":[{"a":63,"p":0.9,"ab":null}],"wh9":[{"a":27,"p":0.9,"ab":24}]};
+const HINTS = {"b1":[{"a":33,"p":0.84,"ab":null}],"b10":[{"a":36,"p":0.84,"ab":null}],"b2":[{"a":36,"p":0.9,"ab":null}],"b3":[{"a":42,"p":0.8,"ab":8}],"b4":[{"a":39,"p":0.86,"ab":8}],"b5":[{"a":48,"p":0.5,"ab":32}],"b6":[{"a":78,"p":0.56,"ab":null}],"b7":[{"a":6,"p":0.58,"ab":16}],"b8":[{"a":63,"p":0.58,"ab":null}],"b9":[{"a":48,"p":0.88,"ab":null}],"k1":[{"a":27,"p":0.9,"ab":null}],"k10":[{"a":87,"p":0.58,"ab":24}],"k11":[{"a":30,"p":0.56,"ab":16}],"k12":[{"a":24,"p":0.8,"ab":null}],"k2":[{"a":63,"p":0.5,"ab":null}],"k3":[{"a":42,"p":0.84,"ab":null}],"k4":[{"a":66,"p":0.68,"ab":null}],"k5":[{"a":45,"p":0.58,"ab":null}],"k6":[{"a":3,"p":0.24,"ab":null}],"k7":[{"a":15,"p":0.68,"ab":8}],"k8":[{"a":18,"p":0.8,"ab":24}],"k9":[{"a":9,"p":0.72,"ab":24}],"mn1":[{"a":36,"p":0.84,"ab":null}],"mn2":[{"a":30,"p":0.9,"ab":86}],"mn3":[{"a":39,"p":0.92,"ab":null}],"mn4":[{"a":21,"p":0.9,"ab":86}],"mn5":[{"a":42,"p":0.94,"ab":8}],"mn6":[{"a":36,"p":0.88,"ab":60}],"mn7":[{"a":15,"p":0.92,"ab":null}],"mn8":[{"a":30,"p":0.84,"ab":132}],"mn9":[{"a":63,"p":0.98,"ab":null}],"pk1":[{"a":24,"p":0.8,"ab":null}],"pk10":[{"a":72,"p":0.68,"ab":null}],"pk2":[{"a":24,"p":0.82,"ab":null}],"pk3":[{"a":27,"p":0.82,"ab":8}],"pk4":[{"a":66,"p":0.72,"ab":null}],"pk5":[{"a":27,"p":0.7,"ab":32}],"pk6":[{"a":42,"p":0.82,"ab":8}],"pk7":[{"a":33,"p":0.86,"ab":null}],"pk8":[{"a":75,"p":0.58,"ab":8}],"pk9":[{"a":63,"p":0.7,"ab":null}],"sp1":[{"a":3,"p":0.58,"ab":null}],"sp2":[{"a":54,"p":0.76,"ab":null}],"sp3":[{"a":6,"p":0.5,"ab":40}],"sp4":[{"a":15,"p":0.58,"ab":null}],"sp5":[{"a":6,"p":0.58,"ab":16}],"sp6":[{"a":6,"p":0.58,"ab":8}],"sp7":[{"a":15,"p":0.62,"ab":8}],"sp8":[{"a":57,"p":0.58,"ab":null}],"wh1":[{"a":27,"p":0.8,"ab":null}],"wh10":[{"a":33,"p":0.84,"ab":null}],"wh2":[{"a":21,"p":0.9,"ab":null}],"wh3":[{"a":36,"p":0.84,"ab":8}],"wh4":[{"a":45,"p":0.94,"ab":8}],"wh5":[{"a":3,"p":0.68,"ab":8}],"wh6":[{"a":21,"p":0.9,"ab":8}],"wh7":[{"a":39,"p":0.96,"ab":16}],"wh8":[{"a":63,"p":0.9,"ab":null}],"wh9":[{"a":27,"p":0.9,"ab":24}]};
 </script>
 
 <script>
@@ -6572,7 +6595,7 @@ function fitLineup() {
   const left = faces.filter(f => !f.hidden), tag = document.createElement('span'); tag.className = 'more'; lu.appendChild(tag);
   for (let k = left.length - 1; k > 0 && over(); k--) { left[k].hidden = true; tag.textContent = '+' + (left.length - k); }
 }
-const SCREENS = ['scrTitle', 'scrLevels', 'scrIntro', 'scrPause', 'scrResult', 'scrUnlock', 'scrCloset', 'scrEnd', 'scrCard', 'scrInfo', 'scrCrib'];   // (scrCrib: teh crib, closet.js)
+const SCREENS = ['scrTitle', 'scrLevels', 'scrIntro', 'scrPause', 'scrResult', 'scrUnlock', 'scrCloset', 'scrEnd', 'scrCard', 'scrInfo', 'scrCrib', 'scrReset'];   // (scrReset: start over)   // (scrCrib: teh crib, closet.js)
 // A safe moment for the app to swap in a newer page (2.0.1's update check while the game loads, Adam, Nov 6: "so they don't have to
 // close the game and reopen it"): only on the title or the level list with nothing else open. Never mid-level, paused, on a
 // result, in the closet or teh crib, on the unlock screen, a postcard or the ending. (Saves go out at once, so nothing is lost.)
@@ -6584,14 +6607,17 @@ const isLocked = i => !unlock.owned && LEVELS[i] && LEVELS[i].world !== FREE_WOR
 // certain number of stars on the previous levels before unlocking". Nov 6, sharper: "players have to get a certain # of stars on
 // say the kitchen to advance to the next level" (docs/NEXT_LEVELS.md, star gates). So:
 // - Each world opens with stars earned anywhere before it, wreck-its included (Adam, Nov 6: "let's switch it to accumulate
-//   stars to open up more levels"): about 1.5 a level so far, so a kid stuck in one world can go back and earn stars anywhere.
+//   stars to open up more levels"): 2.5 a level since Nov 7 (see WORLD_NEED), so a kid stuck in one world can go back and earn stars anywhere.
 //   (Full paw-print paths earned about 2.2 a level; since Nov 6 the paws show only the first throw, so the rest is the player's.)
 // - Inside a world, a win opens the next level, as before.
 // - A world that has opened stays open (it's remembered), and so does any level already won. Saves from the old rule
 //   (all stars together, 1.25 a level) keep every world that rule had open.
 // - Once the game is bought, the building is open (the purchase visibly unlocks something), and so is every wreck-it.
 // - Locks look different: a padlock only ever means buy, a star door means earn, and a dimmed card means win the one before.
-const WORLD_NEED = { building: 18, park: 33, warehouse: 48, space: 63, moon: 75 };   // stars from every level before the world
+// Nov 7, Adam: "opening a new world should be a bit challenging. It should require more than 2 stars per level and at least a
+// few 3 stars per level. Replay should be driven"; he picked 2.5 a level, with the mess goals as they are (it was about 1.4).
+// His own casual play got 30 stars from the kitchen and 22 from the building. 2.5 a level counts the wreck-its as levels.
+const WORLD_NEED = { building: 33, park: 60, warehouse: 88, space: 115, moon: 138 };   // stars from every level before the world
 const starsBefore = w => { const f = LEVELS.findIndex(L => L.world === w); return LEVELS.reduce((n, L, i) => n + (i < f ? store.d.stars[L.id] || 0 : 0), 0); };
 const OLD_WORLD_STARS = (() => { const need = {}; let regular = 0; LEVELS.forEach((L, i) => { if (i && L.world !== LEVELS[i - 1].world) need[L.world] = Math.round(regular * 1.25); if (L.mode !== 'mess') regular++; }); return need; })();
 function worldOpen(w) {   // has world w opened (and stayed open)?
@@ -6752,6 +6778,22 @@ $('tglRestore').addEventListener('click', () => { Snd.init(); nativeSay({ type: 
 function showInfo(which) { Snd.init(); Snd.fx('pop'); $('infoTitle').textContent = which; $('infoPrivacy').hidden = which !== 'privacy'; $('infoHelp').hidden = which !== 'help'; showScreen('scrInfo'); }
 $('tglPrivacy').addEventListener('click', () => showInfo('privacy'));
 $('tglHelp').addEventListener('click', () => showInfo('help'));
+// Start over (Adam, Nov 7: "I also wish there was a way to reset my game"): every star, level, world door, the bill, teh closet
+// and teh crib, the introductions (new cats, megachonk), the yeeted cats: gone, after a yes on its own screen. The purchase
+// stays (Apple and the app hold it, not the save), and so do the settings. In place, no reload: the app's copy of the save
+// is replaced by this one as it's saved.
+$('tglReset').addEventListener('click', () => { Snd.init(); Snd.fx('pop'); showScreen('scrReset'); });
+$('resetNo').addEventListener('click', () => { Snd.fx('pop'); showLevels(); });
+$('resetYes').addEventListener('click', () => {
+  const d = store.d, keep = {};
+  for (const k of ['sound', 'amb', 'haptics', 'aimFull', 'reviewAsks']) if (d[k] !== undefined) keep[k] = d[k];
+  for (const k of Object.keys(d)) delete d[k];
+  Object.assign(d, { stars: {}, aimFull: false, sound: true, fails: {}, best: {}, bill: 0, wear: {}, billShown: 0, closetSeen: 0, owned: null, levelsV3: true, gates2: true }, keep);
+  store.save();
+  seenHint.clear(); ORBIT.cur = null; ORBIT.next = 0; firstShot = true;
+  Snd.fx('whoosh'); buzz('bonk', 0.6);
+  showLevels(); lvlSay('all fresh. i fits?', 3000);
+});
 $('infoDone').addEventListener('click', () => { Snd.fx('pop'); showLevels(); });
 function syncToggles() {
   for (const id of ['tglVib', 'tglVib2']) { $(id).hidden = !(NATIVE && NATIVE.haptics); $(id).innerHTML = `vibration: <b>${store.d.haptics === false ? 'off' : 'on'}</b>`; }
@@ -6891,7 +6933,7 @@ function showResult(r) {
 const ATTRACT = [
   { cat: 'toast', level: 'k10', a: 65, p: 0.5, ab: null },
   { cat: 'unit', level: 'kx', a: 25, p: 1, ab: 46 },
-  { cat: 'street', level: 'bx', a: 10, p: 0.9, ab: 58 },
+  { cat: 'street', level: 'b8', a: 14, p: 0.9, ab: 8 },   // (Nov 7: bx's throw stopped climbing after the wreck-it rebuild; on building 8 he grabs the fire escape's edge, runs along it through the plant pots and climbs the pillar)
   { cat: 'chaos', level: 'pkx', a: 10, p: 1, ab: 46 },
   { cat: 'chonk', level: 'k12', a: 59, p: 0.32, ab: null },
   { cat: 'void', level: 'whx', a: 15, p: 0.9, ab: 58 },
@@ -7410,6 +7452,21 @@ function drawSimCat(c, t) {
   ctx.save();
   if (rx.skate > 0 && c.state !== 'sit') ctx.translate(Math.sin((1 - rx.skate) * 15) * 14 * rx.skate * (rx.skateDir || 1), 0);   // roller skates: rolling on a bit after landing (drawing only)
   if (c.state === 'sit') {
+    // Megachonk stays the way he landed (Adam, Nov 7: "I also don't think megachonk should flip upright in normal levels, if he
+    // lands in a box upside down he should stay that way and hearts float up and he purrs"): tipped more than about 20 degrees,
+    // he's drawn at his body's angle, balled up as he rolled in (the mochi) or his sit turned however he flew in. The hearts,
+    // the purrrr and the purr come with the sit, as for every cat. Nearly upright, he sits up as before (below).
+    const lie = d.id === 'chonk' ? Math.atan2(Math.sin(b.angle), Math.cos(b.angle)) : 0;
+    if (Math.abs(lie) > 0.35) {
+      const purr = rx.sitT >= 0.6 && rx.sitT < PURR_SHOW && rx.purrOn, sq = rx.sitT >= 0 && rx.sitT < 0.6 ? 1 - 0.2 * Math.sin(rx.sitT / 0.6 * Math.PI) : 1;
+      const face = rx.cheer > 0 ? { eyes: 'happy', mouth: 'smile' } : { eyes: 'open', mouth: 'blep' }, stare = face.mouth === 'blep';
+      ctx.translate(b.position.x + (purr ? Math.sin(t * 80) * 0.9 : 0), b.position.y); ctx.rotate(b.angle);
+      if (c.mochi) { ctx.scale(1 + (1 - sq) * 0.5, sq); ctx.translate(0, MOCHI_DRAW.dy); drawCat(d, 'sit', face, { t, headY: MOCHI_DRAW.headY, scale: MOCHI_DRAW.s, look: { x: 0, y: 0 }, lids: stare ? chonkBlinks(t, c.idx + 1) : null, twitch: stare && !purr ? chonkTwitch(t, c.idx) : null }); }
+      else { ctx.translate(0, d.h * 0.5 - 22 * K); ctx.scale(rx.flip || 1, sq); drawCat(d, 'sit', face, { t, scale: sv, lids: stare ? chonkBlinks(t, c.idx + 1) : null, twitch: stare && !purr ? chonkTwitch(t, c.idx) : null }); }
+      ctx.restore();
+      if (purr) purrLines(b.position.x, b.position.y, t, 52, Math.min(1, (rx.sitT - 0.6) * 3, (PURR_SHOW - rx.sitT) * 3));
+      return;
+    }
     // (Adam, Nov 4: no flipping round when it lands in a box: it plops in, facing the way it came)
     let sq = 1; const fl = rx.flip || 1;
     if (rx.sitT >= 0 && rx.sitT < 0.6) { const k = rx.sitT / 0.6; sq = 1 - 0.25 * Math.sin(k * Math.PI); }
@@ -7521,6 +7578,15 @@ function drawSimCat(c, t) {
       }
       return;
     }
+    else if (!sim.grav) {   // in space: floating at its body's angle (Nov 7: ahead of the dazed poses, which stand on a floor: after a
+      // THOOM megachonk snapped upright into a sit in mid-air), turning with the spin it kept (core.js settle), and now and then
+      // (about every 4 s, a bit under a second) it scrambles its legs, trying to get traction on nothing (Adam, Nov 6: "occasionally,
+      // as they are kind of floating there, they kind of try to gain traction somewhere. Of course it doesn't happen")
+      const ph = (t * 0.95 + c.idx * 1.37) % 4.2, scr = ph < 0.85;
+      ctx.translate(b.position.x, b.position.y); ctx.rotate(b.angle); ctx.translate(0, d.h * 0.5 - 22 * K); ctx.scale(fl, 1);
+      if (scr) drawCat(d, 'walk', { eyes: 'wide', mouth: 'o' }, { t, scale: sv, phase: t * 36, earsBack: 0.5 });
+      else drawCat(d, 'sit', { eyes: rx.anger > 0 ? 'squint' : 'open', mouth: rx.anger > 0 ? 'frown' : 'flat' }, { t, scale: sv, look: { x: Math.sin(t * 1.3 + c.idx), y: Math.cos(t * 0.9) * 0.5 }, headTilt: Math.sin(t * 2) * 0.1 });
+    }
     else if (c.state === 'dazed' && c.bonked) {   // landed wrong: on all four paws, stiff as a board, googly eyes, a pogo boing or two
       const el = (c.dazeStart - c.dazeT) / 60, pogo = el < 0.7 ? Math.abs(Math.sin(el * 13)) * 16 * (1 - el / 0.7) : 0;
       ctx.translate(b.position.x, bottom - 33 * K - pogo); ctx.scale(fl, 1); drawCat(d, 'stiff', { eyes: 'googly', mouth: el < 0.5 ? 'o' : 'flat' }, { t, scale: sv, shiver: 1 });
@@ -7533,14 +7599,6 @@ function drawSimCat(c, t) {
     else if (c.state === 'idle') {   // missed, and hanging around: watches the flying cat, swishes, now and then a slow blink
       const bl = ((t * 0.7 + c.idx * 1.9) % 7) < 0.8;
       ctx.translate(b.position.x, bottom - 22 * K); ctx.scale(fl, 1); drawCat(d, 'sit', rx.anger > 0 ? { eyes: 'squint', mouth: 'frown' } : { eyes: bl ? 'closed' : 'open', mouth: 'w' }, { t: t + c.idx, scale: sv, earsBack: rx.anger > 0 ? 0.7 : 0, look: lookAt() });
-    }
-    else if (!sim.grav) {   // in space: floating at its body's angle, turning with the spin it kept (core.js settle), and now and then
-      // (about every 4 s, a bit under a second) it scrambles its legs, trying to get traction on nothing (Adam, Nov 6: "occasionally,
-      // as they are kind of floating there, they kind of try to gain traction somewhere. Of course it doesn't happen")
-      const ph = (t * 0.95 + c.idx * 1.37) % 4.2, scr = ph < 0.85;
-      ctx.translate(b.position.x, b.position.y); ctx.rotate(b.angle); ctx.translate(0, d.h * 0.5 - 22 * K); ctx.scale(fl, 1);
-      if (scr) drawCat(d, 'walk', { eyes: 'wide', mouth: 'o' }, { t, scale: sv, phase: t * 36, earsBack: 0.5 });
-      else drawCat(d, 'sit', { eyes: rx.anger > 0 ? 'squint' : 'open', mouth: rx.anger > 0 ? 'frown' : 'flat' }, { t, scale: sv, look: { x: Math.sin(t * 1.3 + c.idx), y: Math.cos(t * 0.9) * 0.5 }, headTilt: Math.sin(t * 2) * 0.1 });
     }
     else if (c.state === 'dazed') { ctx.translate(b.position.x, bottom - 22 * K); ctx.scale(fl, 1); drawCat(d, 'sit', { eyes: rx.anger > 0 ? 'squint' : 'open', mouth: rx.anger > 0 ? 'frown' : 'flat' }, { t, scale: sv, earsBack: rx.anger > 0 ? 0.7 : 0, headTilt: rx.anger > 0 ? 0 : Math.sin(t * 3) * 0.15, look: { x: Math.sin(t * 2), y: 0.3 } }); }
     else { ctx.translate(b.position.x, bottom - 22 * K); ctx.scale(fl, 1); const dig = rx.swipe > 0; drawCat(d, 'sit', rx.anger > 0 ? { eyes: 'squint', mouth: 'frown' } : dig ? { eyes: 'squint', mouth: 'w' } : { eyes: 'wide', mouth: 'o' }, { t, scale: sv, earsBack: rx.anger > 0 ? 0.7 : 0, pawOut: dig && Math.sin(t * 40) > 0, headTilt: dig ? 0.25 : 0 }); }
