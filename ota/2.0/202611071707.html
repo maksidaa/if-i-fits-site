@@ -71,6 +71,40 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: var(--wall);
 .reset-card { text-align: center; }
 .reset-say { font-weight: 700; margin: 6px 0 14px; }
 .reset-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+/* play stats (Nov 7): mai stats, a card like teh postcards. Only its table scrolls, so it fits a landscape phone (667 x 375) */
+#scrStats { padding: calc(env(safe-area-inset-top, 0px) + 8px) max(12px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 8px) max(12px, env(safe-area-inset-left, 0px)); }
+.stats-card { max-width: calc(760px + 41px); height: calc(100vh - 16px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); max-height: 620px; display: grid; grid-template-rows: auto auto auto minmax(0, 1fr); gap: 7px; padding: 10px 14px 12px; text-align: left; }
+.stats-head { display: flex; align-items: center; gap: 8px; }
+.stats-head .title { font-size: 24px; }
+.stats-head .spacer { flex: 1; }
+.stats-say { display: flex; align-items: baseline; gap: 2px 12px; flex-wrap: wrap; min-height: 18px; }
+.stats-say .sub { font-size: 14px; color: var(--ink); flex: 1 1 auto; }
+.stats-meta { font-weight: 800; font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.stats-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.st-tile { background: #fff; border: 2px solid var(--ink); border-radius: 12px; padding: 2px 9px 3px; display: grid; min-width: 0; }
+.st-tile b { font-weight: 900; font-size: 18px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.st-tile span { font-weight: 800; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stats-table { overflow: auto; min-height: 0; background: #fff; border: 2px solid var(--ink); border-radius: 14px; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+.stats-table table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+.stats-table th { position: sticky; top: 0; z-index: 1; background: var(--paper); font-weight: 900; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); text-align: right; padding: 5px 8px; border-bottom: 2px solid var(--ink); white-space: nowrap; }
+.stats-table td { text-align: right; padding: 6px 8px; font-weight: 800; border-top: 1px solid rgba(46,58,53,0.12); white-space: nowrap; }
+.stats-table th:first-child, .stats-table td:first-child { text-align: left; }
+.stats-table tbody tr:first-child td { border-top: 0; }
+.stats-table td.hard { text-align: left; color: var(--muted); max-width: 140px; overflow: hidden; text-overflow: ellipsis; }
+.stats-table tr.st-w { cursor: pointer; }
+.stats-table tr.st-w:active td { background: #FFE2C2; }
+.stats-table tr.shut td { color: var(--muted); }
+.stats-table .st-go { font: inherit; font-weight: 900; color: inherit; background: none; border: 0; padding: 2px 0; cursor: pointer; text-align: left; }
+.stats-table .st-go::after { content: " \203A"; color: var(--orange); font-weight: 900; }
+.stats-table .st-go:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+.stats-table .star { width: 13px; height: 13px; vertical-align: -2px; }
+.stats-dump { width: 100%; height: 100%; min-height: 0; box-sizing: border-box; resize: none; font: 600 11px/1.3 ui-monospace, Menlo, monospace; color: var(--ink); background: #fff; border: 2px solid var(--ink); border-radius: 12px; padding: 8px; -webkit-user-select: text; user-select: text; }
+.stats-copy { position: fixed; top: 0; left: 0; width: 1px; height: 1px; opacity: 0; font-size: 16px; -webkit-user-select: text; user-select: text; }
+.reset-say { text-wrap: balance; }   /* (it mentions stats now: no lone "poof." on a line) */
+.wh-time { font-size: 11px; letter-spacing: 0.04em; text-transform: none; color: var(--muted); }
+.st-vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (max-height: 420px) { .stats-head .title { font-size: 21px; } .st-tile b { font-size: 16px; } .stats-table td { padding: 5px 7px; } }
+@media (max-width: 700px) { .stats-table th, .stats-table td { padding-left: 5px; padding-right: 5px; } .stats-table table { font-size: 12px; } }
 .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .btn-row.one { grid-template-columns: 1fr; }
 .btn-row .btn { font-size: 16px; padding: 10px 8px; }
@@ -305,6 +339,41 @@ body.attract #hud, body.attract #hint { display: none; }
   .postcard-card { max-width: calc(640px + 41px); gap: 10px; }
   #pcCv { width: min(100%, calc((100vh - 150px) * 2)); aspect-ratio: 2 / 1; margin: 0 auto; display: block; border-radius: 14px; box-shadow: 0 3px 0 rgba(46,58,53,0.25); }
   .postcard-card .sub { margin: 0; }
+  /* world milestones (Nov 7): the new-world moment (full screen, like teh end), the level list's marks, the postcard album */
+  #scrWorld { background: #FBF1DC; padding: 0; display: block; overflow: hidden; }
+  #wmCv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: pointer; }
+  .wm-card { gap: 8px; }
+  .wm-card .title { font-size: 30px; }
+  .wm-new { margin: 0; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 800; font-size: 14px; color: var(--green); }
+  .wm-new canvas { width: 36px; height: 36px; }
+  @media (max-height: 420px) { .wm-card { gap: 6px; padding: 12px 14px; } .wm-card .title { font-size: 25px; } }
+  .world-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-height: 26px; }
+  .world-head .need { margin-left: 2px; }
+  .world-head .need .bar { width: 72px; height: 10px; margin-left: 4px; }
+  .wh-new { font-size: 10px; letter-spacing: 0.12em; color: #fff; background: var(--orange); border: 2px solid var(--ink); border-radius: 999px; padding: 1px 8px; animation: whNew 1.1s ease-in-out infinite; }
+  @keyframes whNew { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+  .wh-mark { display: inline-grid; place-items: center; }
+  .wh-mark svg { width: 28px; height: 28px; display: block; }
+  .wh-paw { transform: rotate(-14deg); }
+  .level-card.world-new { box-shadow: 0 3px 0 var(--ink), 0 0 0 3px var(--gold), 0 0 16px 5px rgba(244,200,74,0.75); animation: newGlow 1.4s ease-in-out infinite; }
+  @keyframes newGlow { 0%, 100% { box-shadow: 0 3px 0 var(--ink), 0 0 0 3px var(--gold), 0 0 10px 2px rgba(244,200,74,0.55); } 50% { box-shadow: 0 3px 0 var(--ink), 0 0 0 4px var(--gold), 0 0 22px 8px rgba(244,200,74,0.85); } }
+  .level-card.gold-world { border-color: #B8892E; background: #FFFBEA; }
+  @media (prefers-reduced-motion: reduce) { .wh-new, .level-card.world-new { animation: none; } }
+  .album-card { max-width: calc(720px + 41px); gap: 8px; }
+  .album-head { display: flex; align-items: center; gap: 10px; }
+  .album-head .title { font-size: 26px; }
+  .album-head .spacer { flex: 1; }
+  .album-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .pc-frame { font: inherit; color: inherit; display: grid; gap: 2px; padding: 6px 6px 5px; border: 2.5px dashed rgba(46,58,53,0.38); border-radius: 14px; background: #F3EEDF; text-align: center; min-width: 0; }
+  .pc-frame canvas, .pc-frame .pc-empty { width: 100%; aspect-ratio: 2 / 1; display: block; border-radius: 8px; }
+  .pc-frame .pc-empty { display: grid; place-items: center; font-weight: 900; font-size: 30px; color: rgba(46,58,53,0.3); background: repeating-linear-gradient(-45deg, #EEE7D6 0 10px, #E8E0CC 10px 20px); }
+  .pc-frame.earned { cursor: pointer; border-style: solid; border-color: var(--ink); background: #fff; box-shadow: 0 3px 0 var(--ink); }
+  .pc-frame.earned:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+  .pc-frame.gold { border-color: #B8892E; background: #FFF6DA; box-shadow: 0 3px 0 #B8892E, inset 0 0 0 2px var(--gold); }
+  .pc-frame .pc-name { font-weight: 900; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pc-frame .pc-how { font-weight: 800; font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pc-frame.gold .pc-how { color: #8A6A1A; }
+  @media (max-height: 420px) { .album-grid { max-width: 540px; margin: 0 auto; width: 100%; } .album-card .sub { display: none; } .album-head .title { font-size: 22px; } }
 </style>
 
 <canvas id="game" aria-label="the kitchen. pull back on the screen to aim the cat, let go to leap."></canvas>
@@ -367,7 +436,7 @@ body.attract #hud, body.attract #hint { display: none; }
     <div class="eyebrow" id="lvlEyebrow">levels</div>
     <h1 class="title">I FITS, I SITS</h1>
     <p class="sub">knock the stuff over. sit in every spot.</p>
-    <div class="bill-row"><span class="bill-pill" id="lvlBill"></span><button class="btn small" id="closetBtn">closet<span class="new-dot" id="closetDot" hidden></span></button><button class="btn small" id="cribBtn">crib</button></div>
+    <div class="bill-row"><span class="bill-pill" id="lvlBill"></span><button class="btn small" id="closetBtn">closet<span class="new-dot" id="closetDot" hidden></span></button><button class="btn small" id="cribBtn">crib</button><button class="btn small" id="albumBtn">postcards<span class="new-dot" id="albumDot" hidden></span></button><button class="btn small" id="statsBtn">stats</button></div>
     <p class="lvl-msg" id="lvlMsg" role="status" hidden></p>
     <div class="levels" id="levelList"></div>
     <div class="toggles">
@@ -388,8 +457,19 @@ body.attract #hud, body.attract #hint { display: none; }
 <div class="overlay" id="scrReset" hidden>
   <div class="card reset-card">
     <h2 class="title">reset game?</h2>
-    <p class="reset-say">ur stars, levels, cash n closet go poof.<br>ur unlock stays.</p>
+    <p class="reset-say">ur stars, levels, postcards, stats, cash n closet go poof.<br>ur unlock stays.</p>
     <div class="reset-row"><button class="btn" id="resetNo">keep my game</button><button class="btn danger" id="resetYes">reset game</button></div>
+  </div>
+</div>
+<!-- play stats (Nov 7): time played, tries, wins and losses, per world and per level; it all stays on this device, and
+     "copy stats" puts it on the clipboard for the player to paste themselves -->
+<div class="overlay" id="scrStats" hidden>
+  <div class="card wide stats-card">
+    <div class="stats-head"><h2 class="title">mai stats</h2><span class="spacer"></span><button class="btn small" id="stBack" hidden>back</button><button class="btn small" id="stCopy">copy stats</button><button class="btn small" id="stDone">done</button></div>
+    <div class="stats-say"><p class="sub" id="stSay" aria-live="polite"></p><span class="stats-meta" id="stMeta"></span></div>
+    <div class="stats-tiles" id="stTiles"></div>
+    <div class="stats-table" id="stTable"></div>
+    <textarea class="stats-dump" id="stDump" readonly hidden aria-label="your stats, to copy"></textarea>
   </div>
 </div>
 <!-- privacy and help, inside the game (Apple wants the privacy policy reachable in the app; this works offline and needs no
@@ -415,6 +495,7 @@ body.attract #hud, body.attract #hint { display: none; }
       <ul>
         <li><b>Play:</b> touch anywhere and pull back to aim, let go to fling. Land a cat in every spot (the dashed boxes). Tap while a cat flies, or just after it lands, for its trick.</li>
         <li><b>Stars:</b> one for every spot filled, one for cats left over, one for enough mess. Worlds open as you earn stars.</li>
+        <li><b>Postcards:</b> finish a world to get its postcard (the postcards button on the level list). Three stars on every level of a world turns its postcard gold and wins a prize for the closet.</li>
         <li><b>Reset game:</b> the reset game button under the levels clears your stars, levels, cash and closet. Your purchase and settings stay.</li>
         <li><b>Stuck?</b> After a miss you can ask for 1 more cat. Lose a level twice and paw prints show a first throw that works. The rest is up to you.</li>
         <li><b>Sound and vibration:</b> in the pause card (the button at the top left during a level). The game plays sound even on silent.</li>
@@ -484,6 +565,7 @@ body.attract #hud, body.attract #hint { display: none; }
       <button class="toggle" id="tglSnd2">sound: <b>on</b></button>
       <button class="toggle" id="tglAmb2">room sounds: <b>on</b></button>
       <button class="toggle" id="tglVib2" hidden>vibration: <b>on</b></button>
+      <button class="toggle" id="pStats">stats</button>
     </div>
   </div>
 </div>
@@ -518,7 +600,29 @@ body.attract #hud, body.attract #hint { display: none; }
   <div class="card wide postcard-card">
     <canvas id="pcCv" aria-label="a postcard from the world u finished"></canvas>
     <p class="sub tip" id="pcLine"></p>
-    <button class="btn go" id="pcNext">next</button>
+    <div class="btn-row one" id="pcRow"><button class="btn" id="pcWear" hidden>wear it</button><button class="btn go" id="pcNext">next</button></div>
+  </div>
+</div>
+
+<!-- a world opens (Nov 7): the cats celebrate, then a peek at the new world, then go. Drawn like teh end; tap to skip -->
+<div class="overlay" id="scrWorld" hidden>
+  <canvas id="wmCv" aria-label="a new world opens: the cats celebrate"></canvas>
+  <button class="btn small end-skip" id="wmSkip">skip</button>
+  <div class="card end-card wm-card" id="wmCard" hidden>
+    <div class="eyebrow">new world</div>
+    <h2 class="title" id="wmTitle"></h2>
+    <p class="sub" id="wmLine"></p>
+    <p class="wm-new" id="wmNew"></p>
+    <div class="btn-row"><button class="btn" id="wmLevels">levels</button><button class="btn go" id="wmGo">go</button></div>
+  </div>
+</div>
+
+<!-- the postcard album (Nov 7): every postcard earned so far, empty frames for the rest, gold for a perfect world -->
+<div class="overlay" id="scrAlbum" hidden>
+  <div class="card wide album-card">
+    <div class="album-head"><h2 class="title">teh postcards</h2><span class="spacer"></span><button class="btn small" id="albumDone">done</button></div>
+    <p class="sub">1 4 evry world. 3 ★ on evry level = gold.</p>
+    <div class="album-grid" id="albumGrid"></div>
   </div>
 </div>
 
@@ -873,7 +977,7 @@ const FITS = (() => {
     // dining table (a shelf of plates above), the far counter of plate towers (a loaf rolls along it), and frames and
     // clocks along the top of the wall
     { id: 'kx', name: 'kitchen 3am', world: 'kitchen', mode: 'mess', title: 'wreck it', tip: 'hooman iz asleep. break stuff.', w: 1500, perch: PERCH,
-      lineup: ['toast', 'unit', 'toast', 'unit', 'toast', 'toast'], messGoals: [275, 525, 1750], spareGoal: 0, messGoal: 0,
+      lineup: ['toast', 'unit', 'toast', 'unit', 'toast', 'toast'], messGoals: [1600, 1800, 1950], spareGoal: 0, messGoal: 0,
       furniture: [{ kind: 'counter', x0: 500, x1: 690, top: 460 }, { kind: 'shelf', x0: 510, x1: 690, top: 130 },
                   { kind: 'shelf', x0: 800, x1: 980, top: 450 }, { kind: 'shelf', x0: 800, x1: 980, top: 350 }, { kind: 'shelf', x0: 800, x1: 980, top: 250 }, { kind: 'shelf', x0: 800, x1: 980, top: 150 },
                   { kind: 'table', x0: 1040, x1: 1260, top: 450 }, { kind: 'shelf', x0: 1060, x1: 1245, top: 240 }, { kind: 'counter', x0: 1310, x1: 1500, top: 470 }],
@@ -973,7 +1077,7 @@ const FITS = (() => {
     // fire escape (four landings of pots), gnome dominoes along the sidewalk, the bakery (a cactus pyramid, a window box
     // above), gnomes on the stoop, laundry on the line
     { id: 'bx', name: 'flower market', world: 'building', mode: 'mess', title: 'wreck it', tip: 'flower shop iz closed. break stuff.', w: 1500, perch: PERCH,
-      lineup: ['toast', 'unit', 'street', 'toast', 'unit', 'street', 'toast'], messGoals: [325, 725, 1400], spareGoal: 0, messGoal: 0,
+      lineup: ['toast', 'unit', 'street', 'toast', 'unit', 'street', 'toast'], messGoals: [1550, 1600, 1650], spareGoal: 0, messGoal: 0,
       furniture: [{ kind: 'shop', x0: 500, x1: 680, top: 460, sells: 'flowers', color: '#EBBAB0' }, { kind: 'ledge', x0: 510, x1: 670, top: 150 },
                   { kind: 'fire', x0: 760, x1: 980, top: 450, ladder: false }, { kind: 'fire', x0: 760, x1: 980, top: 340, ladder: false },
                   { kind: 'fire', x0: 760, x1: 980, top: 230, ladder: false }, { kind: 'fire', x0: 760, x1: 980, top: 120, ladder: false },
@@ -1064,7 +1168,7 @@ const FITS = (() => {
     // teh picnic at 3am: a long branch of gnomes overhead, pies on the bench, two picnic tables (lemonade pyramids, stacks
     // of pies), the seesaw, gnomes on a branch over the far table, pies and lemonade on the grass, gnomes on the fence
     { id: 'pkx', name: 'teh picnic', world: 'park', mode: 'mess', title: 'wreck it', tip: 'nobody iz watching teh picnic.', w: 1500, perch: PERCH,
-      lineup: ['toast', 'chaos', 'unit', 'street', 'toast', 'chaos', 'unit'], messGoals: [400, 600, 1200], spareGoal: 0, messGoal: 0,
+      lineup: ['toast', 'chaos', 'unit', 'street', 'toast', 'chaos', 'unit'], messGoals: [1125, 1200, 1275], spareGoal: 0, messGoal: 0,
       furniture: [{ kind: 'tree', x0: 0, x1: 40, top: 90 }, { kind: 'branch', x0: 0, x1: 720, top: 90 }, { kind: 'bench', x0: 340, x1: 470, top: 500 },
                   { kind: 'table', x0: 500, x1: 700, top: 440 }, PARK_SSX, { kind: 'table', x0: 940, x1: 1160, top: 430 },
                   { kind: 'tree', x0: 1460, x1: 1500, top: 200 }, { kind: 'branch', x0: 960, x1: 1500, top: 200 },
@@ -1147,7 +1251,7 @@ const FITS = (() => {
     // the box fort at 3am: boxes by the cat tree, a rack of fragile boxes, a pyramid of fragile on the pallets with more
     // up on a high shelf, the forklift's load under a rack, a tall tower of big boxes, a rack at the far end
     { id: 'whx', name: 'box fort', world: 'warehouse', mode: 'mess', title: 'wreck it', tip: 'teh boss iz out. box fort.', w: 1500, perch: PERCH,
-      lineup: ['toast', 'void', 'unit', 'chaos', 'street', 'toast', 'void'], messGoals: [400, 775, 1400], spareGoal: 0, messGoal: 0,
+      lineup: ['toast', 'void', 'unit', 'chaos', 'street', 'toast', 'void'], messGoals: [1250, 1350, 1450], spareGoal: 0, messGoal: 0,
       furniture: [{ kind: 'rack', x0: 500, x1: 700, shelves: [220, 340, 460] }, { kind: 'pallet', x0: 750, x1: 950, top: 490 }, { kind: 'rack', x0: 750, x1: 950, shelves: [120] },
                   { kind: 'forklift', x0: 990, x1: 1210, fork: 380 }, { kind: 'rack', x0: 1000, x1: 1200, shelves: [210] },
                   { kind: 'pallet', x0: 1230, x1: 1300, top: 544 }, { kind: 'rack', x0: 1306, x1: 1500, shelves: [330, 420, 500] }],
@@ -1221,7 +1325,7 @@ const FITS = (() => {
     // the zero g party: little floating blocks of fishbowls and fragile boxes all over the station (they break when hit,
     // so a throw clears a path, not the room)
     Object.assign({ id: 'spx', name: 'zero g party', world: 'space', mode: 'mess', title: 'wreck it', tip: 'zero g party. break stuff.', w: 1500, perch: PERCH,
-      lineup: ['toot', 'toast', 'unit', 'toot', 'void', 'chaos'], messGoals: [1100, 1475, 1800], spareGoal: 0, messGoal: 0,
+      lineup: ['toot', 'toast', 'unit', 'toot', 'void', 'chaos'], messGoals: [1850, 1875, 1925], spareGoal: 0, messGoal: 0,
       furniture: [{ kind: 'console', x0: 1320, x1: 1500, top: 480 }, { kind: 'pad', x0: 760, x1: 960, top: 540 }],
       spots: [],
       items: [...[[470, 100], [700, 60], [940, 90], [1180, 70], [1420, 120], [560, 290], [820, 250], [1080, 280], [1320, 300], [440, 470], [700, 450], [960, 430], [1200, 470], [1440, 390], [580, 190], [1060, 180], [830, 360], [1300, 190]].flatMap(([x, y], k) =>
@@ -1291,7 +1395,7 @@ const FITS = (() => {
     // the moon party: cheese by the cat tree, a mesa with a cheese tower, a rover convoy (goldfish driving), cheese on the
     // lander, teh tallest cheese tower, more rovers, a rover and cheese on the far mesa (unchanged: 1,500 wide)
     Object.assign({ id: 'mnx', name: 'moon party', world: 'moon', mode: 'mess', title: 'wreck it', tip: 'nobody up here. break stuff.', w: 1500, perch: PERCH,
-      lineup: ['toast', 'unit', 'toot', 'spicy', 'chaos', 'unit', 'spicy', 'street'], messGoals: [225, 325, 900], spareGoal: 0, messGoal: 0,
+      lineup: ['toast', 'unit', 'toot', 'spicy', 'chaos', 'unit', 'spicy', 'street'], messGoals: [800, 875, 950], spareGoal: 0, messGoal: 0,
       furniture: [{ kind: 'pillar', x0: 560, x1: 680, top: 300, moon: true }, { kind: 'lander', x0: 960, x1: 1120, top: 250 }, { kind: 'pillar', x0: 1380, x1: 1500, top: 380, moon: true }],
       spots: [],
       items: [...pyramid('cheese', 420, 580, 4), { kind: 'fishbowl', x: 420, bottom: 474.4 }, ...stack('cheese', 600, 300, 7), { kind: 'fishbowl', x: 600, bottom: 115.2 }, { kind: 'flag', x: 660, bottom: 300 }, ...stack('cheese', 520, 580, 3), { kind: 'fishbowl', x: 520, bottom: 500.8 },
@@ -2650,8 +2754,11 @@ window.fitsStoreUpdate = st => {
     // did nothing"): u land on the level list with a thank-you, the bonus levels open, and the level u wanted if its world is open
     if (!$('scrUnlock').hidden || !$('scrLevels').hidden) {   // (not mid-level: a purchase approved later doesn't pull u out of a level)
       const w = unlock.want; unlock.want = null;
-      if (w != null && !gate(w)) startLevel(w);
-      else { showLevels(); lvlSay('u got teh whole game! out teh window iz open now. more worlds open wif ★ as u play.', 7000); }
+      const thanks = () => { showLevelsNow(); lvlSay('u got teh whole game! out teh window iz open now. more worlds open wif ★ as u play.', 7000); };
+      // the building opening is a world opening too (world milestones): its moment the first time, then go lands where u were headed
+      if (!(store.d.worldsCheered || {}).building) showWorldMoment('building', { from: 'kitchen', bought: true, line: 'thx hooman! more worlds open wif ★', go: () => startLevel(w != null && !gate(w) ? w : firstOf('building')), levels: thanks });
+      else if (w != null && !gate(w)) startLevel(w);
+      else thanks();
     }
   }
 };
@@ -3889,7 +3996,17 @@ function drawRibbon(r, t) {
     ctx.beginPath(); for (let i = 2; i < n - 1; i += 3) { const a = P[i - 1], b = P[i + 1], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1, nx = -dy / d * 3.6, ny = dx / d * 3.6; ctx.moveTo(P[i].x - nx, P[i].y - ny); ctx.lineTo(P[i].x + nx, P[i].y + ny); } ctx.strokeStyle = 'rgba(46,58,53,0.25)'; ctx.lineWidth = 1; ctx.stroke();
     ctx.restore(); return;
   }
-  path(); ctx.strokeStyle = INK; ctx.lineWidth = 4.6; ctx.stroke(); ctx.strokeStyle = '#E2574C'; ctx.lineWidth = 2.6; ctx.stroke();   // yarn
+  // yarn (Adam, Nov 7: "what is the red trail that falls to the ground? Reminds me of a tape worm"): a thinner strand with the
+  // twist of the ply on it, and the ball it's running away from, getting smaller as it unwinds (gone once it's all out)
+  path(); ctx.strokeStyle = INK; ctx.lineWidth = 3.8; ctx.stroke(); ctx.strokeStyle = '#E2574C'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.setLineDash([2.2, 3.2]); path(); ctx.strokeStyle = 'rgba(255,221,214,0.9)'; ctx.lineWidth = 1; ctx.stroke(); ctx.setLineDash([]);
+  if (r.pin0) yarnBall(P[0].x, P[0].y, Math.max(6, 12.5 - n * 0.045));
+  ctx.restore();
+}
+function yarnBall(x, y, R) {   // sitting on the floor at (x, y): wound red yarn
+  const cy = y - R + 1.5; ell(x, cy, R, R); fs('#E2574C', INK, 2);
+  ctx.save(); ctx.beginPath(); ctx.arc(x, cy, R - 1, 0, Math.PI * 2); ctx.clip(); ctx.strokeStyle = 'rgba(255,221,214,0.85)'; ctx.lineWidth = 1.1;
+  for (const [a, k] of [[-0.6, 0.55], [0.5, 0.75], [1.4, 0.4], [2.4, 0.65]]) { ctx.beginPath(); ctx.ellipse(x, cy, R * k, R * 1.05, a, 0, Math.PI * 2); ctx.stroke(); }
   ctx.restore();
 }
 function rainCloud(x, y, a, t, s = 1) {   // my own lil cloud, raining on me
@@ -3906,7 +4023,7 @@ const TRAIL_SHAPE = { stink: 'stink', zzz: 'z', bones: 'bone', bubbles: 'bubble'
 function trailIcon(tr, W, t = 0) {
   const pts = []; for (let i = 0; i <= 24; i++) { const k = i / 24; pts.push({ x: W * (0.12 + 0.72 * k), y: W * (0.78 - 0.55 * Math.sin(k * Math.PI * 0.75)) }); }
   ctx.save();
-  if (tr.ribbon) { const s = W / 64; ctx.translate(W * 0.5 * (1 - s), W * 0.5 * (1 - s)); ctx.scale(s, s); drawRibbon({ kind: tr.ribbon, pts, fade: 1, held: true }, t); }
+  if (tr.ribbon) { const s = W / 64; ctx.translate(W * 0.5 * (1 - s), W * 0.5 * (1 - s)); ctx.scale(s, s); drawRibbon({ kind: tr.ribbon, pts, fade: 1, held: true, pin0: tr.ribbon === 'yarn' ? pts[0] : null }, t); }
   else if (tr.cloud) { rainCloud(W * 0.5, W * 0.36, 1, t); for (let i = 0; i < 5; i++) { ctx.save(); ctx.translate(W * (0.34 + i * 0.08), W * (0.58 + (i % 2) * 0.12)); clShape({ shape: 'drop', size: W * 0.05, rot: 0, x: i }, 1, t); ctx.restore(); } }
   else { const cols = TRAIL_LOOK[tr.emit] || [INK], shape = TRAIL_SHAPE[tr.emit], n = tr.emit === 'glitter' || tr.emit === 'confetti' || tr.emit === 'sparkles' ? 14 : 7;
     for (let i = 0; i < n; i++) { const h = Math.sin(i * 12.9898 + W) * 43758.5453, u = h - Math.floor(h), p = pts[Math.round(i / (n - 1) * 22)], ang = Math.atan2(pts[23].y - pts[1].y, pts[23].x - pts[1].x);
@@ -4273,6 +4390,50 @@ const MORE_WEAR = [
     ell(0, -42, 26, 8); fs(null, 'rgba(255,236,150,0.55)', 9); ell(0, -42, 24, 7); fs(null, INK, 6); fs(null, GOLD, 3.6); ell(-10, -45, 6, 1.4); fs('rgba(255,255,255,0.8)', null); } },
   { id: 'boxcrown', slot: 'hat', name: 'box crown', earned: true, draw() {   // (comes with new levels: find it)
     poly([-20, -18, -22, -38, -12, -28, -4, -42, 4, -28, 14, -42, 22, -30, 20, -18]); fs('#D9A86A', INK, 2); ctx.fillStyle = '#C48F50'; ctx.fillRect(-3, -36, 6, 18); line([-21, -24, 21, -24], 'rgba(46,58,53,0.3)', 1.2); } },
+  // The perfect-world prizes (Nov 7, Adam picked "closet rewards for perfect worlds"; from the chat: a moon helmet, a park picnic
+  // hat): one per world, earned with 3 stars on every regular level of it (the wreck-its don't count), never sold. page.js, world
+  // milestones, hands them out (earnItem), so every cat has it.
+  { id: 'w_kitchen', slot: 'hat', name: 'unbroke teacup', earned: true, world: 'kitchen', draw() {   // the one cup in the kitchen nobody broke, balanced on top
+    ctx.save(); ctx.translate(2, -21); ctx.rotate(0.07);
+    ell(0, 0, 21, 4.6); fs('#FFFDF6', INK, 2); ell(0, -0.8, 13, 2.4); fs('#9ED3F0', null);   // the saucer
+    ctx.beginPath(); ctx.ellipse(13, -11, 6, 5, 0, -Math.PI / 2, Math.PI / 2); fs(null, INK, 5); ctx.strokeStyle = '#FFFDF6'; ctx.lineWidth = 2.6 * STYLE.ink; ctx.stroke();   // the handle
+    const cup = () => { ctx.beginPath(); ctx.moveTo(-14, -20); ctx.lineTo(14, -20); ctx.bezierCurveTo(14, -9, 9, -2, 0, -2); ctx.bezierCurveTo(-9, -2, -14, -9, -14, -20); ctx.closePath(); };
+    cup(); fs('#FFFDF6', null); ctx.save(); cup(); ctx.clip(); ctx.fillStyle = '#63B0ED'; ctx.fillRect(-15, -15, 30, 4); for (const x of [-8, 0, 8]) { ell(x, -7.5, 1.8, 1.8); fs('#F56E99', null); } ctx.restore(); cup(); fs(null, INK, 2);
+    ell(0, -20, 14, 3); fs('#C98A5A', INK, 1.6);   // tea
+    for (const x of [-4, 4]) { ctx.beginPath(); ctx.moveTo(x, -25); ctx.quadraticCurveTo(x + 4, -29, x, -33); ctx.quadraticCurveTo(x - 4, -37, x, -41); fs(null, 'rgba(255,255,255,0.85)', 2); }   // steam
+    ctx.restore(); } },
+  { id: 'w_building', slot: 'hat', name: 'birb hat', earned: true, world: 'building', draw() {   // a pigeon from the ledges, sat on ur head like it pays rent
+    ctx.save(); ctx.translate(2, -22);
+    for (const x of [-3, 3]) line([x, -3, x - 1, 1], '#E58B5E', 1.8);   // its feet, gripping
+    poly([-12, -8, -24, -13, -22, -4]); fs('#8E96A2', INK, 1.4);   // tail
+    ell(-1, -9, 13, 8.5); fs('#A7AFBA', INK, 1.8); ell(-4, -10, 8, 5, 0.25); fs('#8E96A2', null); line([-9, -9, -1, -7], 'rgba(46,58,53,0.35)', 1.2);   // body, wing
+    ell(9, -19, 6.2, 6.2); fs('#9AA2AE', INK, 1.6); ell(8.5, -14, 5, 3.4); fs('#86B79F', null); ell(8, -12.6, 3, 2); fs('#B48EC4', null);   // head, the shiny neck
+    ell(11, -20.5, 1.6, 1.6); fs('#E58B5E', INK, 0.8); poly([14.5, -20, 19, -18.2, 14.5, -17]); fs('#E9D9B9', INK, 0.9);   // eye, beak
+    ctx.restore(); } },
+  { id: 'w_park', slot: 'hat', name: 'picnic hat', earned: true, world: 'park', draw() {   // a straw sun hat with a gingham band and a daisy
+    ell(0, -20, 35, 7.5); fs('#E9C77A', INK, 2.2); for (let x = -28; x <= 28; x += 7) line([x, -23, x * 1.06, -15], 'rgba(168,120,40,0.35)', 1.1);   // the brim, woven
+    ctx.beginPath(); ctx.moveTo(-19, -21); ctx.bezierCurveTo(-19, -44, 19, -44, 19, -21); ctx.closePath(); fs('#EFD08A', INK, 2.2);
+    ctx.save(); ctx.beginPath(); ctx.moveTo(-19, -21); ctx.bezierCurveTo(-19, -44, 19, -44, 19, -21); ctx.closePath(); ctx.clip();
+    ctx.fillStyle = '#FFFDF6'; ctx.fillRect(-20, -29, 40, 8); ctx.fillStyle = 'rgba(226,87,76,0.85)'; for (let x = -20; x < 20; x += 6) ctx.fillRect(x, -29, 3, 8); ctx.fillStyle = 'rgba(226,87,76,0.55)'; ctx.fillRect(-20, -26.5, 40, 3);   // gingham
+    ctx.restore(); line([-19, -29, 19, -29], INK, 1); line([-19, -21.5, 19, -21.5], INK, 1);
+    for (let k = 0; k < 6; k++) { const a = k / 6 * TAU; ell(-12 + Math.cos(a) * 3.6, -25 + Math.sin(a) * 3.6, 2.6, 2.6); fs('#FFFFFF', INK, 0.9); } ell(-12, -25, 2.2, 2.2); fs(GOLD, INK, 0.9); } },
+  { id: 'w_warehouse', slot: 'neck', name: 'bubble wrap ruff', earned: true, world: 'warehouse', draw() {   // a fancy ruff, but it's bubble wrap (pop pop)
+    for (let row = 0; row < 2; row++) for (let i = 0; i <= 7 - row; i++) { const x = -21 + row * 3 + i * 6, y = 21 + row * 5 + (1 - (x / 22) ** 2) * 4;
+      ell(x, y, 3.8, 3.8); fs('rgba(214,238,250,0.92)', INK, 1.1); ell(x - 1.2, y - 1.3, 1.2, 1); fs('rgba(255,255,255,0.95)', null); }
+    rrect(6, 25, 13, 6, 1.5); fs('#E2574C', INK, 1); line([9, 28, 16, 28], '#FFFDF6', 1.2); } },   // a fragile sticker
+  { id: 'w_space', slot: 'hat', name: 'alien boppers', earned: true, world: 'space', draw() {   // a headband with two springy alien eyes on top
+    ctx.beginPath(); ctx.ellipse(0, -14, 33, 12, 0, Math.PI * 1.08, Math.PI * 1.92); fs(null, INK, 6); ctx.strokeStyle = '#8FE07A'; ctx.lineWidth = 3.4 * STYLE.ink; ctx.stroke();
+    for (const s of [-1, 1]) {
+      ctx.beginPath(); ctx.moveTo(s * 14, -24); for (let k = 1; k <= 8; k++) ctx.lineTo(s * (14 + k * 1.1) + (k % 2 ? 3 : -3), -24 - k * 3.2); fs(null, INK, 1.8);   // a spring
+      ell(s * 24, -53, 7, 7); fs('#8FE07A', INK, 1.8); ell(s * 24 + s * 1, -53, 4, 4); fs('#FFFDF6', null); ell(s * 24 + s * 2, -53, 2, 2); fs(INK, null);   // an eye
+    } } },
+  { id: 'w_moon', slot: 'hat', name: 'moon helmet', earned: true, world: 'moon', draw() {   // a lil helmet like the moon: craters, a gold visor, a blinky antenna
+    line([10, -42, 15, -54], INK, 1.8); ell(15.5, -55, 3, 3); fs('#E2574C', INK, 1);
+    ctx.beginPath(); ctx.arc(0, -19, 24, Math.PI, 0); ctx.closePath(); fs('#C9C6BE', INK, 2.2);
+    ctx.save(); ctx.beginPath(); ctx.arc(0, -19, 24, Math.PI, 0); ctx.closePath(); ctx.clip();
+    for (const [x, y, r] of [[-11, -33, 4.5], [8, -36, 3.2], [13, -26, 4], [-2, -27, 2.6], [-18, -24, 2.4]]) { ell(x, y, r, r * 0.8); fs('#A9A59C', 'rgba(46,58,53,0.4)', 1); }
+    ell(-8, -37, 6, 2.5, -0.4); fs('rgba(255,255,255,0.45)', null); ctx.restore();
+    rrect(-25, -22, 50, 6, 3); fs('#E0B04A', INK, 1.6); line([-18, -20.5, -6, -20.5], 'rgba(255,255,255,0.6)', 1.4); } },
 ];
 for (const it of MORE_WEAR) it.at = Infinity;
 
@@ -4405,10 +4566,10 @@ function closetTile(it, cat, bill, top) {
   const have = ownedBy(it, cat), on = it.id ? wornNow(it, cat) : !((store.d.wear[cat] || {})[it.slot]), earned = it.earned && !have, can = !have && !earned && buyable(it) && it.price <= bill;
   const buying = !!it.id && closetBuy === it.id, trying = closetTry === it && !have;
   const b = document.createElement('button'); b.className = 'cl-item' + (top ? ' top' : '') + (on ? ' on' : '') + (have ? '' : earned ? ' earned' : can ? ' forsale' : ' locked') + (buying ? ' buying' : '') + (trying ? ' try' : '');
-  b.setAttribute('aria-label', have ? `${it.name}${on ? ', on' : ''}` : earned ? `${it.name}, find it in the levels` : `${it.name}, ${money(it.price)}`);
+  b.setAttribute('aria-label', have ? `${it.name}${on ? ', on' : ''}` : earned ? (it.world ? `${it.name}, earn it with 3 stars on every level of ${WORLD_NAMES[it.world]}` : `${it.name}, find it in the levels`) : `${it.name}, ${money(it.price)}`);
   b.appendChild(itemIcon(it.id ? it : null, (it.cat && it.cat !== '*' ? it.cat : null) || cat, top ? 64 : 54, !have && !trying));
   if (earned && !trying) { const q = document.createElement('span'); q.className = 'q'; q.textContent = '?'; b.appendChild(q); }
-  const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = have ? it.name : earned ? 'find it' : buying ? `buy ${money(it.price)}` : trying ? it.name : money(it.price); b.appendChild(nm);
+  const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = have ? it.name : earned ? (it.world ? `★★★ ${WORLD_SHORT[it.world]}` : 'find it') : buying ? `buy ${money(it.price)}` : trying ? it.name : money(it.price); b.appendChild(nm);
   if (can && !buying) { const tg = document.createElement('span'); tg.className = 'tag'; tg.textContent = '$!'; b.appendChild(tg); }
   if (top) { const tn = document.createElement('span'); tn.className = 'tn'; tn.textContent = have ? 'yours!' : it.name; b.appendChild(tn); if (!have && !earned) { const bar = document.createElement('span'); bar.className = 'bar'; bar.innerHTML = `<i style="width:${Math.min(100, bill / it.price * 100).toFixed(1)}%"></i>`; b.appendChild(bar); } }
   b.addEventListener('click', () => closetTap(it, cat, b));
@@ -4423,7 +4584,7 @@ function closetTap(it, cat, el) {
     store.save(); Snd.fx('pop'); Snd.voice(Math.random() < 0.5 ? 'mrrp' : 'meow', pitch, 0.7); renderCloset(); return;
   }
   closetTry = it;   // tried on, in the preview
-  if (it.earned) { closetBuy = null; closetMsg = 'find it in da levels'; Snd.fx('pop', 0.6); renderCloset(); return; }
+  if (it.earned) { closetBuy = null; closetMsg = it.world ? `3 ★ on evry level ${WORLD_IN[it.world]} 4 dis` : 'find it in da levels'; Snd.fx('pop', 0.6); renderCloset(); return; }
   if (!buyable(it) || it.price > bill) { closetBuy = null; closetMsg = `break ${money(it.price - bill)} more stuff 4 dis`; Snd.fx('bonk', 0.4); renderCloset(); const b2 = [...$('clGrid').children].find(x => x.classList.contains('try')); if (b2) { b2.classList.remove('nope'); void b2.offsetWidth; b2.classList.add('nope'); } return; }
   if (closetBuy !== it.id) { closetBuy = it.id; closetMsg = `tap again 2 buy da ${it.name} 4 ${money(it.price)}`; Snd.fx('pop'); renderCloset(); return; }
   // bought: off the bill, and on the cat
@@ -4459,7 +4620,8 @@ function startClosetPreview() {
         ctx.translate(p.x, p.top - 0.5 - 22 * d.k * (big ? 0.6 : 1)); if (big) ctx.scale(0.6, 0.6); drawCat(d, 'sit', { eyes: 'open', mouth: 'w' }, { t, wear, noSuit: true, blink: (t % 3.6) > 3.45 ? 1 : 0 }); return; }
       if (mode === 'trail') {   // round and round, the trail behind
         const tr = (it && it.kind === 'trail' ? it : TRAILS_BY[wear.trail]), T = 2.4, u = (t % T) / T, s = big ? 0.38 : 0.55, x = -30 + (w + 60) * u, y = h - 34 - Math.sin(u * Math.PI) * (h * 0.36);
-        if (fly.u < 0 || u < fly.u || fly.tr !== tr) { fly.tr = tr; fly.acc = 0; fly.last = { x, y }; PV.cloud = null; if (tr && tr.ribbon) ribbonStart(PV, tr.ribbon, null, x, y, tr.ribbon === 'rainbow' ? null : { x: -20, y: h - 12 }); if (tr && tr.cloud) PV.cloud = { x, y: y - 46, a: 1 }; }
+        if (fly.tr !== tr) { PV.parts = []; PV.decals = []; PV.ribbons = []; }   // a different trail: the last one's bits, floor glitter and ribbons go (Adam, Nov 7: "the trails stay for several seconds when I switch to a different trail and that overlays multiple trails")
+        if (fly.u < 0 || u < fly.u || fly.tr !== tr) { fly.tr = tr; fly.acc = 0; fly.last = { x, y }; PV.cloud = null; if (tr && tr.ribbon) ribbonStart(PV, tr.ribbon, null, x, y, tr.ribbon === 'rainbow' ? null : { x: 18, y: h - 9 }); if (tr && tr.cloud) PV.cloud = { x, y: y - 46, a: 1 }; }
         const vx = (x - fly.last.x) / Math.max(dt, 0.001), vy = (y - fly.last.y) / Math.max(dt, 0.001); fly.u = u;
         if (tr && tr.emit) { fly.acc += Math.hypot(x - fly.last.x, y - fly.last.y); let n = 0; while (fly.acc >= tr.gap && n < 6) { fly.acc -= tr.gap; n++; trailEmit(PV, tr.emit, x, y, vx, vy); } }
         const rib = PV.ribbons[PV.ribbons.length - 1]; if (rib && tr && tr.ribbon && rib.kind === tr.ribbon) ribbonFollow(rib, x, y);
@@ -6377,6 +6539,10 @@ function followCam(p) {
 }
 function updateCam(dt) {
   if (!sim) return;
+  const ox = cam.x, oy = cam.y, oz = cam.z; camStep(dt);
+  if (dt > 0) cam.v = { x: (cam.x - ox) / dt, y: (cam.y - oy) / dt, z: (Math.log(cam.z) - Math.log(oz)) / dt };   // (the yeet show's camera starts at this speed)
+}
+function camStep(dt) {
   if (cam.mode === 'yeet') { if (fx.yeet) yeetCam(dt); else cam.mode = 'auto'; return; }
   let tgt, rate = 4;
   if (cam.mode === 'intro') {
@@ -6409,13 +6575,16 @@ function startIntroPan() {
 // up); the camera pulls back and up after it till it's a dot among the stars; a twinkle; back to the room. Everyone else
 // looks up and waves bai. The physics waits the whole time, like it does for the intro pan, so how long the show takes
 // changes nothing, and a tap skips it. With reduced motion: half as long, no spin, and the camera stays where it is.
-const YEET = { T: reduceMotion ? 1.4 : 2.8, BACK: 0.74, TW: 0.66 };   // (s; BACK: when the camera heads home; TW: the twinkle)
+const YEET = { T: reduceMotion ? 1.4 : 4.6, BACK: reduceMotion ? 0.74 : 0.76, TW: reduceMotion ? 0.66 : 0.70, TAU: 1.3 };   // (s; BACK: when the camera heads home; TW: the twinkle; TAU: how fast it eases from its throw into the slow drift)
 const YEET_SAY = ['yeeted 2 space. bai', 'i am speed. i am gone', 'smol step. big yeet.'], BAI = ['bai bai', 'it waz nice knowin u', 'see u in space, fren'];
 let WAVE = null;   // while everyone waves bai (render sets it; drawCat puts a paw up)
 function startYeet(e) {
   const c = e.cat, big = !!c.def.pound, dir = (e.vx || 0) < 0 ? -1 : 1;
   const y0 = reduceMotion ? Math.max(e.y, cam.y - view.availH / 2 / cam.z + 120 / cam.z) : e.y;   // (reduced motion: the camera stays put, so it goes from the top of the picture)
-  fx.yeet = { cat: c, def: c.def, big, dir, x0: e.x, y0, vx: (e.vx || 0) * 60, vy: Math.min(-90, (e.vy || -2) * 60), a0: e.angle || 0, spin: reduceMotion ? 0 : (big ? 4 : 7) * dir, spin0: reduceMotion ? 0 : (e.spin || 0) * 60, t: 0, twinkled: false };
+  const vx = (e.vx || 0) * 60, vy = Math.min(-90, (e.vy || -2) * 60), dx = vx * 0.6, dy = Math.min(vy, -60), dl = Math.hypot(dx, dy) || 1;
+  fx.yeet = { cat: c, def: c.def, big, dir, x0: e.x, y0, vx, vy, ux: dx / dl * 70, uy: dy / dl * 70, a0: e.angle || 0, spin: reduceMotion ? 0 : (big ? 1 : 1.8) * dir, spin0: reduceMotion ? 0 : (e.spin || 0) * 60, t: 0, twinkled: false,
+    cv: Object.assign({ x: 0, y: 0, z: 0 }, cam.v) };   // (cv: the camera's own speed, carried on from the frame before, so it doesn't lurch)
+  fx.yeet.frame = yeetFrame(fx.yeet);
   cam.mode = 'yeet'; cam.hold = 0; sim.frozen = true;   // (the physics waits for the show: core.js step)
   Snd.fx('yeet'); Snd.voice(big ? 'yowl' : 'meow', c.def.pitch * 1.25, 0.8);
   if (!attract) buzz('boing', 0.6);
@@ -6432,27 +6601,34 @@ function startYeet(e) {
   if (!attract) orbitRemember(c.type);
 }
 function endYeet() { fx.yeet = null; WAVE = null; if (sim) sim.frozen = false; if (cam.mode === 'yeet') cam.mode = 'auto'; }
-// where it is t s into the show: still going the way it left, faster and faster, and further away (s: how big it looks)
+// where it is t s into the show (s: how big it looks). Adam, Nov 7, twice: "the cat launches at one speed and then suddenly
+// yeets like a rocket", then "still too abrupt... the camera zooms out really fast and it's like the cats change velocity at
+// the same time". So it's one ease now: from the speed it left the physics with into a slow drift the same way (TAU), never
+// slowing down and then speeding up again; it shrinks into the distance; its spin eases into a lazy tumble.
 function yeetAt(Y, t) {
-  // It goes on at exactly the speed and spin it left the physics with, then drifts on up, faster and faster away (Adam, Nov 7:
-  // "the cat launches at one speed and then suddenly yeets like a rocket": the show used to add about 325 px/s upward and a fixed
-  // fast spin the moment it took over). The extra climb builds from nothing to 200 px/s; it ends about as high as before.
-  const u = 1 - Math.exp(-t / 0.8), k = reduceMotion ? 0.35 : 1, up = 200 * (t - 0.8 * u), us = 1 - Math.exp(-t / 0.6);   // (it slows down in the picture as it goes deeper into the sky)
-  return { x: Y.x0 + Y.vx * 0.8 * u * k, y: Y.y0 + (Y.vy * 0.8 * u - up) * k, s: reduceMotion ? Math.max(0.05, 1 - t / (YEET.T * YEET.TW)) : 1 / (1 + 0.6 * t + 0.9 * t * t * t),
-    a: Y.a0 + Y.spin * t + ((Y.spin0 || 0) - Y.spin) * 0.6 * us };
+  const k = reduceMotion ? 0.35 : 1, e = 1 - Math.exp(-t / YEET.TAU), es = 1 - Math.exp(-t / 0.8);
+  return { x: Y.x0 + (Y.ux * t + (Y.vx - Y.ux) * YEET.TAU * e) * k, y: Y.y0 + (Y.uy * t + (Y.vy - Y.uy) * YEET.TAU * e) * k,
+    s: reduceMotion ? Math.max(0.05, 1 - t / (YEET.T * YEET.TW)) : 1 / (1 + 0.35 * t + 0.45 * t * t),
+    a: Y.a0 + Y.spin * t + ((Y.spin0 || 0) - Y.spin) * 0.8 * es };
 }
+// the picture the camera pulls back to, once, for the whole trip (the room along the bottom, the cat's path up among the
+// stars): a target that doesn't move, so the camera makes one smooth move instead of chasing the cat
+function yeetFrame(Y) {
+  const f = fitCam(), L = sim.level, tw = YEET.T * YEET.TW;
+  let x0 = -10, x1 = L.w + 10, top = -60;
+  for (let t = 0; t <= tw + 1e-6; t += tw / 24) { const p = yeetAt(Y, t), m = 210 + 60 * p.s; x0 = Math.min(x0, p.x - m); x1 = Math.max(x1, p.x + m); top = Math.min(top, p.y - m); }
+  const bot = FLOOR + 40, z = Math.min(f.z * 0.62, view.availH / (bot - top), view.cw / (x1 - x0));
+  return { x: (x0 + x1) / 2, y: bot - view.availH / 2 / z, z };
+}
+// The camera is a critically damped spring now (it used to chase its target at full speed from the first frame, which is
+// the lurch): it starts at the speed it already had, eases out to the wide picture in about 1.5 s, and eases home after.
 function yeetCam(dt) {
-  const Y = fx.yeet; Y.t += dt;
+  const Y = fx.yeet; if (Y.started) Y.t += dt; else Y.started = true;   // (the physics already moved it this frame, up to where it left: the show's clock starts next frame, so it doesn't jump ahead)
   if (Y.t >= YEET.T) { endYeet(); return; }
-  const f = fitCam(), L = sim.level, p = yeetAt(Y, Math.min(Y.t, YEET.T * YEET.TW));
-  let tgt = f;
-  if (!reduceMotion && Y.t < YEET.T * YEET.BACK) {   // pulled back and up: the room along the bottom, the cat up top among the stars
-    const top = Math.min(p.y - 150, -60), bot = FLOOR + 40, x0 = Math.min(-10, p.x - 150), x1 = Math.max(L.w + 10, p.x + 150);
-    const z = Math.min(f.z * 0.62, view.availH / (bot - top), view.cw / (x1 - x0));
-    tgt = { x: (x0 + x1) / 2, y: bot - view.availH / 2 / z, z };
-  }
-  const k = 1 - Math.exp(-dt * (Y.t < YEET.T * YEET.BACK ? 7 : 5));
-  cam.x += (tgt.x - cam.x) * k; cam.y += (tgt.y - cam.y) * k; cam.z += (tgt.z - cam.z) * k;
+  const home = reduceMotion || Y.t >= YEET.T * YEET.BACK, tgt = home ? fitCam() : Y.frame, w = home ? 4.5 : 2.6, C = Y.cv, h = Math.min(dt, 0.05);
+  const lz = Math.log(cam.z), tz = Math.log(tgt.z);
+  C.x += (w * w * (tgt.x - cam.x) - 2 * w * C.x) * h; C.y += (w * w * (tgt.y - cam.y) - 2 * w * C.y) * h; C.z += (w * w * (tz - lz) - 2 * w * C.z) * h;
+  cam.x += C.x * h; cam.y += C.y * h; cam.z = Math.exp(lz + C.z * h);
 }
 function twinkleStar(r) {   // a four-point sparkle
   ctx.beginPath(); for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, rr = i % 2 ? r * 0.24 : r; ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); } ctx.closePath(); fs('#FFF3B8', null);
@@ -6604,7 +6780,7 @@ function fitLineup() {
   const left = faces.filter(f => !f.hidden), tag = document.createElement('span'); tag.className = 'more'; lu.appendChild(tag);
   for (let k = left.length - 1; k > 0 && over(); k--) { left[k].hidden = true; tag.textContent = '+' + (left.length - k); }
 }
-const SCREENS = ['scrTitle', 'scrLevels', 'scrIntro', 'scrPause', 'scrResult', 'scrUnlock', 'scrCloset', 'scrEnd', 'scrCard', 'scrInfo', 'scrCrib', 'scrReset'];   // (scrReset: reset game)   // (scrCrib: teh crib, closet.js)
+const SCREENS = ['scrTitle', 'scrLevels', 'scrIntro', 'scrPause', 'scrResult', 'scrUnlock', 'scrCloset', 'scrEnd', 'scrCard', 'scrInfo', 'scrCrib', 'scrReset', 'scrWorld', 'scrAlbum'];   // (scrReset: reset game)   // (scrCrib: teh crib, closet.js)   // (scrWorld: a world opens, scrAlbum: the postcards; world milestones)
 // A safe moment for the app to swap in a newer page (2.0.1's update check while the game loads, Adam, Nov 6: "so they don't have to
 // close the game and reopen it"): only on the title or the level list with nothing else open. Never mid-level, paused, on a
 // result, in the closet or teh crib, on the unlock screen, a postcard or the ending. (Saves go out at once, so nothing is lost.)
@@ -6672,7 +6848,7 @@ function startLevel(i) {
   store.save();
   const g = gate(i); if (g) { if ($('scrLevels').hidden) showLevels(); showGate(i, g); return; }
   Snd.purrStopAll(0.1); buzz('purrStopAll');
-  levelIdx = i; sim = new Sim(LEVELS[i], Matter);
+  levelIdx = i; sim = new Sim(LEVELS[i], Matter); clearNew(LEVELS[i].world);   // (the NEW on a world just opened goes once u play there)
   fx.parts = []; fx.decals = []; fx.texts = []; fx.walkers = []; fx.rings = []; fx.stinks = []; fx.hop = null; fx.cata = null; fx.roll = null; fx.hand = null;
   aim = null; lastTrail = []; firstShot = true; demo = null; seenHint.clear();
   const hp = typeof HINTS !== 'undefined' && HINTS[LEVELS[i].id];
@@ -6713,27 +6889,26 @@ function showIntro() {
   if (nc) startNewCatDemo(nc);
 }
 function goalRows(L, r) {
-  if (L.mode === 'mess') return L.messGoals.map((g, i) => `<div class="goal">${starSvg(r ? r.mess >= g : false)}<span>$${g} of mess</span><span class="val">${r && i === 0 ? '$' + r.mess : ''}</span></div>`).join('');
+  if (L.mode === 'mess') return L.messGoals.map((g, i) => `<div class="goal">${starSvg(r ? r.mess >= g : false)}<span>${money(g)} of mess</span><span class="val">${r && i === 0 ? money(r.mess) : ''}</span></div>`).join('');
   const n = L.spots.length;
   const rows = [
     [r ? r.won : false, n > 1 ? `sit in all ${n} spots` : 'sit in the spot', r ? `${r.spotsFilled}/${r.spotsTotal}` : ''],
     [r ? r.spare : false, `${L.spareGoal} cat${L.spareGoal === 1 ? "" : "s"} left over`, r ? `${r.catsLeft} left` : ''],
-    [r ? r.messy : false, `$${L.messGoal} of mess`, r ? `$${r.mess}` : ''],
+    [r ? r.messy : false, `${money(L.messGoal)} of mess`, r ? money(r.mess) : ''],
   ];
   return rows.map(([on, label, val]) => `<div class="goal">${starSvg(on)}<span>${label}</span><span class="val">${val}</span></div>`).join('');
 }
-function showLevels() {
+function showLevels() {   // (a world that opened without its moment playing gets it now: world milestones)
+  const pend = pendingMoment(); if (pend) { showWorldMoment(pend); return; }
+  showLevelsNow();
+}
+function showLevelsNow() {
   Snd.purrStopAll(0.2); buzz('purrStopAll'); Snd.ambSet(0.45);
   const list = $('levelList'); list.innerHTML = '';
   LEVELS.forEach((L, i) => {
-    if (L.world && L.world !== (LEVELS[i - 1] || {}).world) {
-      const h = document.createElement('div'); h.className = 'world-head'; h.textContent = WORLD_NAMES[L.world] || L.world;
-      const need = WORLD_NEED[L.world];
-      if (need && !worldOpen(L.world) && !isLocked(i) && !allOpen) { const n = document.createElement('span'); n.className = 'need'; n.innerHTML = `${starSvg(true)}${starsBefore(L.world)}/${need}`; h.appendChild(n); }
-      list.appendChild(h);
-    }
-    const g = isLocked(i) ? null : gate(i);
-    const b = document.createElement('button'); b.className = 'level-card' + (isLocked(i) ? ' locked' : g ? (g.stars ? ' starlock' : ' waitlock') : ''); b.id = 'lvl-' + L.id;
+    if (L.world && L.world !== (LEVELS[i - 1] || {}).world) list.appendChild(worldHead(L.world, i));   // (its marks: world milestones)
+    const g = isLocked(i) ? null : gate(i), fresh = !g && !isLocked(i) && i === firstOf(L.world) && (store.d.worldNew || {})[L.world];
+    const b = document.createElement('button'); b.className = 'level-card' + (isLocked(i) ? ' locked' : g ? (g.stars ? ' starlock' : ' waitlock') : '') + (fresh ? ' world-new' : '') + (L.mode !== 'mess' && worldPerfect(L.world) ? ' gold-world' : ''); b.id = 'lvl-' + L.id;
     const st = store.d.stars[L.id] || 0;
     b.innerHTML = `${L.newCat ? '<span class="newtag">new cat</span>' : L.mode === 'mess' ? '<span class="newtag">bonus</span>' : ''}<span class="name">${L.name}</span><span class="what">${L.title}</span><span class="stars">${[0, 1, 2].map(k => starSvg(k < st)).join('')}</span><span class="faces"></span>`;
     const faces = b.querySelector('.faces'); L.lineup.forEach(t => faces.appendChild(makeFace(t, 22)));
@@ -6751,6 +6926,7 @@ function showLevels() {
   }
   $('lvlBill').innerHTML = `u owes da hooman <b>${money(store.d.bill || 0)}</b>`;
   $('closetDot').hidden = affordable() <= (store.d.closetSeen || 0);   // something new u can buy
+  $('albumDot').hidden = !store.d.albumNew;   // a new postcard (or a gold one)
   if (NATIVE) $('lvlEyebrow').textContent = unlock.owned ? 'teh whole game' : 'teh kitchen iz free';
   $('tglRestore').hidden = !NATIVE || unlock.owned;
   syncToggles(); showScreen('scrLevels');
@@ -6883,7 +7059,7 @@ function refreshResBill() {
   const bill = store.d.bill || 0, el = $('resBill'); if (!el) return;
   el._count = null; el.textContent = money(bill); store.d.billShown = bill; store.save();
   const pr = $('resGoals').querySelector('.goal.prize'); if (pr) { const nu = prizeRow(bill); if (nu) pr.outerHTML = nu; else pr.remove(); }
-  for (const u of $('resGoals').querySelectorAll('.goal.unlock')) { const id = u.querySelector('.ico').dataset.item, it = shopItem(id); if (!it || ownsAny(id) || it.price > bill) u.remove(); }
+  for (const u of $('resGoals').querySelectorAll('.goal.unlock:not(.reward)')) { const id = u.querySelector('.ico').dataset.item, it = shopItem(id); if (!it || ownsAny(id) || it.price > bill) u.remove(); }
   const dot = $('resShopDot'); if (dot) dot.hidden = affordable() <= (store.d.closetSeen || 0);
 }
 // The shop button on the result card (Adam, Nov 6: "when a level ends add a shop button but it needs to be cat meme cute like a
@@ -6896,11 +7072,28 @@ function showResult(r) {
   const billFrom = store.d.billShown != null ? store.d.billShown : store.d.bill, billTo = store.d.bill, fresh = SHOP.filter(c => buyable(c) && !ownsAny(c.id) && c.price > billFrom && c.price <= billTo).sort((x, y) => x.price - y.price);   // (anything in teh closet)
   store.d.billShown = billTo;
   const prevStars = store.d.stars[L.id] || 0; resThen = null;
-  if (r.won && !sim._nap) { if (L.id === END_LEVEL && !store.d.endSeen) resThen = () => showEnding(); else if (!prevStars && lastOfWorld(L) && POSTCARD[L.world]) { const next = levelIdx + 1; resThen = () => showPostcard(L.world, () => (next < LEVELS.length ? startLevel(next) : showLevels())); } }
+  const shut = sim._nap || allOpen ? [] : Object.keys(WORLD_NEED).filter(w => !worldOpen(w));   // the doors still shut before this result's stars count (world milestones; none under the checks' openAll)
   if (sim._nap) {} else if (r.won) { const prev = store.d.stars[L.id] || 0; if (r.stars > prev) { store.d.stars[L.id] = r.stars; } store.d.fails[L.id] = 0; maybeAskReview(r, L, !prev); }
   else if (!r.wreck) store.d.fails[L.id] = (store.d.fails[L.id] || 0) + 1;
   if (r.wreck && !sim._nap) store.d.best[L.id] = Math.max(store.d.best[L.id] || 0, r.mess);
   store.save();
+  // World milestones (Nov 7): a door these stars just opened plays its moment after the card (after the postcard, if that's due
+  // too; a second door at once waits for the level list), and a world just made perfect shows its gold postcard with its prize.
+  // A door whose world still needs buying waits for the purchase (fitsStoreUpdate).
+  const opened = shut.filter(w => worldOpen(w) && !isLocked(firstOf(w)));
+  for (const w of opened) wmSave('worldNew')[w] = true;
+  const ms = sim._nap ? null : noteWorld(L.world);
+  if (r.won && !sim._nap) {
+    if (L.id === END_LEVEL && !store.d.endSeen) resThen = () => showEnding();
+    else {
+      const next = levelIdx + 1, onward = () => (next < LEVELS.length ? startLevel(next) : showLevels());
+      let f = opened.length ? () => showWorldMoment(opened[0]) : onward;
+      const card = !prevStars && lastOfWorld(L) && POSTCARD[L.world] && L.world !== 'moon', gold = ms && ms.gold;   // (the moon's postcard is teh end; its gold one comes here)
+      if (card || gold) { const then = f; f = () => showPostcard(L.world, then, gold ? { gold: true, reward: ms.reward } : null); }
+      if (f !== onward) resThen = f;
+    }
+  }
+  if (opened.length || ms) store.save();
   resExtra = !r.won && !r.wreck && !sim.extraCats && sim.spots.some(s => !s.filled);
   $('resName').textContent = `${L.name} · ${L.title}`;
   drawResultCat(r.won);
@@ -6911,7 +7104,7 @@ function showResult(r) {
     (r.helped && (sim.chonkPaid || sim.chonkMess) ? `<div class="goal"><span class="chonkface"></span><span>megachonk</span><span class="val">${sim.chonkPaid ? '-' + money(sim.chonkPaid) : ''}${sim.chonkPaid && sim.chonkMess ? ' · ' : ''}${sim.chonkMess ? 'smashed ' + money(sim.chonkMess) : ''}</span></div>` : '') +
     (!r.won && !r.wreck && chonkSatOnSpot() ? `<div class="goal"><span class="chonkface"></span><span>megachonk sat on it. rude.</span><span class="val"></span></div>` : '') +
     `<div class="goal bill"><span></span><span>u owes da hooman</span><span class="val" id="resBill">${money(billFrom)}</span></div>` +
-    (sim._nap ? '' : prizeRow(billTo)) +
+    (sim._nap ? '' : ms && ms.reward ? rewardRow(ms.reward) : prizeRow(billTo)) +   // (a perfect world's prize, in place of the next big prize)
     fresh.slice(-1).map(c => `<div class="goal unlock"><span class="ico" data-item="${c.id}"></span><span>u can buy da ${c.name} now!${fresh.length > 1 ? ` (+${fresh.length - 1} moar)` : ''}</span><span class="val"></span></div>`).join('');   // (one line, so the card fits a phone)
   for (const el of $('resGoals').querySelectorAll('.ico')) { const it = shopItem(el.dataset.item); el.appendChild(itemIcon(it, it.cat || L.lineup[0], 30, false, true)); }
   for (const el of $('resGoals').querySelectorAll('.chonkface')) el.appendChild(makeFace('chonk', 18));
@@ -7146,6 +7339,7 @@ function nearCats(x, y, r) {
 function drain() {
   for (const e of sim.events) {
     closetEvent(e);   // (what costumes and shoes do: closet.js)
+    statsEvent(e);   // (play stats: tries, throws, results)
     switch (e.type) {
       case 'perch': {
         fx.cata = null; napRefill();
@@ -8214,9 +8408,12 @@ function frame(now) {
       // catapult rolling noises", and things wobble): a rumble the whole way, and each squeak of the wheels a heave that jolts
       // the screen, rattles the phone and sets everything wobbling (drawn only: the level doesn't move while you aim)
       fx.shake = Math.max(fx.shake || 0, 1.6);
-      if (turns > (fx.roll.sq || 0)) { fx.roll.sq = turns; Snd.fx(turns % 2 ? 'wheel' : 'wheel2', 0.9); fx.shake = Math.max(fx.shake, 6); fx.wob = 1; buzz('bonk', 0.4); }
+      // the phone (Adam, Nov 7: "a low rumbling vibration with peaks of sharp vibration"): a low rumble the whole way (the
+      // native 'loaf' buzz, 0.3 s low and soft, laid end to end), a sharp clack with each squeak, and a heavy thud when it stops
+      if (now - (fx.roll.rum || 0) >= 270) { fx.roll.rum = now; buzz('loaf', 1); }
+      if (turns > (fx.roll.sq || 0)) { fx.roll.sq = turns; Snd.fx(turns % 2 ? 'wheel' : 'wheel2', 0.9); fx.shake = Math.max(fx.shake, 6); fx.wob = 1; buzz('cathit', 1); }
       if (Snd.ok('creak', 1500)) { Snd.fx('creak', 0.6); buzz('tick', 0.8); }
-      if (fx.roll.t >= cataRollDur()) { fx.roll = null; Snd.fx('wheelstop', 1); Snd.fx('wood', 0.9); fx.shake = Math.max(fx.shake || 0, 8); fx.wob = 1.3; buzz('bonk', 0.8); }
+      if (fx.roll.t >= cataRollDur()) { fx.roll = null; Snd.fx('wheelstop', 1); Snd.fx('wood', 0.9); fx.shake = Math.max(fx.shake || 0, 8); fx.wob = 1.3; buzz('shock', 1); }
     }
     tickReactions(dt);
     orbitTick(dt);   // (a yeeted cat floating by, on the moon)
@@ -8226,8 +8423,309 @@ function frame(now) {
     if (hintTimer > 0) { hintTimer -= dt * 1000; if (hintTimer <= 0) setHint(null); }
     updateCam(dt);
   }
-  if ($('scrEnd').hidden && $('scrCrib').hidden) render(now / 1000, live ? dt : 0);   // (teh end and teh crib cover the whole screen)
+  if ($('scrEnd').hidden && $('scrCrib').hidden && $('scrWorld').hidden) render(now / 1000, live ? dt : 0);   // (teh end, teh crib and a world opening cover the whole screen)
   requestAnimationFrame(frame);
+}
+
+// ---------- play stats (Nov 7) ----------
+// Adam: "add playtime trackers as well as track attempts, retries, stats earned, etc. let's do whatever we can to track how
+// the levels are played, advanced, beat, lost, etc." (he's tuning difficulty: how long worlds take, how many tries a level
+// needs, where players get stuck). Nothing leaves the device: the App Store label says Data Not Collected and it stays true.
+// No network and no new bridge messages; it's all in the normal save (store.d.st), shown on "mai stats" (a stats button on
+// the level list and in the pause card), and the only way out is the player tapping "copy stats" and pasting it themselves.
+// It watches the game instead of being wired through it, so it touches the rest of page.js in two lines (drain() hands it
+// the sim's events, worldHead() its time) plus the buttons in head.html: its own frame loop keeps the clock (a level's time
+// runs only while it's live: not paused, no card up, the page visible), and a new Sim for a level is an attempt (the same
+// level again without going back to the level list is a retry). Reset game clears it with everything else (only the
+// settings are kept), and a save from before starts counting at the update.
+// Saved as store.d.st (short keys, arrays, so it stays small; docs/PHYSICS_GAME.md "Play stats"):
+//   v 1 · s0 first tracked (unix s) · o 1: the save had progress from before (counts there start at the update: shown with
+//   "+", unknowns as "–") · n sessions (app opens, and coming back after 30+ min away) · t play time, s (levels live) ·
+//   tm everything else with the app open and showing (title, level list, cards, closet, paused) · L per level, an array in
+//   ST_KEYS order · W per world [door, its date, finished, its date, perfect, its date] (play time s and unix s; null not
+//   yet, -1 before tracking) · g the attempt log, the last ST_LOG tries (an entry: below) · c the try in play (if the app closes
+//   mid-level it's counted as a quit next launch).
+const ST_KEYS = ['a', 'r', 'q', 'rm', 'w', 'l', 'bs', 'fa', 'ft', 'ta', 'tt', 't', 'nt', 'ct', 'cl', 'mb', 'mt', 'ch', 'pw', 'x1', 'yt', 'np', 'h0', 'h1', 'h2', 'h3', 'o'];
+const ST_NAMES = { a: 'attempts', r: 'retries', q: 'quits', rm: 'retriedMidLevel', w: 'wins', l: 'losses', bs: 'bestStars', fa: 'firstWinTry', ft: 'firstWinPlaySec', ta: 'first3StarTry', tt: 'first3StarPlaySec',
+  t: 'playSec', nt: 'napSec', ct: 'catsThrown', cl: 'catsLeftOver', mb: 'messBest', mt: 'messTotal', ch: 'megachonk', pw: 'pawPrints', x1: 'oneMoreCat', yt: 'yeeted', np: 'napModes', o: 'olderSave' };
+const S = {}; ST_KEYS.forEach((k, i) => { S[k] = i; });
+// a log entry: [level, try, result (w won, l lost, q quit, r retry mid-level, n nap mode), stars, seconds, cats thrown, cats left,
+// mess $, help (1 megachonk, 2 paw prints, 4 one more cat, 8 yeeted, 16 nap mode), session, throws]. The throws are one string,
+// "t45.62.0s u30.90.1m": each the cat (ST_CAT; a cat not in it by name, "bubbles:"), angle°, power %, tricks, and the outcome
+// (s sat, m missed, k missed then knocked in by another cat, y yeeted, nothing: never settled). The log is most of the save
+// (a full log is about 25 KB of a 34 KB save; as arrays it was 42 KB of 50), so it's packed; the copy unpacks it.
+const ST_CAT = { toast: 't', unit: 'u', street: 's', chaos: 'c', void: 'v', toot: 'o', spicy: 'y', chonk: 'k' }, ST_CAT_OF = {}; for (const k in ST_CAT) ST_CAT_OF[ST_CAT[k]] = k;
+const stPack = th => th.map(t => (ST_CAT[t[0]] || t[0] + ':') + t[1] + '.' + t[2] + '.' + t[3] + t[4]).join(' ');
+const stUnpack = str => (str || '').split(' ').filter(Boolean).map(x => { const m = /^(?:(.+):|(.))(-?\d+)\.(\d+)\.(\d+)([a-z]?)$/.exec(x); return m ? [m[1] || ST_CAT_OF[m[2]] || m[2], +m[3], +m[4], +m[5], m[6]] : [x]; });
+const ST_LOG = 300, ST_RES = { w: 'won', l: 'lost', q: 'quit', r: 'retry', n: 'nap' }, ST_OUT = { s: 'sat', m: 'miss', k: 'knocked in later', y: 'yeeted', '': '' };
+const ST_HELP = [[1, 'megachonk'], [2, 'paw prints'], [4, '1 more cat'], [8, 'yeeted'], [16, 'nap mode']];
+const ST_AWAY = ['scrLevels', 'scrTitle', 'scrWorld', 'scrEnd', 'scrUnlock', 'scrAlbum', 'scrInfo', 'scrReset'];   // back out of the level (a quit, if it was still going)
+const ST_WORLDS = [...new Set(LEVELS.map(L => L.world))];
+SCREENS.push('scrStats');
+let ST = null, cur = null, curSim = null, curLog = null, thCats = [], actMs = 0, menuMs = 0, stLast = performance.now(), stWorldT = 0, stHidden = 0, stErrs = 0, stView = null, stBack = null, stSayT = 0, stSayBase = '';
+const nowSec = () => Math.round(Date.now() / 1000);
+const stEnt = id => ST.L[id] || (ST.L[id] = ST_KEYS.map(() => 0));
+function stErr(err) { if (stErrs++ < 3) console.error('stats:', err && err.stack || err); }   // (stats never stop the game)
+function stReady() {
+  const d = store.d;
+  if (ST && d.st === ST) return ST;
+  const wiped = !!ST;   // (reset game: the save was cleared under us)
+  if (!d.st || d.st.v !== 1) {
+    const had = o => Object.values(o || {}).some(v => v > 0), old = had(d.stars) || had(d.fails) || had(d.best);
+    d.st = { v: 1, s0: nowSec(), o: old ? 1 : 0, n: 0, t: 0, tm: 0, L: {}, W: {}, g: [], c: null };
+    ST = d.st;
+    if (old) {   // what the save already has: best stars and bills, and what's already done (when: unknown)
+      for (const L of LEVELS) {
+        const st = d.stars[L.id] || 0, f = (d.fails || {})[L.id] || 0, b = (d.best || {})[L.id] || 0;
+        if (!st && !f && !b) continue;
+        const e = stEnt(L.id); e[S.o] = 1; e[S.bs] = st; e[S.mb] = b;
+        if (st) e[S.fa] = e[S.ft] = -1;
+        if (st >= 3) e[S.ta] = e[S.tt] = -1;
+      }
+      for (const w of ST_WORLDS) {
+        const r = [null, null, null, null, null, null];
+        if (worldOpen(w)) r[0] = r[1] = -1;
+        if (worldWon(w)) r[2] = r[3] = -1;
+        if (worldPerfect(w)) r[4] = r[5] = -1;
+        if (r[0] != null) ST.W[w] = r;
+      }
+    }
+  }
+  ST = d.st; cur = null; curSim = null; curLog = null; thCats = []; actMs = 0; menuMs = 0;
+  if (ST.c) {   // the app closed mid-level last time: a quit (in place of its loss, if it was going on after "1 more cat")
+    cur = ST.c; curLog = ST.g.slice().reverse().find(g => g[0] === cur.id && g[1] === cur.n && g[9] === cur.s) || null;
+    if (cur.live) stEnd('q'); else ST.c = null;
+    cur = null; curLog = null;
+  }
+  if (wiped) { ST.n = Math.max(1, ST.n); store.save(); }
+  else { let seen = false; try { seen = sessionStorage.getItem('fits-session') === '1'; sessionStorage.setItem('fits-session', '1'); } catch (e) {} if (!seen) ST.n++; }   // (an update swapping the page in isn't a new session)
+  stWorlds();
+  return ST;
+}
+// which attempt is going on, from what the page is doing
+function stSync() {
+  const real = !!sim && !attract && levelIdx >= 0 && !!LEVELS[levelIdx] && sim.level === LEVELS[levelIdx];
+  const away = ST_AWAY.some(id => { const el = $(id); return el && !el.hidden; });
+  if (cur && cur.live) {
+    if (sim !== curSim) stEnd(real && LEVELS[levelIdx].id === cur.id ? 'r' : 'q');
+    else if (away) { stEnd('q'); cur.away = true; }
+  } else if (cur && !cur.away && away && sim === curSim) cur.away = true;
+  if (cur && !cur.live && cur.res === 'l' && sim === curSim && (sim.extraCats || 0) > cur.x) {   // "1 more cat" after the loss: the try goes on
+    cur.x = sim.extraCats; cur.f |= 4; stEnt(cur.id)[S.x1]++; cur.live = true; ST.c = cur;
+  }
+  if (real && sim !== curSim) stBegin();
+  if (cur && cur.live && sim === curSim && sim._nap && !(cur.f & 16)) {   // nap mode: not a try at the goals
+    const e = stEnt(cur.id); cur.f |= 16; e[S.a] = Math.max(0, e[S.a] - 1); e[S.np]++; if (cur.rt) { e[S.r] = Math.max(0, e[S.r] - 1); cur.rt = 0; }
+  }
+}
+function stBegin() {
+  const id = LEVELS[levelIdx].id, e = stEnt(id), retry = !!cur && cur.id === id && !cur.away;
+  if (retry) e[S.r]++;
+  e[S.a]++;
+  cur = { id, n: e[S.a], ms: 0, th: [], f: 0, x: 0, m: 0, lf: sim.catsLeft(), live: true, res: null, away: false, rt: retry ? 1 : 0, s: ST.n };
+  curSim = sim; curLog = null; thCats = []; ST.c = cur;
+  store.save();
+}
+// the try is over (won, lost, quit, retried); after "1 more cat" its loss is taken back first and it's written again
+function stEnd(res, r) {
+  const e = stEnt(cur.id), sm = cur.live && curSim;
+  if (cur.res) stUndo(e);
+  if ((cur.f & 16) && (res === 'q' || res === 'r')) res = 'n';
+  const stars = r ? r.stars || 0 : 0, left = r ? r.catsLeft || 0 : sm ? sm.catsLeft() : cur.lf || 0, mess = r ? r.mess || 0 : sm ? sm.mess || 0 : cur.m || 0, fin = res === 'w' || res === 'l';
+  if (res === 'w') e[S.w]++; else if (res === 'l') e[S.l]++; else if (res === 'q') e[S.q]++; else if (res === 'r') e[S.rm]++;
+  if (fin) { e[S.h0 + stars]++; e[S.cl] += left; }
+  e[S.mt] += mess; e[S.mb] = Math.max(e[S.mb], mess);
+  if (res === 'w') {
+    e[S.bs] = Math.max(e[S.bs], stars);
+    if (!e[S.fa]) { e[S.fa] = cur.n; e[S.ft] = e[S.t]; }
+    if (stars >= 3 && !e[S.ta]) { e[S.ta] = cur.n; e[S.tt] = e[S.t]; }
+  }
+  cur.res = res; cur.cm = [fin ? left : 0, mess, stars]; cur.live = false; ST.c = null;
+  const entry = [cur.id, cur.n, res, stars, Math.round(cur.ms / 1000), cur.th.length, left, mess, cur.f, cur.s, stPack(cur.th)];
+  const i = curLog ? ST.g.indexOf(curLog) : -1;
+  if (i >= 0) ST.g[i] = entry; else { ST.g.push(entry); if (ST.g.length > ST_LOG) ST.g.splice(0, ST.g.length - ST_LOG); }
+  curLog = entry;
+  stWorlds(); store.save();
+}
+function stUndo(e) {
+  const [left, mess, stars] = cur.cm || [0, 0, 0], k = { w: S.w, l: S.l, q: S.q, r: S.rm }[cur.res];
+  if (k != null) e[k] = Math.max(0, e[k] - 1);
+  if (cur.res === 'w' || cur.res === 'l') { e[S.h0 + stars] = Math.max(0, e[S.h0 + stars] - 1); e[S.cl] -= left; }
+  e[S.mt] -= mess;
+}
+// a world's door, finished (every regular level won) and perfect (3 stars on each): when, in play time and as a date
+function stWorlds() {
+  for (const w of ST_WORLDS) {
+    const r = ST.W[w] || [null, null, null, null, null, null]; let ch = false;
+    if (r[0] == null && worldOpen(w)) { r[0] = ST.t; r[1] = nowSec(); ch = true; }
+    if (r[2] == null && worldWon(w)) { r[2] = ST.t; r[3] = nowSec(); ch = true; }
+    if (r[4] == null && worldPerfect(w)) { r[4] = ST.t; r[5] = nowSec(); ch = true; }
+    if (ch) ST.W[w] = r;
+  }
+}
+// the sim's events (drain() hands them over, before the game reacts to them)
+function statsEvent(e) {
+  try {
+    if (attract || levelIdx < 0 || !stReady()) return;
+    stSync();
+    if (!cur || !cur.live || sim !== curSim) return;
+    const en = stEnt(cur.id), throwOf = c => cur.th[thCats.lastIndexOf(c)];
+    cur.m = sim.mess || 0;
+    switch (e.type) {
+      case 'launch': {
+        const c = e.cat;
+        cur.th.push([c.type, Math.round(e.angle * 180 / Math.PI), Math.round(e.power * 100), 0, '']); thCats.push(c);
+        en[S.ct]++; cur.lf = sim.catsLeft();
+        if (c.bonus && c.def.pound) { en[S.ch]++; cur.f |= 1; }   // megachonk, called in
+        break; }
+      case 'ability': { const t = throwOf(e.cat); if (t) t[3]++; break; }
+      case 'sit': { const t = throwOf(e.cat); if (t) t[4] = t[4] === 'm' ? 'k' : t[4] || 's'; break; }
+      case 'miss': {
+        const t = throwOf(e.cat); if (t && !t[4]) t[4] = e.why === 'space' ? 'y' : 'm';
+        if (e.why === 'space') { en[S.yt]++; cur.f |= 8; }
+        break; }
+      case 'won': case 'lost': stEnd(e.type === 'won' ? 'w' : 'l', e); break;
+    }
+  } catch (err) { stErr(err); }
+}
+// the clock, every frame
+function stTick(now) {
+  const dt = Math.min(250, Math.max(0, now - stLast)); stLast = now;
+  if (!stReady()) return;
+  stSync();
+  if (document.visibilityState === 'hidden') return;
+  if (cur && cur.live && sim === curSim && !paused && !attract) {
+    cur.ms += dt; actMs += dt;
+    if (actMs >= 1000) { const s = Math.floor(actMs / 1000); actMs -= s * 1000; ST.t += s; stEnt(cur.id)[cur.f & 16 ? S.nt : S.t] += s; }
+    if (hint && hint.shown && !(cur.f & 2)) { cur.f |= 2; stEnt(cur.id)[S.pw]++; }   // the paw prints (two losses in a row)
+  } else { menuMs += dt; if (menuMs >= 1000) { const s = Math.floor(menuMs / 1000); menuMs -= s * 1000; ST.tm += s; } }
+  if (now - stWorldT > 1000) { stWorldT = now; stWorlds(); }
+}
+function stLoop(now) { try { stTick(now); } catch (err) { stErr(err); } requestAnimationFrame(stLoop); }
+requestAnimationFrame(stLoop);
+document.addEventListener('visibilitychange', () => {
+  try {
+    if (document.visibilityState === 'hidden') { stHidden = Date.now(); return; }
+    stLast = performance.now();
+    if (stHidden && Date.now() - stHidden >= 30 * 60e3 && stReady()) ST.n++;   // back after half an hour: a new session
+    stHidden = 0;
+  } catch (err) { stErr(err); }
+});
+
+// ---------- the numbers, for the screen and the copy ----------
+const stDur = s => { s = Math.max(0, Math.round(s)); if (s < 60) return s + 's'; const m = Math.floor(s / 60); if (m < 10) return `${m}m ${String(s % 60).padStart(2, '0')}s`; if (m < 60) return m + 'm'; return `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}m`; };
+const stDay = s => new Date(s * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toLowerCase();
+const stIso = s => s == null ? null : s < 0 ? 'before tracking' : new Date(s * 1000).toISOString().slice(0, 16) + 'Z';
+const stTime = e => e ? e[S.t] + e[S.nt] : 0;
+// a count since the update: "–" where a save from before means it's unknown, "+" where it's at least that
+const stNum = (n, old, txt = String(n)) => old && !n ? '–' : old ? txt + '+' : txt;
+const stTry = (n, old) => n < 0 ? '–' : n ? (old ? n + '+' : String(n)) : '';   // tries to a first win (blank: not yet)
+function stRoll(levels) {
+  const o = { time: 0, a: 0, w: 0, l: 0, q: 0, r: 0, won: 0, n: levels.length, stars: 0, old: false, hard: null };
+  for (const L of levels) {
+    const e = ST.L[L.id], st = store.d.stars[L.id] || 0;
+    o.stars += st; if (st > 0) o.won++;
+    if (!e) continue;
+    o.time += stTime(e); o.a += e[S.a]; o.w += e[S.w]; o.l += e[S.l]; o.q += e[S.q]; o.r += e[S.r]; if (e[S.o]) o.old = true;
+    if (e[S.fa] > 0 && (!o.hard || e[S.fa] >= o.hard.n)) o.hard = { L, n: e[S.fa], old: !!e[S.o] };   // the hardest: most tries before its first win
+  }
+  return o;
+}
+const stLevelsOf = w => LEVELS.filter(L => L.world === w);
+const stWorldName = w => WORLD_NAMES[w] || w;
+function staySay(t, old) {
+  if (!t) return 'no stats yet. go sit in a box.';
+  const p = old ? '+' : '';
+  if (t < 60) return `u haz played ${t}${p} second${t === 1 && !old ? '' : 's'}. smol nap.`;
+  if (t < 3600) { const m = Math.max(1, Math.floor(t / 60)); return `u haz played ${m}${p} minute${m === 1 && !old ? '' : 's'}. ${t < 600 ? 'smol nap.' : 'dat iz a gud nap.'}`; }
+  const h = Math.floor(t / 1800) / 2; return `u haz played ${h}${p} hour${h === 1 && !old ? '' : 's'}. dat iz a lot of naps.`;
+}
+function stTiles(r, time, old) {
+  const tile = (v, k) => `<div class="st-tile"><b>${v}</b><span>${k}</span></div>`;
+  return tile(stNum(time, old, stDur(time)), 'time played') + tile(`${r.won}/${r.n}`, 'levels won') + tile(`${r.stars}/${r.n * 3}`, 'stars') + tile(stNum(r.a, old), 'attempts');
+}
+function stRender() {
+  const s = stReady(), w = stView, all = stRoll(LEVELS);
+  $('stDump').hidden = true; $('stTable').hidden = false; $('stBack').hidden = !w;
+  clearTimeout(stSayT);
+  if (!w) {
+    $('stSay').textContent = stSayBase = staySay(s.t, !!s.o);
+    $('stTiles').innerHTML = stTiles(all, s.t, !!s.o);
+    $('stMeta').textContent = `${stDur(s.tm)} in menus · ${s.n} session${s.n === 1 ? '' : 's'} · ${s.o ? 'counting since' : 'first played'} ${stDay(s.s0)}`;
+    const rows = ST_WORLDS.map(x => {
+      const r = stRoll(stLevelsOf(x)), shut = !(s.W[x] && s.W[x][0] != null) && !r.a;
+      return `<tr class="st-w${shut ? ' shut' : ''}" data-w="${x}"><td><button class="st-go" aria-label="${stWorldName(x)}: see its levels">${stWorldName(x)}</button></td><td>${stNum(r.time, r.old, stDur(r.time))}</td><td>${r.won}/${r.n}</td><td>${r.stars}/${r.n * 3}</td><td>${stNum(r.a, r.old)}</td><td class="hard">${r.hard ? `${r.hard.L.name} · ${stTry(r.hard.n, r.hard.old)}` : ''}</td></tr>`;
+    }).join('');
+    $('stTable').innerHTML = `<table aria-label="worlds"><thead><tr><th>world</th><th>time</th><th>won</th><th>stars</th><th>attempts</th><th>hardest</th></tr></thead><tbody>${rows}</tbody></table>`;
+  } else {
+    const levels = stLevelsOf(w), r = stRoll(levels);
+    $('stSay').textContent = stSayBase = r.time ? `u haz played ${stDur(r.time)}${r.old ? '+' : ''} ${WORLD_IN[w] || 'in ' + stWorldName(w)}.` : `no stats ${WORLD_IN[w] || 'in ' + stWorldName(w)} yet.`;
+    $('stTiles').innerHTML = stTiles(r, r.time, r.old);
+    const W = s.W[w] || [], when = (k, label) => W[k] == null ? '' : W[k] < 0 ? `${label} before tracking` : k === 0 && W[k] === 0 ? 'open from the start' : `${label} at ${stDur(W[k])} played`;
+    $('stMeta').textContent = [when(0, 'opened'), when(2, 'finished'), when(4, 'perfect')].filter(Boolean).join(' · ');
+    const rows = levels.map(L => {
+      const e = ST.L[L.id], old = !!(e && e[S.o]), st = store.d.stars[L.id] || 0, n = k => e ? e[k] : 0;
+      return `<tr${e ? '' : ' class="shut"'}><td>${L.name}</td><td>${stNum(n(S.a), old)}</td><td>${stNum(n(S.w), old)}</td><td>${stNum(n(S.l), old)}</td><td aria-label="${st} stars">${[0, 1, 2].map(k => starSvg(k < st)).join('')}</td><td>${stNum(stTime(e), old, stDur(stTime(e)))}</td><td>${stTry(n(S.fa), old)}</td><td>${stTry(n(S.ta), old)}</td></tr>`;
+    }).join('');
+    $('stTable').innerHTML = `<table aria-label="levels in ${stWorldName(w)}"><thead><tr><th>level</th><th>attempts</th><th>wins</th><th>losses</th><th>best</th><th>time</th><th>tries to win</th><th>tries to 3 ★</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+  $('stTable').scrollTop = 0;
+}
+function showStats(back) { try { stBack = back; stView = null; stRender(); showScreen('scrStats'); } catch (err) { stErr(err); } }
+$('stTable').addEventListener('click', e => { const tr = e.target.closest('tr[data-w]'); if (!tr) return; Snd.fx('pop'); stView = tr.dataset.w; try { stRender(); } catch (err) { stErr(err); } });
+$('stBack').addEventListener('click', () => { Snd.fx('pop'); stView = null; try { stRender(); } catch (err) { stErr(err); } });
+$('stDone').addEventListener('click', () => { Snd.fx('pop'); const b = stBack; stBack = null; if (b) b(); else showLevels(); });
+$('statsBtn').addEventListener('click', () => { Snd.init(); Snd.fx('pop'); showStats(() => showLevels()); });
+$('pStats').addEventListener('click', () => { Snd.fx('pop'); showStats(() => { showScreen('scrPause'); }); });
+// the copy: a few plain lines, then everything as JSON (one level or log entry a line)
+function stDumpText() {
+  const s = stReady(), all = stRoll(LEVELS), J = JSON.stringify, lines = [];
+  const named = e => { const o = {}; ST_KEYS.forEach((k, i) => { if (ST_NAMES[k]) o[ST_NAMES[k]] = k === 'o' ? !!e[i] : e[i]; }); o.resultsByStars = [e[S.h0], e[S.h1], e[S.h2], e[S.h3]]; return o; };
+  const worlds = ST_WORLDS.map(w => { const r = stRoll(stLevelsOf(w)), W = s.W[w] || [];
+    return `  ${J(w)}: ${J({ playSec: r.time, won: r.won, levels: r.n, stars: r.stars, starsMax: r.n * 3, attempts: r.a, wins: r.w, losses: r.l, quits: r.q, retries: r.r, hardest: r.hard ? r.hard.L.id : null, hardestTries: r.hard ? r.hard.n : null,
+      opened: W[0] == null ? null : { playSec: W[0], date: stIso(W[1]) }, finished: W[2] == null ? null : { playSec: W[2], date: stIso(W[3]) }, perfect: W[4] == null ? null : { playSec: W[4], date: stIso(W[5]) } })}`; });
+  const levels = LEVELS.filter(L => s.L[L.id]).map(L => `  ${J(L.id)}: ${J(named(s.L[L.id]))}`);
+  const log = s.g.map(g => `  ${J({ level: g[0], try: g[1], result: ST_RES[g[2]] || g[2], stars: g[3], sec: g[4], thrown: g[5], left: g[6], mess: g[7], help: ST_HELP.filter(([b]) => g[8] & b).map(([, n]) => n), session: g[9], throws: stUnpack(g[10]).map(t => [t[0], t[1], t[2] / 100, t[3], ST_OUT[t[4]] != null ? ST_OUT[t[4]] : t[4]]) })}`);
+  lines.push('I Fits, I Sits: play stats (from this device, copied by the player)');
+  lines.push(`played ${stDur(s.t)}, menus ${stDur(s.tm)}, ${s.n} sessions, ${s.o ? 'counting since' : 'first played'} ${stIso(s.s0).slice(0, 10)}. ${all.won}/${all.n} levels won, ${all.stars}/${all.n * 3} stars, ${all.a} attempts.`);
+  if (s.o) lines.push('this save had progress from before stats existed: its counts start at the update ("olderSave"), and -1 means before tracking.');
+  lines.push('');
+  lines.push('{');
+  lines.push(`  "game": "I Fits, I Sits", "copied": ${J(new Date().toISOString())}, "since": ${J(stIso(s.s0))}, "olderSave": ${!!s.o}, "sessions": ${s.n}, "playSec": ${s.t}, "menuSec": ${s.tm},`);
+  lines.push(`  "totals": ${J({ attempts: all.a, wins: all.w, losses: all.l, quits: all.q, retries: all.r, levelsWon: all.won, levels: all.n, stars: all.stars, starsMax: all.n * 3 })},`);
+  lines.push('  "worlds": {'); lines.push(worlds.join(',\n')); lines.push('  },');
+  lines.push('  "levels": {'); lines.push(levels.join(',\n')); lines.push('  },');
+  lines.push('  "throwFormat": ["cat", "angle (degrees)", "power (0 to 1)", "tricks", "outcome"],');
+  lines.push(`  "log": [`); lines.push(log.join(',\n')); lines.push('  ]');
+  lines.push('}');
+  return lines.join('\n');
+}
+function staySet(text, ms) { const el = $('stSay'); clearTimeout(stSayT); el.textContent = text; if (ms) stSayT = setTimeout(() => { el.textContent = stSayBase; }, ms); }
+$('stCopy').addEventListener('click', () => {
+  let text = '', ok = false;
+  try { text = stDumpText(); } catch (err) { stErr(err); return; }
+  Snd.fx('pop');
+  // inside the tap, so the web view allows it: a hidden textarea and execCommand (iOS web views, where navigator.clipboard can
+  // be missing or refuse), then navigator.clipboard too. Nothing is sent anywhere: it's the player's clipboard.
+  try {
+    const ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', ''); ta.className = 'stats-copy';
+    document.body.appendChild(ta); ta.focus({ preventScroll: true }); ta.select(); ta.setSelectionRange(0, text.length);
+    ok = document.execCommand('copy'); ta.remove(); $('stCopy').focus({ preventScroll: true });
+  } catch (err) {}
+  const done = good => {
+    if (good) { staySet('copied! paste it anywhere, hooman.', 3500); return; }
+    const box = $('stDump'); box.value = text; box.hidden = false; $('stTable').hidden = true; box.focus({ preventScroll: true }); box.select();   // (copy it by hand)
+    staySet('i no can copy. hold the text 2 copy.');
+  };
+  try { if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => done(true), () => done(ok)); else done(ok); } catch (err) { done(ok); }
+});
+// the level list: each world's time played on its heading (once there's a minute of it)
+function statsHead(h, w) {
+  try {
+    if (!stReady()) return;
+    const t = stLevelsOf(w).reduce((n, L) => n + stTime(ST.L[L.id]), 0); if (t < 60) return;
+    const s = document.createElement('span'); s.className = 'wh-time'; s.innerHTML = `<span class="st-vh">played </span>${stDur(t)}`; h.appendChild(s);
+  } catch (err) { stErr(err); }
 }
 
 // ---------- teh end ----------
@@ -8629,26 +9127,29 @@ const POSTCARD = {
   park: { cats: ['chaos', 'toast'], line: 'zoomies in da grass. purrfect.' },
   warehouse: { cats: ['void', 'toast'], line: 'so many boxez. i fits in all.' },
   space: { cats: ['toot', 'toast'], line: 'no gravity. just tootz.' },
+  moon: { cats: ['spicy', 'toast'], line: 'smol step 4 cat. HISSSS.' },   // (the album's and the gold one: winning moon 9 plays teh end)
 };
-let pcRaf = 0, pcThen = null;
+let pcRaf = 0, pcThen = null, pcWorld = null, pcReward = null;
 function lastOfWorld(L) { const i = LEVELS.indexOf(L); return L.mode !== 'mess' && !LEVELS.slice(i + 1).some(x => x.world === L.world && x.mode !== 'mess'); }
-function showPostcard(world, then) {
+function showPostcard(world, then, o) {   // o: { gold, reward (a perfect world's prize, just won), back (opened from the album) }
   const P = POSTCARD[world]; if (!P) { then(); return; }
-  pcThen = then;
-  $('pcLine').textContent = P.line;
+  o = o || {}; pcThen = then; pcWorld = world; pcReward = o.reward || null;
+  $('pcLine').textContent = o.reward ? `purrfect ${PURRFECT[world]}! i got da ${o.reward.name}` : P.line;
+  $('pcWear').hidden = !o.reward; $('pcRow').className = 'btn-row' + (o.reward ? '' : ' one'); $('pcNext').textContent = o.back ? 'back' : 'next';
   showScreen('scrCard'); Snd.fx('star'); Snd.voice('mrrp', CATS[P.cats[0]].pitch, 0.8, 0.15); buzz('star');
+  if (o.gold && !o.back) { Snd.fx('win', 0.9); setTimeout(() => Snd.fx('twinkle', 0.8), 400); }
   const c = $('pcCv'), t0 = performance.now(); cancelAnimationFrame(pcRaf);
   const loop = now => {
     if ($('scrCard').hidden) return;
     const dpr = Math.min(devicePixelRatio || 1, 2.5), w = c.clientWidth || 480, h = c.clientHeight || 240;
     if (c.width !== Math.round(w * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
-    withCtx(c.getContext('2d'), () => drawPostcard(world, (now - t0) / 1000, w, h, dpr));
+    withCtx(c.getContext('2d'), () => drawPostcard(world, (now - t0) / 1000, w, h, dpr, o));
     pcRaf = requestAnimationFrame(loop);
   };
   pcRaf = requestAnimationFrame(loop);
 }
-function drawPostcard(world, t, w, h, dpr) {
-  const P = POSTCARD[world], s = w / 600;
+function drawPostcard(world, t, w, h, dpr, o = {}) {   // (o.gold: a perfect world's, the cats wearing its prize; o.still: the album's small copy)
+  const P = POSTCARD[world], s = w / 600, gold = !!o.gold, prize = gold ? shopItem('w_' + world) : null;
   ctx.setTransform(dpr * s, 0, 0, dpr * s, 0, 0); ctx.clearRect(0, 0, 600, 300);
   rrect(0, 0, 600, 300, 14); fs('#FFFDF6', null);
   // the photo: the world, the cats in a box
@@ -8660,13 +9161,17 @@ function drawPostcard(world, t, w, h, dpr) {
   const space = world === 'space', bx = 780;
   if (!space) endBoxBack(bx, FLOOR, 220, 58);
   P.cats.forEach((type, i) => {
-    const x = bx - 48 + i * 96, bob = space ? Math.sin(t * 1.6 + i) * 10 : 0;
-    if (space) endCat(type, 'fly', x, FLOOR - 130 + bob - i * 34, { eyes: 'happy', mouth: 'w' }, { rot: Math.sin(t + i) * 0.2, t, scale: 1.35, inSuit: true });
-    else endCat(type, 'sit', x, FLOOR - 50, { eyes: ((t + i) % 3.4) > 3.25 ? 'closed' : 'open', mouth: 'w' }, { t, look: { x: -0.6, y: 0 }, scale: 1.35 });
+    const x = bx - 48 + i * 96, bob = space ? Math.sin(t * 1.6 + i) * 10 : 0, wear = prize ? Object.assign({}, wearOf(CATS[type]), { [prize.slot]: prize.id }) : undefined;
+    if (space) endCat(type, 'fly', x, FLOOR - 130 + bob - i * 34, { eyes: 'happy', mouth: 'w' }, { rot: Math.sin(t + i) * 0.2, t, scale: 1.35, inSuit: true, wear });
+    else endCat(type, 'sit', x, FLOOR - 50, { eyes: gold ? 'happy' : ((t + i) % 3.4) > 3.25 ? 'closed' : 'open', mouth: 'w' }, { t, look: { x: -0.6, y: 0 }, scale: 1.35, wear, inSuit: world === 'moon' });
   });
   if (!space) endBoxFront(bx, FLOOR, 220, 58);
   ctx.restore();
   rrect(12, 12, 576, 276, 8); fs(null, INK, 2.2);
+  if (gold) {   // a gold frame, sparkles
+    rrect(4, 4, 592, 292, 12); fs(null, '#B8892E', 9); rrect(4, 4, 592, 292, 12); fs(null, GOLD, 5.5); rrect(12, 12, 576, 276, 8); fs(null, INK, 2.2);
+    for (let i = 0; i < 9; i++) { const a = o.still ? 0.8 : 0.5 + 0.5 * Math.sin(t * 3 + i * 1.9), x = 40 + ((i * 131) % 520), y = 30 + ((i * 89) % 240); starPath(x, y, 6 * a + 3); fs(`rgba(255,243,184,${0.6 + 0.4 * a})`, 'rgba(184,137,46,0.8)', 1.2); }
+  }
   // greetings from ...
   ctx.save(); ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
   ctx.font = `900 22px ${FONT}`; ctx.lineWidth = 7; ctx.strokeStyle = INK; ctx.strokeText('greetings from', 34, 46); ctx.fillStyle = '#FFFDF6'; ctx.fillText('greetings from', 34, 46);
@@ -8678,18 +9183,454 @@ function drawPostcard(world, t, w, h, dpr) {
   // a stamp with the cat on it, and a postmark
   ctx.save(); ctx.translate(520, 62);
   ctx.beginPath(); for (let i = 0; i < 40; i++) { const k = i / 40, side = Math.floor(k * 4), u = (k * 4) % 1, px = side === 0 ? -34 + u * 68 : side === 1 ? 34 : side === 2 ? 34 - u * 68 : -34, py = side === 0 ? -40 : side === 1 ? -40 + u * 80 : side === 2 ? 40 : 40 - u * 80, r = i % 2 ? 1 : 0.92; ctx.lineTo(px * r, py * r); } ctx.closePath(); fs('#FFFDF6', INK, 1.8);
-  rrect(-26, -32, 52, 54, 4); fs('#BFE3F2', INK, 1.6);
-  ctx.save(); ctx.translate(0, -2); ctx.scale(0.5, 0.5); drawHead(CATS[P.cats[0]], { eyes: 'open', mouth: 'w' }, { faceOnly: true, t }); ctx.restore();
-  ctx.font = `900 10px ${FONT}`; ctx.fillStyle = INK; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('1 meow', 0, 31);
+  rrect(-26, -32, 52, 54, 4); fs(gold ? GOLD : '#BFE3F2', INK, 1.6);
+  ctx.save(); ctx.translate(0, -2); ctx.scale(0.5, 0.5); drawHead(CATS[P.cats[0]], { eyes: gold ? 'happy' : 'open', mouth: 'w' }, { faceOnly: true, t, wear: prize ? { [prize.slot]: prize.id } : undefined }); ctx.restore();
+  ctx.font = `900 10px ${FONT}`; ctx.fillStyle = INK; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(gold ? '3 ★ evry' : '1 meow', 0, 31);
   ctx.restore();
   ctx.save(); ctx.translate(468, 84); ctx.rotate(-0.25); ell(0, 0, 30, 30); fs(null, 'rgba(46,58,53,0.55)', 2.2); ell(0, 0, 23, 23); fs(null, 'rgba(46,58,53,0.4)', 1.4);
-  ctx.font = `900 12px ${FONT}`; ctx.fillStyle = 'rgba(46,58,53,0.6)'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('PURR', 0, 0);
+  ctx.font = `900 12px ${FONT}`; ctx.fillStyle = 'rgba(46,58,53,0.6)'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(gold ? 'PURR!!' : 'PURR', 0, 0);
   for (let i = 0; i < 3; i++) { ctx.beginPath(); for (let k = 0; k <= 20; k++) ctx.lineTo(30 + k * 4, -10 + i * 10 + Math.sin(k * 0.9) * 3); fs(null, 'rgba(46,58,53,0.45)', 2); }
   ctx.restore();
 }
 $('pcNext').addEventListener('click', () => { Snd.fx('pop'); const f = pcThen; pcThen = null; if (f) f(); else showLevels(); });
+$('pcWear').addEventListener('click', () => {   // a perfect world's prize, straight on that world's cat
+  const it = pcReward, cat = pcWorld && POSTCARD[pcWorld].cats[0]; if (!it || !cat) return;
+  putOn(it, cat, true); store.save(); Snd.fx('pop'); Snd.voice('mrrp', CATS[cat].pitch, 0.8); $('pcLine').textContent = `${it.name}. lookin gud`; $('pcWear').hidden = true; $('pcRow').className = 'btn-row one';
+});
 
-window.__fits = { get yeetShow() { return fx.yeet; }, ORBIT, orbitRemember, YEET, openAll: () => { allOpen = true; }, slowmo: k => { timeScale = k; }, showEnding, showPostcard, END_T, get endT() { return E && E.t; }, endSeek: k => { if (E) E.t0 = performance.now() - k * 1000; }, CLOSET, gate, WORLD_NEED, starsBefore, showTitle, get attract() { return attract; }, ATTRACT, STYLE, art: { ell, fs, line, rrect, poly, symbol, starPath, heartPath, INK, PAPER, ORANGE, GOLD, RED }, get sim() { return sim; }, get canSwap() { return canSwap(); }, cam, Snd, drawCat, withCtx, CATS, LEVELS, showResult, startLevel, showScreen, showLevels, drain, store, maxPullPx, SHOP, closetDebug: () => CL, drawPost, showCloset, earn: earnItem, itemIcon, showCrib };
+// ---------- world milestones (Nov 7) ----------
+// Adam: "we need something to mark when a world is completed or a world is opened with enough stars". Shown four ideas, he
+// picked all four: a moment when a world's door opens, marks on the level list, a postcard album, and a closet prize for a
+// perfect world. Of the moment: "I think the better animation would be the cats celebrating and crashing into each other,
+// etc and maybe even animations that hint at the new world that is opened... so like cats in space suits climbing into a
+// rocket that takes off, something like that". Drawn like teh end (the game's own art, no physics), about 5.5 s, tap to skip.
+// Saved: worldNew (a door just opened: NEW on the level list until a level there is played), worldsCheered (its moment has
+// played), album (1: the postcard, 2: gold), albumNew (the dot on the postcards button); the prizes go in owned. Reset game
+// clears them all (it keeps only the settings).
+const WM_WORLDS = ['kitchen', 'building', 'park', 'warehouse', 'space', 'moon'];
+const WORLD_SHORT = { kitchen: 'kitchen', building: 'window', park: 'park', warehouse: 'boxez', space: 'space', moon: 'moon' };
+const WORLD_IN = { kitchen: 'in the kitchen', building: 'out teh window', park: 'in teh park', warehouse: 'in teh box warehouse', space: 'in outer space', moon: 'on teh moon' };
+const PURRFECT = { kitchen: 'kitchen', building: 'ledges', park: 'park', warehouse: 'boxez', space: 'space', moon: 'moon' };
+const regularOf = w => LEVELS.filter(L => L.world === w && L.mode !== 'mess');
+const firstOf = w => LEVELS.findIndex(L => L.world === w && L.mode !== 'mess');
+const worldWon = w => { const r = regularOf(w); return r.length > 0 && r.every(L => (store.d.stars[L.id] || 0) > 0); };
+const worldPerfect = w => { const r = regularOf(w); return r.length > 0 && r.every(L => (store.d.stars[L.id] || 0) >= 3); };
+const NEW_CAT = {}; for (const L of LEVELS) if (L.newCat && !NEW_CAT[L.world]) NEW_CAT[L.world] = L.newCat;   // each world's new cat
+const crewFor = w => ['toast'].concat(WM_WORLDS.slice(0, Math.max(0, WM_WORLDS.indexOf(w))).map(x => NEW_CAT[x]).filter(c => c && c !== 'toast'));   // the cats u have when world w opens, newest last
+const wmSave = k => store.d[k] || (store.d[k] = {});
+function clearNew(w) { const n = store.d.worldNew; if (n && n[w]) { delete n[w]; store.save(); } }
+// a door that opened without its moment playing (u went for retry instead of next, or the app closed): it plays on the level list
+function pendingMoment() { if (allOpen) return null; const n = store.d.worldNew || {}, c = store.d.worldsCheered || {}; return Object.keys(WORLD_NEED).find(w => n[w] && !c[w] && worldOpen(w) && !isLocked(firstOf(w))) || null; }
+// after a result (and once at launch, for saves from before): the postcard for a world whose last level is won, gold and the
+// prize when every regular level there has 3 stars. Returns what's new, or null.
+function noteWorld(w) {
+  const al = store.d.album || {}, was = al[w] || 0, last = regularOf(w).slice(-1)[0];
+  let now = was; if (last && store.d.stars[last.id]) now = Math.max(now, 1); if (worldPerfect(w)) now = 2;
+  const it = now === 2 ? shopItem('w_' + w) : null, reward = it && earnItem(it.id) ? it : null;   // (earnItem saves; false if it's had already)
+  if (now === was && !reward) return null;
+  al[w] = now; store.d.album = al; store.d.albumNew = true; store.save();   // (written only once something's earned, so a fresh save stays empty)
+  return { card: was < 1 && now >= 1, gold: was < 2 && now === 2, reward };
+}
+function syncAlbum() { for (const w of WM_WORLDS) noteWorld(w); }
+const PAW_SVG = '<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13.5" fill="rgba(94,156,110,0.14)" stroke="#456954" stroke-width="2" stroke-dasharray="3 2.4"/><ellipse cx="16" cy="20" rx="6" ry="4.8" fill="#456954"/><ellipse cx="9.6" cy="14" rx="2.3" ry="2.9" fill="#456954"/><ellipse cx="13.6" cy="10.4" rx="2.3" ry="3" fill="#456954"/><ellipse cx="18.4" cy="10.4" rx="2.3" ry="3" fill="#456954"/><ellipse cx="22.4" cy="14" rx="2.3" ry="2.9" fill="#456954"/></svg>';
+const CROWN_SVG = '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 24 L4 10 L11 16 L16 6 L21 16 L28 10 L27 24 Z" fill="#F4C84A" stroke="#2E3A35" stroke-width="2" stroke-linejoin="round"/><rect x="5" y="23" width="22" height="4" rx="1.5" fill="#E0B04A" stroke="#2E3A35" stroke-width="2"/><circle cx="16" cy="18" r="2" fill="#E2574C"/><circle cx="4" cy="9.5" r="1.8" fill="#FFF3B8" stroke="#2E3A35" stroke-width="1.2"/><circle cx="16" cy="5.5" r="1.8" fill="#FFF3B8" stroke="#2E3A35" stroke-width="1.2"/><circle cx="28" cy="9.5" r="1.8" fill="#FFF3B8" stroke="#2E3A35" stroke-width="1.2"/></svg>';
+// the level list's world heading: the name, then a star bar to a shut door, NEW on a world just opened, a paw stamp on a
+// finished world (every regular level won), a gold crown on a perfect one (3 stars on every regular level)
+function worldHead(w, i) {
+  const h = document.createElement('div'); h.className = 'world-head'; h.id = 'wh-' + w;
+  const nm = document.createElement('span'); nm.textContent = WORLD_NAMES[w] || w; h.appendChild(nm);
+  const need = WORLD_NEED[w];
+  if (need && !worldOpen(w) && !isLocked(i) && !allOpen) {
+    const have = starsBefore(w), n = document.createElement('span'); n.className = 'need'; n.setAttribute('aria-label', `${have} of ${need} stars`);
+    n.innerHTML = `${starSvg(true)}${have}/${need}<span class="bar"><i style="width:${Math.min(100, have / need * 100).toFixed(1)}%"></i></span>`; h.appendChild(n);
+    return h;
+  }
+  if ((store.d.worldNew || {})[w] && !isLocked(i)) { const t = document.createElement('span'); t.className = 'wh-new'; t.textContent = 'new!'; h.appendChild(t); }
+  const perfect = worldPerfect(w), done = perfect || worldWon(w);
+  if (done) { const m = document.createElement('span'); m.className = 'wh-mark ' + (perfect ? 'wh-crown' : 'wh-paw'); m.setAttribute('role', 'img'); m.setAttribute('aria-label', perfect ? '3 stars on every level' : 'every level won'); m.innerHTML = perfect ? CROWN_SVG : PAW_SVG; h.appendChild(m); }
+  statsHead(h, w);   // (its time played: play stats)
+  return h;
+}
+
+// ---------- the moment a world opens ----------
+const WM_LINE = { building: 'ledges n birbs. i sits outside now.', park: 'grass n birbs. zoomies tiem.', warehouse: 'so many boxez. so little tiem.', space: 'no gravity. pls send snacks.', moon: 'smol step 4 cat. boing.' };
+const WM_RMK = { space: 1.75, moon: 5.2 };   // reduced motion: each scene held still on one frame that tells it (the crew in the rocket windows; the cats landed)
+const WM_SC = 3.4;   // each world's scene (s); after it, it idles under the card
+let WM = null, wmRaf = 0;
+function showWorldMoment(w, o = {}) {
+  wmSave('worldsCheered')[w] = true; wmSave('worldNew')[w] = true; store.save();
+  Snd.init(); Snd.purrStopAll(0.2); buzz('purrStopAll'); if (Snd.master) Snd.master.gain.value = 0.7;
+  const from = o.from || (sim && sim.level && WM_WORLDS.includes(sim.level.world) && levelIdx >= 0 ? sim.level.world : WM_WORLDS[Math.max(0, WM_WORLDS.indexOf(w) - 1)]);
+  const crew = crewFor(w), rm = reduceMotion;
+  WM = { w, from, o, rm, T: rm ? { scene: 1.0, card: 1.9 } : { scene: 2.1, card: 2.1 + WM_SC }, t0: performance.now(), t: 0, fired: new Set(), n: starsBefore(w),
+    cele: crew.slice(-4), crew, chonk: !!store.d.chonkMet && !rm, conf: wmConfetti() };
+  $('wmTitle').textContent = `${WORLD_NAMES[w] || w} iz open!`;
+  $('wmLine').textContent = o.line || WM_LINE[w] || '';
+  const nc = NEW_CAT[w], box = $('wmNew'); box.innerHTML = '';
+  if (nc) { box.appendChild(mysteryFace(nc, 36)); const s = document.createElement('span'); s.textContent = '+ 1 new cat. who dat?'; box.appendChild(s); }
+  box.hidden = !nc;
+  $('wmCard').hidden = true; $('wmSkip').hidden = false;
+  showScreen('scrWorld'); Snd.ambPlay(AMB_OF[from]); Snd.ambSet(0.8);
+  cancelAnimationFrame(wmRaf); wmRaf = requestAnimationFrame(wmLoop);
+}
+function wmLoop(now) {
+  if ($('scrWorld').hidden || !WM) return;
+  WM.t = (now - WM.t0) / 1000;
+  const c = $('wmCv'), dpr = Math.min(devicePixelRatio || 1, 2.5), cw = c.clientWidth || innerWidth, ch = c.clientHeight || innerHeight;
+  if (c.width !== Math.round(cw * dpr) || c.height !== Math.round(ch * dpr)) { c.width = Math.round(cw * dpr); c.height = Math.round(ch * dpr); }
+  withCtx(c.getContext('2d'), () => drawWorldMoment(cw, ch, dpr));
+  if (WM.t >= WM.T.scene && !WM.amb) { WM.amb = true; Snd.ambPlay(AMB_OF[WM.w]); }
+  if (WM.t >= WM.T.card && !WM.card) { WM.card = true; $('wmSkip').hidden = true; $('wmCard').hidden = false; }
+  wmRaf = requestAnimationFrame(wmLoop);
+}
+function wmSkip() { if (!WM || WM.card) return; WM.t0 = performance.now() - WM.T.card * 1000; Snd.fx('pop', 0.6); }
+function wmLeave(fn) { cancelAnimationFrame(wmRaf); Snd.purrStopAll(0.2); const W = WM; WM = null; fn(W); }
+$('wmSkip').addEventListener('click', wmSkip);
+$('wmCv').addEventListener('pointerdown', wmSkip);
+$('wmGo').addEventListener('click', () => { Snd.fx('pop'); wmLeave(W => (W.o.go ? W.o.go() : startLevel(firstOf(W.w)))); });
+$('wmLevels').addEventListener('click', () => { Snd.fx('pop'); wmLeave(W => (W.o.levels ? W.o.levels() : showLevelsNow())); });
+// the new world's cat on the card, as a shadow with a ?
+function mysteryFace(type, size) {
+  const c = makeFace(type, size), g = c.getContext('2d');
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-atop'; g.fillStyle = 'rgba(46,58,53,0.92)'; g.fillRect(0, 0, c.width, c.height); g.restore();
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.font = `900 ${Math.round(c.width * 0.5)}px ${FONT}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineWidth = c.width * 0.08; g.strokeStyle = INK; g.strokeText('?', c.width / 2, c.height * 0.56); g.fillStyle = GOLD; g.fillText('?', c.width / 2, c.height * 0.56); g.restore();
+  c.setAttribute('aria-hidden', 'true'); return c;
+}
+function wmOnce(key, now, when, fn) { if (now >= when && !WM.fired.has(key)) { WM.fired.add(key); if (now - when < 0.5) fn(); } }   // a sound once, right on its moment (none in a burst after a skip)
+const groundY = (type, pose, sc = 1) => FLOOR - (POSE_PIN[pose] || [0, 0])[1] * CATS[type].k * sc;
+function wmCat(type, pose, x, y, face, o = {}) { ctx.save(); ctx.translate(x, y); if (o.rot) ctx.rotate(o.rot); if (o.flip) ctx.scale(-1, 1); drawCat(CATS[type], pose, face, Object.assign({ t: WM.t, noSuit: true }, o, { rot: 0, flip: false })); ctx.restore(); }
+const arcH = (u, h) => 4 * h * clamp(u, 0, 1) * (1 - clamp(u, 0, 1));
+function wmText(text, x, y, a, size = 26, col = GOLD, rot = -0.12) {   // a cartoon word (BONK.) where it happens
+  if (a <= 0) return; ctx.save(); ctx.globalAlpha = clamp(a, 0, 1); ctx.translate(x, y); ctx.rotate(rot); ctx.font = `900 ${size}px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+  ctx.lineWidth = size * 0.3; ctx.strokeStyle = INK; ctx.strokeText(text, 0, 0); ctx.fillStyle = col; ctx.fillText(text, 0, 0); ctx.restore();
+}
+function wmImpact(x, y, k, r = 34) {   // a starburst where two things meet
+  if (k <= 0 || k >= 1) return; const s = r * (0.6 + 0.8 * ease(k)), a = 1 - k;
+  ctx.save(); ctx.globalAlpha = a; ctx.beginPath(); for (let i = 0; i < 16; i++) { const ang = i / 16 * Math.PI * 2, rr = i % 2 ? s * 0.45 : s; ctx.lineTo(x + Math.cos(ang) * rr, y + Math.sin(ang) * rr); } ctx.closePath(); fs('#FFF3B8', INK, 2.4); ctx.restore();
+}
+function wmBirb(x, y, t, dir = 1, flying = true, s = 1) {   // a pigeon, flapping off (or a duck-free birb on a branch)
+  ctx.save(); ctx.translate(x, y); ctx.scale(dir * s, s);
+  if (!flying) { const bob = Math.sin(t * 5) * 1.6; for (const lx of [-3, 3]) line([lx, 6, lx, 12], '#E58B5E', 1.6); ell(-2, 2, 13, 9); fs('#A7AFBA', INK, 1.8); ell(-5, 1, 8, 5, 0.2); fs('#8E96A2', null); poly([-14, 0, -20, -3, -19, 4]); fs('#8E96A2', INK, 1.2);
+    ell(6 + bob * 0.4, -5 + bob * 0.2, 6, 6); fs('#9AA2AE', INK, 1.6); ell(6, -1, 5, 3.5); fs('#86B79F', null); ell(8 + bob * 0.4, -6 + bob * 0.2, 1.4, 1.4); fs('#E58B5E', INK, 0.8); poly([11 + bob * 0.4, -5, 15 + bob * 0.4, -3.6, 11 + bob * 0.4, -3]); fs('#E9D9B9', INK, 0.8); ctx.restore(); return; }
+  const flap = Math.sin(t * 30); ell(0, 0, 12, 7); fs('#A7AFBA', INK, 1.6); ell(9, -4, 5.5, 5.5); fs('#9AA2AE', INK, 1.4); ell(9, -1, 4, 2.6); fs('#86B79F', null); poly([13.5, -4, 18, -3, 13.5, -2]); fs('#E9D9B9', INK, 0.8); ell(10.5, -5.5, 1.3, 1.3); fs(INK, null);
+  ctx.save(); ctx.rotate(-0.4 - flap * 0.9); ell(-2, -9, 5, 12); fs('#8E96A2', INK, 1.4); ctx.restore(); ctx.restore();
+}
+// the scene's camera: once the card's up (on the right, like teh end's) it eases over so the cats (around focusX) sit left of it
+function wmCam(base, focusX, k, cw, ch, dpr, shake) {
+  const s = Math.min(cw / base.w, ch / base.h), u = WM.rm ? 1 : ease((k - WM_SC) / 0.8), x = lerp(base.x, focusX + 0.23 * cw / s, u);
+  return endCam(Object.assign({}, base, { x }), cw, ch, dpr, shake);
+}
+function wmConfetti() {
+  const P = []; for (let i = 0; i < 76; i++) P.push({ side: i % 2 ? 1 : -1, vx: rand(160, 560), vy: -rand(560, 980), rot: rand(0, 6.3), vr: rand(-9, 9), col: RAINBOW[i % 6], w: rand(7, 12), h: rand(4, 7), d: rand(0, 0.14), sway: rand(0, 6.3), fall: rand(90, 150) });
+  return P;
+}
+function drawConfetti(b, t0, t) {
+  for (const p of WM.conf) {
+    const tt = WM.rm ? 1.1 : t - t0 - p.d; if (tt <= 0) continue;
+    const x0 = p.side < 0 ? b.x0 + 24 : b.x1 - 24, dir = -p.side, g = 1100, t1 = (p.fall - p.vy) / g;
+    const y = tt < t1 ? FLOOR - 10 + p.vy * tt + g * tt * tt / 2 : FLOOR - 10 + p.vy * t1 + g * t1 * t1 / 2 + p.fall * (tt - t1);
+    const x = x0 + dir * p.vx * 0.8 * (1 - Math.exp(-tt / 0.8)) + Math.sin(tt * 5 + p.sway) * 14 * Math.min(1, tt);
+    if (y > FLOOR + 20) continue;
+    ctx.save(); ctx.translate(x, y); ctx.rotate(p.rot + p.vr * tt); ctx.scale(Math.cos(tt * 9 + p.sway), 1); ctx.fillStyle = p.col; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore();
+  }
+}
+function wmBadge(n, k, cw, ch, dpr) {   // the big star with the count, under the caption (screen units)
+  if (k < 0) return; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const size = Math.round(clamp(cw / 46, 15, 22)), top = Math.max(14, size * 0.8) + size * 2.1, r = Math.round(clamp(ch * 0.12, 32, 66)), y = top + r + 8;
+  const pop = WM.rm ? 1 : k < 0.3 ? 0.3 + 0.85 * ease(k / 0.3) : 1 + 0.12 * Math.exp(-(k - 0.3) * 5) * Math.sin((k - 0.3) * 16);
+  ctx.save(); ctx.globalAlpha = WM.rm ? clamp(k / 0.3, 0, 1) : 1; ctx.translate(cw / 2, y); ctx.scale(pop, pop); ctx.rotate(WM.rm ? 0 : Math.sin(k * 3) * 0.06);
+  for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2 + (WM.rm ? 0 : k * 0.5); ctx.save(); ctx.rotate(a); poly([-r * 0.08, -r * 1.1, r * 0.08, -r * 1.1, 0, -r * 1.55]); fs(i % 2 ? '#FFE27A' : '#FFF3B8', null); ctx.restore(); }
+  starPath(0, 0, r); fs(GOLD, INK, 3.6); starPath(0, -r * 0.06, r * 0.72); fs('#FFE27A', null);
+  ctx.font = `900 ${Math.round(r * 0.6)}px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round'; ctx.lineWidth = r * 0.16; ctx.strokeStyle = PAPER; ctx.strokeText(String(n), 0, r * 0.08); ctx.fillStyle = INK; ctx.fillText(String(n), 0, r * 0.08);
+  ctx.restore();
+}
+function drawWorldMoment(cw, ch, dpr) {
+  const t = WM.t, T = WM.T;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.fillStyle = '#FBF1DC'; ctx.fillRect(0, 0, cw, ch);
+  if (t < T.scene) wmCelebrate(t, cw, ch, dpr);
+  else WM_SCENES[WM.w](WM.rm ? WM_RMK[WM.w] || WM_SC + 0.8 : t - T.scene, cw, ch, dpr);
+  let f = 1 - Math.abs(t - T.scene) / 0.3; if (t < 0.3) f = Math.max(f, 1 - t / 0.3);
+  endFade(f, cw, ch, dpr);
+}
+// 1. The cats go nuts: they cheer and hop, two leap for a high five and BONK heads, flop on their backs seeing stars, another
+// piles on, megachonk (once u've met him) drops in on top: THOOM. Confetti, the fanfare, the count on a big star.
+function wmCelebrate(t, cw, ch, dpr) {
+  const rm = WM.rm, cats = WM.cele, n = cats.length, X = i => 600 + (i - (n - 1) / 2) * 150, sc = 1.05;
+  const A = Math.floor((n - 1) / 2), B = A + 1, C = n >= 3 ? (B === n - 1 ? 0 : n - 1) : -1, crash = 1.18, land = 1.5, up = 1.85, chonkX = Math.min(1010, X(n - 1) + 150), thoom = 1.62;
+  const th = WM.chonk ? t - thoom : -1, shake = rm ? 0 : t > crash && t < crash + 0.3 ? 9 : th > 0 && th < 0.4 ? 15 * (1 - th / 0.4) : 0;
+  const b = endCam({ x: 600, y: 372, w: 940, h: 500 }, cw, ch, dpr, shake), suit = WM.from === 'space' || WM.from === 'moon';
+  endWorld(WM.from, 1400, () => drawRoom(t, b));
+  const bounce = th > 0 && th < 0.5 ? arcH(th / 0.5, 34) : 0;   // everything hops at the THOOM
+  const mid = (X(A) + X(B)) / 2, gy = i => groundY(cats[i], 'sit', sc), under = C > B ? B : A;
+  for (let i = 0; i < n; i++) {
+    const type = cats[i], o = { scale: sc, inSuit: suit };
+    if (rm) { wmCat(type, 'sit', X(i), gy(i), { eyes: 'happy', mouth: i % 2 ? 'smile' : 'yell' }, Object.assign(o, { wave: t * 6 + i })); continue; }
+    if ((i === A || i === B) && t >= 0.95 && t < up) {   // the high five that goes wrong
+      const s = i === A ? 1 : -1, fromX = X(i);
+      if (t < crash) { const u = (t - 0.95) / (crash - 0.95), x = lerp(fromX, mid - s * 26, u), y = lerp(gy(i), gy(i) - 120, u) - arcH(u, 30); wmCat(type, 'fly', x, y, { eyes: 'happy', mouth: 'yell' }, Object.assign(o, { flip: s < 0, rot: -0.2 * s, up: true })); continue; }
+      if (t < land) { const u = (t - crash) / (land - crash), x = lerp(mid - s * 26, mid - s * 78, u), y = lerp(gy(i) - 120, gy(i) - 6, u * u); wmCat(type, 'drop', x, y, { eyes: 'googly', mouth: 'o' }, Object.assign(o, { flip: s < 0, rot: -s * u * Math.PI * 2 })); continue; }
+      const x = mid - s * 78, oof = i === under && t > 1.6 && t < 1.78 ? 5 : 0;   // landed wrong (the game's own bonk: stiff legs, googly eyes), seeing stars
+      wmCat(type, 'stiff', x, groundY(type, 'stiff', sc) + oof - bounce, { eyes: 'googly', mouth: 'tongue' }, Object.assign(o, { rot: s * 0.12 + Math.sin(t * 18) * 0.03, flip: s < 0 }));
+      dizzyStars(x + s * 20, groundY(type, 'stiff', sc) - 58 - bounce, t, 3, 22); continue;
+    }
+    if (i === C && t >= 1.3 && t < up + 0.3) {   // so excited it hops right onto the pile (and back down when they pop up)
+      const px = mid + (under === B ? 78 : -78), py = gy(i) - 40, u = clamp((t - 1.3) / 0.3, 0, 1), d = clamp((t - up) / 0.3, 0, 1);
+      const x = d > 0 ? lerp(px, X(i), d) : lerp(X(i), px, u), y = d > 0 ? lerp(py, gy(i), d) - arcH(d, 50) : u < 1 ? lerp(gy(i), py, u) - arcH(u, 90) : py - bounce;
+      wmCat(type, 'sit', x, y, { eyes: u < 1 || d > 0 ? 'happy' : 'wide', mouth: u < 1 || d > 0 ? 'yell' : 'o' }, Object.assign(o, { wave: u < 1 ? t * 14 : null, flip: C < A })); continue;
+    }
+    // cheering: two hops for joy, then a wave (and once they pop back up: swirly, then happy again)
+    const s0 = 0.12 + i * 0.09, k1 = (t - s0) / 0.36, k2 = (t - s0 - 0.38) / 0.32, hy = k1 > 0 && k1 < 1 ? arcH(k1, 70) : k2 > 0 && k2 < 1 ? arcH(k2, 52) : 0;
+    const back = (i === A || i === B || i === C) && t >= up, x = back ? (i === A ? mid - 78 : i === B ? mid + 78 : X(i)) : X(i);   // (A and B land about where they started)
+    const sq = (k1 > 0.92 && k1 < 1.08) || (k2 > 0.92 && k2 < 1.08) ? 0.86 : 1;
+    const face = back ? (t < up + 0.25 ? { eyes: 'swirl', mouth: 'wobble' } : { eyes: 'happy', mouth: 'smile' }) : hy > 0 ? { eyes: 'happy', mouth: 'yell' } : { eyes: 'happy', mouth: 'o' };
+    wmCat(type, 'sit', x, gy(i) - hy - bounce, face, Object.assign(o, { wave: back && t < up + 0.25 ? null : t * 12 + i, squash: sq }));
+    wmOnce('hop' + i, t, s0, () => Snd.voice(['meow', 'mrrp', 'mew'][i % 3], CATS[type].pitch, 0.7));
+  }
+  if (!rm && t >= crash && t < crash + 0.45) { wmImpact(mid, gy(A) - 132, (t - crash) / 0.45, 46); wmText('BONK.', mid, gy(A) - 200, Math.min(1, (crash + 0.6 - t) / 0.2), 30); }
+  if (WM.chonk) {   // megachonk: in from the top, THOOM
+    if (t >= thoom - 0.3 && t < thoom) { const u = (t - thoom + 0.3) / 0.3; wmCat('chonk', 'fly', chonkX, lerp(b.y0 - 140, groundY('chonk', 'sit'), u * u), { eyes: 'wide', mouth: 'yell' }, { rot: 0.4 }); }
+    else if (t >= thoom) { const sq = th < 0.35 ? 1 - 0.3 * Math.exp(-th * 6) * Math.abs(Math.cos(th * 12)) : 1; wmCat('chonk', 'sit', chonkX, groundY('chonk', 'sit'), th < 0.5 ? { eyes: 'squint', mouth: 'yell' } : { eyes: 'open', mouth: 'blep' }, { squash: sq, lids: chonkBlinks(t, 3) });
+      if (th < 0.6) { const r = th / 0.6; ell(chonkX, FLOOR, 80 + r * 360, 14 + r * 40); fs(null, `rgba(255,255,255,${0.8 * (1 - r)})`, 6); endDust(chonkX, FLOOR, r * 1.4, 8, 200); } }
+  }
+  drawConfetti(b, 0.12, t);
+  endCaption(WM.o.bought ? 'i haz teh whole game!!' : 'i haz enuf stars!!', Math.min((t - 0.15) / 0.2, (T_CELE_OUT(WM) - t) / 0.25), cw, dpr);
+  if (!WM.o.bought) wmBadge(WM.n, t - 0.05, cw, ch, dpr);   // (bought, not earned: no star count)
+  wmOnce('fanfare', t, 0.05, () => { Snd.fx('win', 1.2); setTimeout(() => Snd.fx('star'), 380); buzz('won'); });
+  wmOnce('confetti', t, 0.13, () => { Snd.fx('popb', 0.8); setTimeout(() => Snd.fx('popb', 0.7), 70); Snd.fx('twinkle', 0.7); });
+  wmOnce('crash', t, crash, () => { Snd.fx('bonk', 1.3); buzz('bonk', 0.9); Snd.voice('yowl', 1.1, 0.6, 0.05); });
+  wmOnce('flop', t, land, () => { Snd.fx('soft', 0.9); Snd.fx('dizzy'); buzz('cathit', 0.5); });
+  if (C >= 0) wmOnce('pile', t, 1.6, () => { Snd.fx('boing', 0.8); Snd.voice('huh', 1, 0.6); });
+  if (WM.chonk) wmOnce('thoom', t, thoom, () => { Snd.fx('thoom'); Snd.fx('rumble'); buzz('shock', 0.9); });
+  wmOnce('up', t, up, () => { Snd.fx('brrr', 0.6); Snd.voice('mrrp', 1.1, 0.7, 0.1); });
+}
+const T_CELE_OUT = W => W.T.scene - 0.05;
+// 2. A peek at the new world.
+// out teh window: the cats hop out of the hooman's kitchen window onto the ledge (the last one bonks the sash), a pigeon flaps off
+function wmWindow(k, cw, ch, dpr) {
+  const b = wmCam({ x: 610, y: 330, w: 960, h: 540 }, 600, k, cw, ch, dpr, 0), cats = WM.crew.slice(-3).reverse(), n = cats.length, sc = 0.95;
+  endWorld('building', 1400, () => drawFacade(k, b));
+  drawWindow(780, 900, 216, 336, k);
+  const WX0 = 330, WX1 = 500, WY0 = 176, WY1 = 336, MID = 254, ledge = WY1;
+  rrect(WX0 - 7, WY0 - 7, WX1 - WX0 + 14, WY1 - WY0 + 7, 4); fs('#F4EEDF', INK, 2.4);
+  rrect(WX0, WY0, WX1 - WX0, WY1 - WY0, 2); fs('#FBF1DC', null);   // the kitchen inside
+  ctx.save(); rrect(WX0, WY0, WX1 - WX0, WY1 - WY0, 2); ctx.clip();
+  ctx.fillStyle = '#E9D9B9'; for (let y = WY0 + 14; y < WY1; y += 30) for (let x = WX0 + 10; x < WX1; x += 30) { poly([x, y - 4, x + 4, y, x, y + 4, x - 4, y]); ctx.fill(); }
+  rrect(WX0 + 2, WY0, 20, WY1 - WY0, 6); fs('#EBBAB0', null); rrect(WX1 - 22, WY0, 20, WY1 - WY0, 6); fs('#EBBAB0', null);
+  const seat = j => ({ x: 610 + j * 100, y: ledge - 23 * CATS[cats[j]].k * sc }), start = j => ({ x: WX0 + 50 + j * 46, y: ledge - 23 * CATS[cats[j]].k * sc }), hopT = j => 0.3 + j * 0.5;
+  for (let j = n - 1; j >= 0; j--) if (k < hopT(j)) { const s = start(j); wmCat(cats[j], 'sit', s.x, s.y, { eyes: 'wide', mouth: 'o' }, { scale: sc * 0.9, look: { x: 1, y: 0 } }); }   // waiting their turn inside
+  ctx.restore();
+  rrect(WX0 + 2, WY0 + 2, WX1 - WX0 - 4, MID - WY0, 2); fs('rgba(191,227,242,0.78)', null); ell(WX0 + 50, WY0 + 22, 14, 5); fs('rgba(255,255,255,0.75)', null);   // the sash, pushed up
+  rrect(WX0, MID - 4, WX1 - WX0, 9, 2); fs('#F4EEDF', INK, 2); line([(WX0 + WX1) / 2, WY0 + 2, (WX0 + WX1) / 2, MID - 4], '#F4EEDF', 4);
+  rrect(WX0 - 7, WY0 - 7, WX1 - WX0 + 14, WY1 - WY0 + 7, 4); fs(null, INK, 2.4);
+  drawFurniture({ kind: 'ledge', x0: 300, x1: 1010, top: ledge, win: false });
+  // the pigeon: on the ledge, then "!" and off
+  const birbGo = 1.05;
+  if (k < birbGo) { wmBirb(930, ledge - 12, k, -1, false); if (k > 0.82) symbol('!', 934, ledge - 52, 0.9); }
+  else { const u = k - birbGo; if (u < 2.2) wmBirb(930 + 280 * u, ledge - 14 - 240 * u + 40 * Math.sin(u * 3), k, 1, true); }
+  for (let j = 0; j < n; j++) {
+    const s0 = hopT(j); if (k < s0) continue;
+    const u = clamp((k - s0) / 0.5, 0, 1), A = start(j), S = seat(j), last = j === n - 1 && n > 1, type = cats[j];
+    if (u < 1) { const x = lerp(A.x, S.x, u), y = lerp(A.y, S.y, u) - arcH(u, 80); wmCat(type, 'fly', x, y, last && u > 0.15 ? { eyes: 'googly', mouth: 'o' } : { eyes: 'happy', mouth: 'yell' }, { scale: sc, rot: -0.3 + u * 0.5, up: u < 0.5 });
+      if (last && u > 0.15) { dizzyStars(x + 14, y - 40, k, 3, 18); wmText('BONK.', x + 10, y - 70, Math.min(1, (0.55 - u) / 0.2), 24); } continue; }
+    const dz = last && k < s0 + 1.4, look = k > birbGo ? { x: 0.7, y: -0.7 } : { x: 0.3, y: 0.3 };
+    wmCat(type, 'sit', S.x, S.y, dz ? { eyes: 'swirl', mouth: 'wobble' } : { eyes: ((k + j) % 3.4) > 3.25 ? 'closed' : 'open', mouth: 'w' }, { scale: sc, look, squash: u >= 1 && k - s0 - 0.5 < 0.1 ? 0.85 : 1 });
+    if (dz) dizzyStars(S.x + 6, S.y - 52, k, 3, 20);
+    wmOnce('hopw' + j, k, s0, () => Snd.voice(j % 2 ? 'mrrp' : 'mew', CATS[type].pitch, 0.7));
+    wmOnce('landw' + j, k, s0 + 0.5, () => { Snd.pat(0.5); buzz('sit', 0.4); });
+    if (last) wmOnce('bonkw', k, s0 + 0.08, () => { Snd.fx('bonk', 1); buzz('bonk', 0.7); });
+  }
+  endCaption('out teh window we go!', Math.min((k - 0.15) / 0.2, (1.7 - k) / 0.3), cw, dpr);
+  wmOnce('creak', k, 0.05, () => Snd.fx('creak', 0.8));
+  wmOnce('birb', k, birbGo, () => { Snd.fx('flap', 0.9); Snd.fx('coo', 0.7); });
+}
+// teh park: the back door bursts open and the cats charge out after a pigeon; the first one pounces and eats grass, the birb laughs from a branch
+function wmPark(k, cw, ch, dpr) {
+  const b = wmCam({ x: 620, y: 350, w: 980, h: 540 }, 650, k, cw, ch, dpr, 0), cats = WM.crew.slice(-3).reverse(), n = cats.length;
+  endWorld('park', 1600, () => drawPark(k, b));
+  // a tree on the right, its branch reaching left (the pigeon ends up there)
+  rrect(930, 230, 34, FLOOR - 228, 6); fs('#A9783F', INK, 2.4); rrect(820, 296, 120, 12, 6); fs('#A9783F', INK, 2.2);
+  for (const [dx, dy, r] of [[-70, -40, 54], [40, -30, 58], [-10, -80, 62], [80, -70, 46], [-110, -10, 34]]) { ell(950 + dx, 240 + dy, r, r * 0.78); fs('#6FAE62', INK, 2.2); }
+  for (const [dx, dy] of [[-40, -60], [30, -90], [70, -40]]) { ell(950 + dx, 240 + dy, 4, 4); fs(RED, INK, 1); }
+  // the hooman's building on the left, its back door
+  const WR = 250, DX = 118, DW = 104, DT = FLOOR - 196;
+  ctx.fillStyle = '#EBB394'; ctx.fillRect(b.x0 - 60, b.y0 - 60, WR - (b.x0 - 60), FLOOR - b.y0 + 60); brickRows(b.x0 - 60, b.y0 - 60, WR, FLOOR, '#E3A383', '#DE9A7A');
+  rrect(WR - 7, b.y0 - 60, 14, FLOOR - b.y0 + 60, 4); fs('#C98468', INK, 2);
+  rrect(DX - 10, DT - 10, DW + 20, 206, 6); fs('#EDE6D6', INK, 2.4); rrect(DX, DT, DW, 196, 3); fs('#3A3330', null);
+  const burst = 0.35, sw = k < burst ? 0 : ease((k - burst) / 0.14), dw = DW * Math.cos(sw * 1.32);
+  ctx.save(); ctx.translate(DX, DT); poly([0, 0, dw, -sw * 16, dw, 196 + sw * 16, 0, 196]); fs(k < burst ? '#5E9C6E' : '#4E8A5E', INK, 2.4);
+  if (dw > 30) { ell(dw - 16, 104, 5, 5); fs(GOLD, INK, 1.4); } ctx.restore();
+  rrect(DX - 18, FLOOR - 8, DW + 36, 10, 3); fs('#C4BEB1', INK, 2);
+  // the pigeon: pecking, then up to the branch
+  const go = 0.55, perch = { x: 860, y: 284 };
+  if (k < go) { ctx.save(); ctx.translate(480, FLOOR - 13); ctx.rotate(Math.max(0, Math.sin(k * 9)) * 0.35); wmBirb(0, 0, k, -1, false); ctx.restore(); if (k > 0.42) symbol('!', 476, FLOOR - 56, 0.9); }
+  else if (k < go + 0.7) { const u = (k - go) / 0.7; wmBirb(480 + 230 * u, FLOOR - 16 - 150 * Math.pow(u, 0.8), k, 1, true); }   // low at first (the pounce just misses it), then up to the branch
+  else if (k < go + 1.3) { const u = (k - go - 0.7) / 0.6; wmBirb(lerp(710, perch.x, u), lerp(FLOOR - 166, perch.y, ease(u)), k, 1, true); }
+  else wmBirb(perch.x, perch.y, k, -1, false);
+  for (let j = 0; j < n; j++) {
+    const type = cats[j], s0 = 0.42 + j * 0.16, lead = j === 0; if (k < s0) continue;
+    const v = 600, stop = 520 + (j - 1) * 96, wy = groundY(type, 'walk'), sy = groundY(type, 'sit');
+    if (lead) {
+      const leap = 0.95, landT = 1.55, lx = 175 + v * (leap - s0), LX = 740;
+      if (k < leap) { ctx.save(); ctx.beginPath(); ctx.rect(DX + 4, b.y0 - 200, 4000, 4000); ctx.clip(); wmCat(type, 'walk', 175 + v * (k - s0), wy, { eyes: 'happy', mouth: 'yell' }, { phase: k * 18 }); ctx.restore(); continue; }
+      if (k < landT) { const u = (k - leap) / (landT - leap); wmCat(type, 'fly', lerp(lx, LX, u), lerp(wy, groundY(type, 'stiff'), u) - arcH(u, 165), { eyes: 'wide', mouth: 'yell' }, { up: u < 0.45, claws: true, rot: lerp(-0.4, 0.5, u) }); continue; }
+      const dz = k < landT + 1.2;
+      if (dz) { wmCat(type, 'stiff', LX, groundY(type, 'stiff'), { eyes: 'googly', mouth: 'tongue' }, {}); dizzyStars(LX + 30, groundY(type, 'stiff') - 40, k, 3, 20); }
+      else wmCat(type, 'sit', LX, sy, { eyes: 'open', mouth: 'flat' }, { look: { x: 1, y: -1 } });
+      wmOnce('pounce', k, leap, () => Snd.voice('yowl', CATS[type].pitch, 0.7));
+      wmOnce('splat', k, landT, () => { Snd.fx('soft', 1); Snd.fx('rustle', 0.6); buzz('cathit', 0.6); });
+      continue;
+    }
+    const arrive = s0 + (stop - 175) / v;
+    if (k < arrive) { ctx.save(); ctx.beginPath(); ctx.rect(DX + 4, b.y0 - 200, 4000, 4000); ctx.clip(); wmCat(type, 'walk', 175 + v * (k - s0), wy, { eyes: 'happy', mouth: 'o' }, { phase: k * 18 }); ctx.restore(); }
+    else wmCat(type, 'sit', stop, sy, k < arrive + 0.3 ? { eyes: 'squint', mouth: 'w' } : { eyes: ((k + j) % 3.2) > 3.05 ? 'closed' : 'open', mouth: 'o' }, { look: { x: 1, y: -1 }, squash: k < arrive + 0.1 ? 0.86 : 1 });
+    wmOnce('run' + j, k, s0, () => Snd.voice(['mew', 'meow', 'mrrp'][j % 3], CATS[type].pitch, 0.6));
+  }
+  endCaption('BIRB!!', Math.min((k - 0.45) / 0.15, (1.6 - k) / 0.3), cw, dpr);
+  wmOnce('door', k, burst, () => { Snd.fx('slam', 0.9); Snd.fx('whoosh', 0.8); buzz('bonk', 0.6); });
+  wmOnce('birbup', k, go, () => { Snd.fx('flap', 1); Snd.fx('coo', 0.8); });
+  wmOnce('coo2', k, 2.2, () => Snd.fx('coo', 0.6));
+}
+// teh box warehouse: riding a conveyor belt (wheee) off the end into a big box, plop, plop; the last one misses and takes out a stack of boxes (one lands on its head)
+function wmWarehouse(k, cw, ch, dpr) {
+  const b = wmCam({ x: 600, y: 380, w: 980, h: 520 }, 640, k, cw, ch, dpr, 0), cats = WM.crew.slice(-3).reverse(), n = cats.length;
+  endWorld('warehouse', 1600, () => drawWarehouse(k, b));
+  const BT = 470, BX1 = 640, v = 200, BOX = { x: 745, w: 196, h: 64 };
+  { const keep = sim; sim = Object.assign({}, sim || {}, { beltT: k * 60, level: { world: 'warehouse', w: 1600, furniture: [], spots: [] } }); try { drawFurniture({ kind: 'belt', x0: 40, x1: BX1, top: BT, speed: 2.5 }); } finally { sim = keep; } }
+  // the stack of boxes, and when it's hit, falling over
+  const hitT = n > 1 ? (BX1 - (480 - (n - 1) * 150)) / v + 0.36 : 99, fall = k > hitT ? clamp((k - hitT) / 0.5, 0, 1) : 0;
+  const STACK = [[905, FLOOR - 17, 0, 1, 70, 0.4], [907, FLOOR - 51, 0, 1, 100, 1.2], [903, FLOOR - 85, 0, 1, 40, -2.2]];
+  STACK.forEach(([x, y, , , dx, rot], i) => { if (n > 1 && i === 2 && k > hitT) return; const f = fall * (i === 0 ? 0.3 : 1), yy = lerp(y, FLOOR - 17, f * f), xx = x + dx * f; drawItem({ kind: 'cbox', w: 40, h: 34, n: i, body: { position: { x: xx, y: yy }, angle: rot * f } }, k); });
+  endBoxBack(BOX.x, FLOOR, BOX.w, BOX.h);
+  const seatX = j => BOX.x - 46 + j * 92, seatY = FLOOR - 66;
+  const order = [];
+  for (let j = 0; j < n; j++) {
+    const type = cats[j], x0 = 480 - j * 150, end = (BX1 - x0) / v, last = j === n - 1 && n > 1;
+    if (k < end) { order.push(() => wmCat(type, 'sit', x0 + v * k, BT - 23 * CATS[type].k, { eyes: 'happy', mouth: j % 2 ? 'w' : 'yell' }, { look: { x: 1, y: 0 } })); continue; }
+    const u = clamp((k - end) / 0.36, 0, 1);
+    if (!last) {
+      if (u < 1) order.push(() => wmCat(type, 'fly', lerp(BX1, seatX(j), u), lerp(BT - 20, seatY, u) - arcH(u, 50), { eyes: 'happy', mouth: 'yell' }, { rot: u * 0.6, up: u < 0.4 }));
+      else { const settle = k - end - 0.36; wmCat(type, 'sit', seatX(j), seatY, settle < 0.25 ? { eyes: 'squint', mouth: 'w' } : { eyes: ((k + j) % 3.3) > 3.15 ? 'closed' : 'happy', mouth: 'w' }, { look: { x: 0.8, y: 0.2 }, squash: settle < 0.12 ? 0.82 : 1 }); }
+      wmOnce('plop' + j, k, end + 0.36, () => { Snd.boxSit('box'); Snd.voice('mrrp', CATS[type].pitch, 0.7, 0.05); buzz('sit', 0.6); });
+      continue;
+    }
+    // the last one: over the box, into the stack
+    if (u < 1) { order.push(() => wmCat(type, 'fly', lerp(BX1, 880, u), lerp(BT - 20, FLOOR - 90, u) - arcH(u, 70), { eyes: 'wide', mouth: 'yell' }, { rot: u * 0.3, up: u < 0.4 })); continue; }
+    const sx = 870, sy = groundY(type, 'sit'), dz = k < hitT + 1.3;
+    order.push(() => { wmCat(type, 'sit', sx, sy, dz ? { eyes: 'swirl', mouth: 'wobble' } : { eyes: 'happy', mouth: 'smile' }, { look: { x: -0.6, y: -0.2 } });
+      const bk = clamp((k - hitT) / 0.6, 0, 1), hx = lerp(903, sx + 8, bk), hy = lerp(FLOOR - 85, sy - 44 * CATS[type].k / 0.72, bk) - arcH(bk, 110);   // the top box flies off and comes down on its head: a hat
+      drawItem({ kind: 'cbox', w: 40, h: 34, n: 7, body: { position: { x: hx, y: hy }, angle: lerp(0, -0.18 - Math.PI * 2, bk) } }, k);
+      if (dz) dizzyStars(sx + 6, sy - 72, k, 3, 22); });
+    if (k < hitT + 0.45) order.push(() => { wmImpact(900, FLOOR - 70, (k - hitT) / 0.45, 40); wmText('BONK.', 900, FLOOR - 140, Math.min(1, (hitT + 0.7 - k) / 0.2), 28); });
+    wmOnce('crash', k, hitT, () => { Snd.fx('bonk', 1.2); Snd.fx('card', 1); Snd.fx('crumble', 0.6); buzz('bonk', 0.9); });
+    wmOnce('hat', k, hitT + 0.55, () => { Snd.fx('card', 0.7); Snd.voice('huh', CATS[type].pitch, 0.7); });
+  }
+  endBoxFront(BOX.x, FLOOR, BOX.w, BOX.h);
+  for (const f of order) f();
+  endCaption('wheee', Math.min((k - 0.1) / 0.2, (1.4 - k) / 0.3), cw, dpr);
+  for (let j = 0; j < n; j++) wmOnce('ride' + j, k, 0.1 + j * 0.2, () => Snd.voice(j % 2 ? 'mew' : 'meow', CATS[cats[j]].pitch, 0.5));
+}
+// outer space: three cats in space suits climb the gantry and pop into a rocket; 3, 2, 1, flames, smoke, and it's gone (Adam's example)
+function wmRocket(k, cw, ch, dpr) {
+  const ign = 2.1, lift = 2.3, sh = !WM.rm && k > ign && k < 3.1 ? 6 * (k < lift ? (k - ign) / (lift - ign) : 1 - (k - lift) / 0.8) : 0;
+  const b = wmCam({ x: 590, y: 320, w: 980, h: 600 }, 560, k, cw, ch, dpr, sh), cats = WM.crew.slice(-3).reverse(), n = cats.length;
+  const g = ctx.createLinearGradient(0, b.y0, 0, FLOOR); g.addColorStop(0, '#1E2B57'); g.addColorStop(0.6, '#5A6FA8'); g.addColorStop(1, '#F2B880'); ctx.fillStyle = g; ctx.fillRect(b.x0, b.y0, b.x1 - b.x0, FLOOR - b.y0);
+  ctx.save(); ctx.globalAlpha = 0.7; starfield(b.x0, b.y0, b.x1, 250, k, 1); ctx.restore();
+  ell(1030, 140, 26, 26); fs('#FFF6DA', null); ell(1040, 134, 22, 22); fs('#3B4A80', null);   // a crescent moon (where they're going next)
+  ctx.fillStyle = '#C6A77A'; ctx.beginPath(); ctx.moveTo(b.x0, FLOOR); for (let x = Math.floor(b.x0 / 60) * 60; x <= b.x1 + 60; x += 60) ctx.lineTo(x, FLOOR - 40 - Math.sin(x * 0.01) * 18); ctx.lineTo(b.x1 + 60, FLOOR); ctx.fill();
+  ctx.fillStyle = '#D9C9A3'; ctx.fillRect(b.x0, FLOOR, b.x1 - b.x0, b.y1 - FLOOR);
+  rrect(470, FLOOR - 8, 300, 14, 3); fs('#B9BCB8', INK, 2); for (let x = 480; x < 760; x += 24) { ctx.fillStyle = (x / 24) % 2 ? '#F4C84A' : '#2E3A35'; ctx.fillRect(x, FLOOR - 4, 12, 5); }
+  // the gantry: a steel tower, a ladder up its left side, an arm to the hatch
+  const GX0 = 430, GX1 = 478, ARM = 300;
+  for (const x of [GX0, GX1]) { rrect(x - 4, 170, 8, FLOOR - 170, 2); fs('#E0763A', INK, 1.8); }
+  for (let y = 190; y < FLOOR - 10; y += 40) { line([GX0, y, GX1, y + 40], '#E0763A', 3); line([GX1, y, GX0, y + 40], '#E0763A', 3); }
+  for (let y = 186; y < FLOOR; y += 20) line([GX0 - 4, y, GX0 - 18, y], '#9AA3A8', 2.4); line([GX0 - 18, 180, GX0 - 18, FLOOR], '#9AA3A8', 2.6);
+  rrect(GX1 - 4, ARM, 92, 9, 2); fs('#E0763A', INK, 1.8);
+  // the rocket
+  const RX = 620, up = k < lift ? 0 : 640 * (k - lift) ** 2, ry = -up, flame = k < ign ? 0 : k < lift ? (k - ign) / (lift - ign) * 0.7 : 1;
+  const climbT = 0.5, climb = j => ({ s: j * 0.28, top: j * 0.28 + climbT, inT: j * 0.28 + climbT + 0.36 });
+  ctx.save(); ctx.translate(0, ry);
+  if (flame > 0) { const f = flame * (0.85 + 0.15 * Math.sin(k * 47) + 0.1 * Math.sin(k * 31)); poly([RX - 26, 560, RX, 560 + 150 * f, RX + 26, 560]); fs('#F0A63A', null); poly([RX - 14, 560, RX, 560 + 90 * f, RX + 14, 560]); fs('#FFE27A', null); }
+  poly([RX - 22, 540, RX + 22, 540, RX + 30, 562, RX - 30, 562]); fs('#7A7F86', INK, 2);
+  for (const s of [-1, 1]) { poly([RX + s * 52, 430, RX + s * 92, 520, RX + s * 92, 560, RX + s * 52, 530]); fs(RED, INK, 2.4); }
+  rrect(RX - 54, 200, 108, 342, 22); fs('#F4F1E8', INK, 2.6);
+  ctx.beginPath(); ctx.moveTo(RX - 54, 222); ctx.quadraticCurveTo(RX - 50, 130, RX, 96); ctx.quadraticCurveTo(RX + 50, 130, RX + 54, 222); ctx.closePath(); fs(RED, INK, 2.6);
+  rrect(RX - 54, 470, 108, 14, 3); fs(RED, INK, 2); line([RX - 30, 230, RX - 30, 460], 'rgba(255,255,255,0.7)', 5);
+  ctx.font = `900 18px ${FONT}`; ctx.fillStyle = INK; ctx.textAlign = 'center'; ctx.save(); ctx.translate(RX + 30, 440); ctx.rotate(-Math.PI / 2); ctx.fillText('MEOW', 0, 0); ctx.restore();
+  const PORT = [[RX, 250], [RX, 320], [RX, 390]];
+  PORT.forEach(([px, py], j) => { ell(px, py, 22, 22); fs('#9AA3A8', INK, 2.4); ell(px, py, 16, 16); fs('#1F2A3A', null);
+    if (j < n && k >= climb(j).inT) { ctx.save(); ell(px, py, 16, 16); ctx.clip(); ctx.translate(px, py + 4); ctx.scale(0.3, 0.3); drawHead(CATS[cats[j]], k > lift ? { eyes: 'wide', mouth: 'yell' } : { eyes: 'happy', mouth: 'w' }, { t: k }); ctx.restore(); }
+    ell(px - 6, py - 7, 5, 3, -0.5); fs('rgba(255,255,255,0.45)', null); });
+  const hatchOpen = k < climb(n - 1).inT + 0.1; rrect(RX - 56, ARM - 46, 14, 50, 4); fs(hatchOpen ? '#1F2A3A' : '#DCD7CB', INK, 2);   // the hatch
+  ctx.restore();
+  for (let j = 0; j < n; j++) {   // the crew, suited up, up the ladder and in
+    const type = cats[j], c = climb(j), wx = GX0 - 18, cy0 = FLOOR - 44, cy1 = ARM - 40;
+    if (k < c.s) { wmCat(type, 'sit', wx - 60 - j * 70, groundY(type, 'sit'), { eyes: 'open', mouth: 'w' }, { inSuit: true, look: { x: 1, y: -0.6 } }); continue; }
+    if (k < c.top) { const u = (k - c.s) / climbT; wmCat(type, 'climb', wx - 32 * CATS[type].k, lerp(cy0, cy1, u), { eyes: 'wide', mouth: 'flat' }, { inSuit: true, phase: k * 16, claws: true }); continue; }
+    if (k < c.inT) { const u = (k - c.top) / (c.inT - c.top); ctx.save(); ctx.beginPath(); ctx.rect(b.x0 - 100, b.y0 - 100, RX - 50 - (b.x0 - 100), 2000); ctx.clip(); wmCat(type, u < 0.3 ? 'fly' : 'walk', lerp(wx + 10, RX - 40, u), lerp(cy1 - 10, ARM - 27 * CATS[type].k, Math.min(1, u * 3)) - (u < 0.3 ? arcH(u / 0.3, 24) : 0), { eyes: 'happy', mouth: 'o' }, { inSuit: true, phase: k * 18, up: true }); ctx.restore(); }
+    wmOnce('in' + j, k, c.inT, () => { Snd.fx('metal', 0.5); Snd.voice('mrrp', CATS[type].pitch, 0.6); });
+  }
+  // smoke at the pad
+  if (k > ign) for (let i = 0; i < 16; i++) { const s0 = ign + i * 0.05; if (k < s0) continue; const u = 1 - Math.exp(-(k - s0) / 0.7), side = i % 2 ? 1 : -1, x = RX + side * (24 + 300 * u * (0.5 + (i % 5) / 8)), y = FLOOR - 16 - 40 * u - (i % 3) * 10, r = 18 + 46 * u;
+    ell(x, y, r, r * 0.8); fs(`rgba(238,233,224,${0.95 - 0.3 * u})`, 'rgba(46,58,53,0.25)', 1.6); }
+  if (k > lift) { ctx.save(); ctx.globalAlpha = clamp(1 - (k - lift - 1.2) / 2, 0.35, 0.9); line([RX, FLOOR - 40, RX, Math.max(b.y0 - 50, 560 - up)], 'rgba(255,255,255,0.8)', 16); ctx.restore(); }
+  if (k > lift + 1.0 && k < lift + 2.4) { const a = Math.sin((k - lift - 1.0) / 1.4 * Math.PI); starPath(RX, b.y0 + 30, 9 * a + 2); fs(`rgba(255,243,184,${a})`, null); }
+  const cd = k < 1.55 ? null : k < 1.8 ? '3...' : k < 2.05 ? '2...' : k < 2.3 ? '1...' : 'I AM SPEED';
+  if (cd) endCaption(cd, cd === 'I AM SPEED' ? Math.min((k - 2.3) / 0.15, (3.6 - k) / 0.3) : 1, cw, dpr);
+  for (const [i, when] of [[3, 1.55], [2, 1.8], [1, 2.05]]) wmOnce('cd' + i, k, when, () => Snd.fx('bleep', 0.7));
+  wmOnce('hatch', k, climb(n - 1).inT + 0.1, () => Snd.fx('metal', 0.8));
+  wmOnce('ign', k, ign, () => { Snd.fx('rumble', 1); buzz('shock', 0.7); });
+  wmOnce('lift', k, lift, () => { Snd.fx('yeet', 1); Snd.fx('whoosh', 1); buzz('launch', 1); });
+}
+// teh moon: the lander comes down on its flame and touches down (dust); the cats bounce out in big slow low-gravity hops
+function wmMoon(k, cw, ch, dpr) {
+  const kT = 1.2, land = FLOOR - 50, LX = 470, sh = !WM.rm && k > kT && k < kT + 0.3 ? 8 : 0;
+  const b = wmCam({ x: 620, y: 360, w: 980, h: 540 }, 700, k, cw, ch, dpr, sh), crew = WM.crew;
+  endWorld('moon', 1500, () => drawMoon(k, b));
+  const y = k < kT ? land - 640 * (1 - k / kT) ** 2 : land, flame = k < kT ? 1 : Math.max(0, 1 - (k - kT) * 4);
+  endDust(LX, FLOOR, (k - kT) / 1.4, 10, 230);
+  const idx = crew.map(c => CREW.indexOf(c)), hopT = j => kT + 0.3 + j * 0.2, spot = j => 590 + j * 76, SEAT = [[-64, 0], [-22, -1], [22, 0], [64, -1], [-43, 8], [0, 7], [43, 8]];
+  endLander(LX, y, k, flame, i => { const j = idx.indexOf(i); return j < 0 || k >= hopT(j) ? null : k < kT ? { eyes: 'wide', mouth: 'o' } : { eyes: 'happy', mouth: 'w' }; });
+  crew.forEach((type, j) => {
+    const s0 = hopT(j); if (k < s0) return;
+    const i = idx[j], from = { x: LX + SEAT[i][0], y: land - 70 - 34 + SEAT[i][1] }, gy = groundY(type, 'sit'), T1 = 1.2, T2 = 0.6, tt = k - s0;
+    if (tt < T1) { const u = tt / T1, flip = j === 2; wmCat(type, flip ? 'fly' : 'sit', lerp(from.x, spot(j) - 30, u), lerp(from.y, gy, u) - arcH(u, 210), flip ? { eyes: 'happy', mouth: 'yell' } : { eyes: 'happy', mouth: 'o' }, { inSuit: true, wave: flip ? null : tt * 6 + j, rot: flip ? u * Math.PI * 2 : Math.sin(u * 3) * 0.15, up: true }); return; }
+    if (tt < T1 + T2) { const u = (tt - T1) / T2; wmCat(type, 'sit', lerp(spot(j) - 30, spot(j), u), gy - arcH(u, 54), { eyes: 'happy', mouth: 'w' }, { inSuit: true, squash: u < 0.12 ? 0.85 : 1 }); return; }
+    wmCat(type, 'sit', spot(j), gy, { eyes: ((k + j * 0.7) % 3.4) > 3.25 ? 'closed' : 'happy', mouth: 'w' }, { inSuit: true, look: { x: -0.3, y: -0.4 } });
+    wmOnce('out' + j, k, s0, () => { Snd.fx('boing', 0.5); Snd.voice(j % 2 ? 'mrrp' : 'mew', CATS[type].pitch, 0.5); });
+    if (tt - T1 < 0.4) { const u = (tt - T1) / 0.4; ell(spot(j) - 30, FLOOR - 4, 20 + u * 40, 5 + u * 6); fs(`rgba(220,214,204,${0.7 * (1 - u)})`, null); }
+  });
+  endCaption('boing. boing.', Math.min((k - kT - 0.6) / 0.2, (kT + 2.6 - k) / 0.3), cw, dpr);
+  wmOnce('descend', k, 0.05, () => { Snd.fx('whoosh', 1); Snd.fx('rumble', 0.5); });
+  wmOnce('touch', k, kT, () => { Snd.fx('slam', 0.8); Snd.fx('rumble', 0.6); buzz('bonk', 0.9); });
+}
+const WM_SCENES = { building: wmWindow, park: wmPark, warehouse: wmWarehouse, space: wmRocket, moon: wmMoon };
+
+// ---------- the postcard album ----------
+function showAlbum() {
+  store.d.albumNew = false; store.save();
+  const grid = $('albumGrid'); grid.innerHTML = ''; const draw = [];
+  for (const w of WM_WORLDS) {
+    const st = (store.d.album || {})[w] || 0, last = regularOf(w).slice(-1)[0], r = regularOf(w), three = r.filter(L => (store.d.stars[L.id] || 0) >= 3).length;
+    const el = document.createElement(st ? 'button' : 'div'); el.className = 'pc-frame' + (st ? ' earned' : '') + (st === 2 ? ' gold' : ''); el.id = 'pc-' + w;
+    const how = st === 2 ? `purrfect! + ${(shopItem('w_' + w) || {}).name || ''}` : st ? `${three}/${r.length} wif 3 ★` : last ? `win ${last.name} 4 dis` : '';
+    el.setAttribute('aria-label', st ? `${WORLD_NAMES[w]} postcard${st === 2 ? ', gold' : ''}` : `${WORLD_NAMES[w]} postcard, not earned yet`);
+    if (st) { const c = document.createElement('canvas'); el.appendChild(c); draw.push([c, w, st === 2]); el.addEventListener('click', () => { Snd.fx('pop'); showPostcard(w, showAlbum, { gold: st === 2, back: true }); }); }
+    else { const e = document.createElement('div'); e.className = 'pc-empty'; e.textContent = '?'; el.appendChild(e); }
+    const nm = document.createElement('span'); nm.className = 'pc-name'; nm.textContent = WORLD_NAMES[w] || w; el.appendChild(nm);
+    const hw = document.createElement('span'); hw.className = 'pc-how'; hw.textContent = how; el.appendChild(hw);
+    grid.appendChild(el);
+  }
+  showScreen('scrAlbum');
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  for (const [c, w, gold] of draw) { const cw = c.clientWidth || 200, chh = cw / 2; c.width = Math.round(cw * dpr); c.height = Math.round(chh * dpr); withCtx(c.getContext('2d'), () => drawPostcard(w, 1.3, cw, chh, dpr, { gold, still: true })); }
+}
+$('albumBtn').addEventListener('click', () => { Snd.init(); Snd.fx('pop'); showAlbum(); });
+$('albumDone').addEventListener('click', () => { Snd.fx('pop'); showLevels(); });
+// the prize on the result card, in place of the next big prize (so the card still fits a phone)
+const rewardRow = it => `<div class="goal unlock reward"><span class="ico" data-item="${it.id}"></span><span>purrfect ${PURRFECT[it.world]}! u got da ${it.name}</span><span class="val"></span></div>`;
+
+window.__fits = { get yeetShow() { return fx.yeet; }, ORBIT, orbitRemember, YEET, openAll: () => { allOpen = true; }, slowmo: k => { timeScale = k; }, showEnding, showPostcard, END_T, get endT() { return E && E.t; }, endSeek: k => { if (E) E.t0 = performance.now() - k * 1000; }, CLOSET, gate, WORLD_NEED, starsBefore, showTitle, get attract() { return attract; }, ATTRACT, STYLE, art: { ell, fs, line, rrect, poly, symbol, starPath, heartPath, INK, PAPER, ORANGE, GOLD, RED }, get sim() { return sim; }, get canSwap() { return canSwap(); }, cam, Snd, drawCat, withCtx, CATS, LEVELS, showResult, startLevel, showScreen, showLevels, drain, store, maxPullPx, SHOP, closetDebug: () => CL, drawPost, showCloset, earn: earnItem, itemIcon, showCrib, showWorldMoment, get wm() { return WM && { w: WM.w, t: WM.t, card: !!WM.card, from: WM.from, T: WM.T }; }, wmSeek: k => { if (WM) WM.t0 = performance.now() - k * 1000; }, showAlbum, worldPerfect, worldWon, firstOf, noteWorld, pendingMoment };
+syncAlbum();   // (postcards and prizes a save from before Nov 7 already earned)
 layout();
 showTitle();
 requestAnimationFrame(frame);

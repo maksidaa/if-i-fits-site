@@ -1,4 +1,4 @@
 {
- "manifest": "{\"native\":\"2.0\",\"seq\":202611071408,\"url\":\"https://maksidaa.github.io/if-i-fits-site/ota/2.0/202611071408.html\",\"sha256\":\"5bcc4994a1e42550d3ca0c78b39524fd16b4f31d624adcacda2c8d6ff2d9ab85\",\"size\":1720658,\"notes\":\"One smooth moon yeet with a springy camera; cat-a-pult roll-in rumble; trail preview clears; yarn ball\",\"commit\":\"78b3e44\",\"created\":\"2026-11-07T20:08:10.387Z\"}",
- "signature": "+XoSyoWlJwK6u/33GpKPrpFO2tDgbDb8zhjRK3rBujWoxw3nwqfgY3DCvsiEIBCrqTMMSlbBedKaMe7tfAHiDQ=="
+ "manifest": "{\"native\":\"2.0\",\"seq\":202611071707,\"url\":\"https://maksidaa.github.io/if-i-fits-site/ota/2.0/202611071707.html\",\"sha256\":\"611cf0b20d14e168c08a02e083fbf93743b41a54975dc59edb0b001e811622f7\",\"size\":1749078,\"notes\":\"Play stats kept on the device: tries, wins, stars, time; a stats screen with copy\",\"commit\":\"c2797e5\",\"created\":\"2026-11-07T23:07:46.724Z\"}",
+ "signature": "hOJCUrX8cvscDcl8pH6JQQbPCG3h5Sr3OobLShMstz+wY8U5KzU9IAqB4xPkR8hfSIEBPKlosRPiTac0WjPCkA=="
 }
