@@ -1,4 +1,4 @@
 {
- "manifest": "{\"native\":\"2.0\",\"seq\":202611062344,\"url\":\"https://maksidaa.github.io/if-i-fits-site/ota/2.0/202611062344.html\",\"sha256\":\"494ad80f9abaff78f1c41a55b4ac5d3ce8ae3eaacab1f1550ac2e74fb3408016\",\"size\":1655766,\"notes\":\"Megachonk sits the way he landed: upside down in a box stays upside down, with hearts and purr\",\"commit\":\"69d79c2\",\"created\":\"2026-11-07T05:44:16.256Z\"}",
- "signature": "E+Z5GrYVX384oER6UsO3QzXzeqICAS9Bkk/gi/DaMaoYzI5jHH+C4Zxq0w8+NwNdQJiaNhXnpeweY2CdT+1Mkw=="
+ "manifest": "{\"native\":\"2.0\",\"seq\":202611070028,\"url\":\"https://maksidaa.github.io/if-i-fits-site/ota/2.0/202611070028.html\",\"sha256\":\"4495856bf04350bdeccc204c9eebd665d49dd745f28e70082de43ac00f53a64f\",\"size\":1656507,\"notes\":\"Smoother moon yeet (no rocket jump); pause menu says retry, the game reset says reset game\",\"commit\":\"1899f29\",\"created\":\"2026-11-07T06:28:11.298Z\"}",
+ "signature": "6N3AMN+4WTShuvsyyaIx6F4vvoeXf3WBDSyXPkLMrsAet6vRp8D5u8xpQKy8yNHxq7azSNao4gMIvdAstfNc5Q=="
 }
