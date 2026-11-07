@@ -1,4 +1,4 @@
 {
- "manifest": "{\"native\":\"2.0\",\"seq\":202611070119,\"url\":\"https://maksidaa.github.io/if-i-fits-site/ota/2.0/202611070119.html\",\"sha256\":\"1774027eb509adb9fe80f3e1b6d86714e06407dec06e9a90f638472e6b8f5ab1\",\"size\":1656700,\"notes\":\"Space 8 tightened: smaller boxes, a lower strut, tighter aim\",\"commit\":\"dab74cd\",\"created\":\"2026-11-07T07:19:06.687Z\"}",
- "signature": "mBlsKrZG4FJdHBTDI4znrpHASyzrQS9IS6sP25s9AQC4SIos4r2yXRCd1REXYPq6tATExNbsLoclyuIZYemwgg=="
+ "manifest": "{\"native\":\"2.0\",\"seq\":202611070942,\"url\":\"https://maksidaa.github.io/if-i-fits-site/ota/2.0/202611070942.html\",\"sha256\":\"9e24fd0fa0fac8255f590dec62f7b2e8eca194a91eca9af704ec228c1d97de79\",\"size\":1657210,\"notes\":\"Mess goals that couldn't be reached now match what can break; megachonk doesn't make biscuits\",\"commit\":\"c41c768\",\"created\":\"2026-11-07T15:42:41.061Z\"}",
+ "signature": "+47u46sPmYSl/9YCyvZ33Ii6MBWCEDI05csslysyKhRmw8tMPqo9Vs6dvc3N+OCXKKm4a0H2NPL8jfm88lgXjw=="
 }

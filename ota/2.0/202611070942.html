@@ -313,7 +313,7 @@ body.attract #hud, body.attract #hint { display: none; }
   <button class="round-btn" id="menuBtn" aria-label="menu">
     <svg width="16" height="16" viewBox="0 0 18 16" aria-hidden="true"><rect x="2" y="1" width="4" height="14" rx="2" fill="#2E3A35"/><rect x="11" y="1" width="4" height="14" rx="2" fill="#2E3A35"/></svg>
   </button>
-  <button class="round-btn" id="retryBtn" aria-label="start over">
+  <button class="round-btn" id="retryBtn" aria-label="retry level">
     <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M16.2 7.2 A6.8 6.8 0 1 0 16.6 12" fill="none" stroke="#2E3A35" stroke-width="2.6" stroke-linecap="round"/><path d="M16.9 2.8 L16.5 7.6 L11.8 6.8" fill="none" stroke="#2E3A35" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </button>
   <div id="lvlLabel"></div>
@@ -378,17 +378,18 @@ body.attract #hud, body.attract #hint { display: none; }
       <button class="toggle" id="tglRestore" hidden>restore purchase</button>
       <button class="toggle" id="tglHelp">help</button>
       <button class="toggle" id="tglPrivacy">privacy</button>
-      <button class="toggle" id="tglReset">start over</button>
+      <button class="toggle" id="tglReset">reset game</button>
     </div>
   </div>
 </div>
 
-<!-- start over (Adam, Nov 7: "I also wish there was a way to reset my game"): progress goes, the purchase and the settings stay -->
+<!-- reset game (Adam, Nov 7: "I also wish there was a way to reset my game"; then "The game has 2 separate 'start over' buttons now": the
+     pause menu's, which restarts the level, is "retry" now, like the result card's): progress goes, the purchase and the settings stay -->
 <div class="overlay" id="scrReset" hidden>
   <div class="card reset-card">
-    <h2 class="title">start over?</h2>
+    <h2 class="title">reset game?</h2>
     <p class="reset-say">ur stars, levels, cash n closet go poof.<br>ur unlock stays.</p>
-    <div class="reset-row"><button class="btn" id="resetNo">keep my game</button><button class="btn danger" id="resetYes">start over</button></div>
+    <div class="reset-row"><button class="btn" id="resetNo">keep my game</button><button class="btn danger" id="resetYes">reset game</button></div>
   </div>
 </div>
 <!-- privacy and help, inside the game (Apple wants the privacy policy reachable in the app; this works offline and needs no
@@ -414,7 +415,7 @@ body.attract #hud, body.attract #hint { display: none; }
       <ul>
         <li><b>Play:</b> touch anywhere and pull back to aim, let go to fling. Land a cat in every spot (the dashed boxes). Tap while a cat flies, or just after it lands, for its trick.</li>
         <li><b>Stars:</b> one for every spot filled, one for cats left over, one for enough mess. Worlds open as you earn stars.</li>
-        <li><b>Start over:</b> the start over button under the levels clears your stars, levels, cash and closet. Your purchase and settings stay.</li>
+        <li><b>Reset game:</b> the reset game button under the levels clears your stars, levels, cash and closet. Your purchase and settings stay.</li>
         <li><b>Stuck?</b> After a miss you can ask for 1 more cat. Lose a level twice and paw prints show a first throw that works. The rest is up to you.</li>
         <li><b>Sound and vibration:</b> in the pause card (the button at the top left during a level). The game plays sound even on silent.</li>
         <li><b>The Whole Game:</b> "restore purchase" on the level list restores it with the same Apple ID. Family Sharing works.</li>
@@ -475,7 +476,7 @@ body.attract #hud, body.attract #hint { display: none; }
     <div class="eyebrow" id="pauseName">paused</div>
     <button class="btn go" id="pResume">back</button>
     <div class="btn-row">
-      <button class="btn" id="pRetry">start over</button>
+      <button class="btn" id="pRetry">retry</button>
       <button class="btn" id="pLevels">levels</button>
     </div>
     <div class="toggles">
@@ -760,6 +761,9 @@ const FITS = (() => {
   const SPACE_SP = { grav: 0, air: 0.006, bouncy: 0.55, suit: true };
   // ---- moon constants ----
   const MOON_MN = { grav: 0.3, speed: 0.6, open: true, suit: true };
+  // messGoal (the third star): on 11 levels it was more than everything breakable on them (park 9: $60 of $41). Since Nov 7 it's
+  // exactly what can break there (Adam: "Make them exactly what's breakable"): b10 66, pk8 30, pk9 41, pk10 50 (its melon under the
+  // table never breaks), wh2 12, wh3 18, wh4 9 (one bubble wrap never pops), wh10 61, sp8 35, mn2 15, mn9 99.
   const LEVELS = [
     // ---- the kitchen: toast, then the absolute unit ----
     { id: 'k1', name: 'kitchen 1', world: 'kitchen', title: 'the box', w: 1000, perch: PERCH,
@@ -957,7 +961,7 @@ const FITS = (() => {
       items: [{ kind: 'wcan', x: 220, bottom: 580 }, pig(104, 574), ...pots(['tulips', 'cactus'], 706, 420), pig(1160, 110), pig(1047, 314), ...pots(['plant'], 950, 320), { kind: 'gnome', x: 930, bottom: 580 }] },
     // block party: every trick on one street
     { id: 'b10', name: 'building 10', world: 'building', title: 'block party', w: 1300, perch: { x: 380, top: 430 },
-      lineup: ['toast', 'unit', 'street', 'toast', 'unit', 'street', 'toast'], spareGoal: 2, messGoal: 120,
+      lineup: ['toast', 'unit', 'street', 'toast', 'unit', 'street', 'toast'], spareGoal: 2, messGoal: 66,
       furniture: [{ kind: 'shop', x0: 700, x1: 880, top: 420, sells: 'bread' }, { kind: 'awning', x0: 520, y0: 552, x1: 700, y1: 488 },
                   { kind: 'shop', x0: 1004, x1: 1160, top: 420, sells: 'fish', color: '#7FB6E0' }, { kind: 'pillar', x0: 1160, x1: 1240, top: 116 },
                   { kind: 'ledge', x0: 1240, x1: 1300, top: 300, win: false }, { kind: 'line', x0: 700, x1: 1160, y: 170 }],
@@ -1036,14 +1040,14 @@ const FITS = (() => {
               pig(1070, 300), { kind: 'gnome', x: 820, bottom: 580 }] },
     // the duck pond: a bird bath out in the middle, the treehouse behind you, a sandbox past the pond
     { id: 'pk8', name: 'park 8', world: 'park', title: 'duck pond', w: 1200, perch: { x: 330, top: 430 },
-      lineup: ['chaos', 'toast', 'chaos', 'toast', 'toast', 'toast'], spareGoal: 2, messGoal: 40,
+      lineup: ['chaos', 'toast', 'chaos', 'toast', 'toast', 'toast'], spareGoal: 2, messGoal: 30,
       furniture: [{ kind: 'tree', x0: 60, x1: 120, top: 230 }, { kind: 'branch', x0: 0, x1: 180, top: 230 }, { kind: 'pond', x0: 480, x1: 980, depth: 34 },
                   { kind: 'hedge', x0: 1020, x1: 1200, top: 380 }],
       spots: [{ kind: 'basket', x0: 10, x1: 160, bottom: 230, cat: 'chaos' }, { kind: 'birdbath', x0: 660, x1: 800, bottom: 460 }, { kind: 'basket', x0: 1030, x1: 1190, bottom: 380 }],
       items: [duck(540, PARK_POND + 8), duck(880, PARK_POND + 8), duck(940, PARK_POND + 8), pig(730, 454), pig(170, 230), { kind: 'frisbee', x: 1000, bottom: 580 }, { kind: 'gnome', x: 430, bottom: 580 }] },
     // the playground: slide, seesaw, sandbox, and a box up the lamp post's tree
     { id: 'pk9', name: 'park 9', world: 'park', title: 'playground', w: 1250, perch: PERCH,
-      lineup: ['toast', 'street', 'toast', 'chaos', 'street', 'toast'], spareGoal: 2, messGoal: 60,
+      lineup: ['toast', 'street', 'toast', 'chaos', 'street', 'toast'], spareGoal: 2, messGoal: 41,
       furniture: [PARK_SS9, { kind: 'slide', x0: 640, y0: 340, x1: 820, y1: 534 }, { kind: 'fence', x0: 980, x1: 1080, top: 470 },
                   { kind: 'tree', x0: 1110, x1: 1180, top: 112 }, { kind: 'branch', x0: 1110, x1: 1250, top: 112 }],
       spots: [{ kind: 'sandbox', x0: 830, x1: 970, bottom: 580 }, { kind: 'box', x0: 1112, x1: 1234, bottom: 112, h: 56, cat: 'street' }, { kind: 'birdbath', x0: 1000, x1: 1070, bottom: 470, t: 6 }],
@@ -1051,7 +1055,7 @@ const FITS = (() => {
     // park party: the treehouse, the slide into the sandbox, the tree box, the bird bath and the picnic basket (the treehouse
     // basket as on park 3 since Nov 6: wider and deeper, the pigeon on its rim)
     { id: 'pk10', name: 'park 10', world: 'park', title: 'park party', w: 1350, perch: { x: 330, top: 430 },
-      lineup: ['toast', 'chaos', 'street', 'chaos', 'toast', 'street', 'unit', 'toast'], spareGoal: 2, messGoal: 120,
+      lineup: ['toast', 'chaos', 'street', 'chaos', 'toast', 'street', 'unit', 'toast'], spareGoal: 2, messGoal: 50,
       furniture: [{ kind: 'tree', x0: 60, x1: 120, top: 230 }, { kind: 'branch', x0: 0, x1: 180, top: 230 }, { kind: 'slide', x0: 560, y0: 350, x1: 720, y1: 534 },
                   { kind: 'table', x0: 880, x1: 1080, top: 440 }, { kind: 'tree', x0: 1210, x1: 1280, top: 112 }, { kind: 'branch', x0: 1210, x1: 1350, top: 112 }, { kind: 'pond', x0: 1080, x1: 1190, depth: 34 }],
       spots: [{ kind: 'basket', x0: 0, x1: 180, bottom: 230, h: 56, cat: 'chaos' }, { kind: 'sandbox', x0: 730, x1: 870, bottom: 580 }, { kind: 'basket', x0: 940, x1: 1072, bottom: 440 },
@@ -1083,19 +1087,19 @@ const FITS = (() => {
       items: [...stack('cbox', 590, 460, 2), bw(470, 580), { kind: 'tape', x: 520, bottom: 580 }, ...stack('bigbox', 940, 580, 3), pig(830, 300)] },
     // the conveyor belt: land on it and it takes you to the crate (boxes too. boxes in your crate get squashed.)
     { id: 'wh2', name: 'warehouse 2', world: 'warehouse', title: 'conveyor', tip: 'ride teh belt!', w: 1150, perch: PERCH,
-      lineup: ['toast', 'toast', 'toast', 'toast'], spareGoal: 1, messGoal: 20,
+      lineup: ['toast', 'toast', 'toast', 'toast'], spareGoal: 1, messGoal: 12,
       furniture: [{ kind: 'belt', x0: 480, x1: 860, top: 440, speed: 2.6 }, { kind: 'pallet', x0: 1010, x1: 1150, top: 370 }, { kind: 'rack', x0: 870, x1: 1010, shelves: [330] }],
       spots: [{ kind: 'crate', x0: 866, x1: 1006, bottom: 580 }, { kind: 'crate', x0: 1016, x1: 1146, bottom: 370 }],
       items: [{ kind: 'cbox', x: 560, bottom: 440 }, { kind: 'cbox', x: 700, bottom: 440 }, { kind: 'bigbox', x: 940, bottom: 330 }, bw(400, 580)] },
     // the void's first level: a shoebox only she fits in, a crate for everyone (was sneak peek 2)
     { id: 'wh3', name: 'warehouse 3', world: 'warehouse', title: 'if i fits', w: 990, perch: PERCH, newCat: 'void',
-      lineup: ['void', 'toast', 'void'], spareGoal: 1, messGoal: 30,
+      lineup: ['void', 'toast', 'void'], spareGoal: 1, messGoal: 18,
       furniture: [{ kind: 'pallet', x0: 480, x1: 850, top: 400 }, { kind: 'pallet', x0: 850, x1: 990, top: 220 }],
       spots: [{ kind: 'crate', x0: 600, x1: 734, bottom: 400 }, { kind: 'shoebox', x0: 786, x1: 846, bottom: 400, cat: 'void' }],
       items: [bw(520, 400), { kind: 'cbox', x: 572, bottom: 400 }, { kind: 'cbox', x: 762, bottom: 400 }, ...stack('cbox', 920, 220, 2), { kind: 'bigbox', x: 420, bottom: 580 }] },
     // bubble wrap over the crates: land on it, POP POP, and drop in
     { id: 'wh4', name: 'warehouse 4', world: 'warehouse', title: 'bubble wrap', tip: 'pop pop pop', w: 1150, perch: PERCH,
-      lineup: ['void', 'toast', 'void', 'toast', 'void', 'toast'], spareGoal: 2, messGoal: 20,
+      lineup: ['void', 'toast', 'void', 'toast', 'void', 'toast'], spareGoal: 2, messGoal: 9,
       furniture: [{ kind: 'pallet', x0: 520, x1: 760, top: 440 }, { kind: 'rack', x0: 820, x1: 1060, shelves: [260, 420] }, { kind: 'pallet', x0: 1060, x1: 1150, top: 200 }],
       spots: [{ kind: 'crate', x0: 580, x1: 714, bottom: 440 }, { kind: 'shoebox', x0: 994, x1: 1054, bottom: 260, cat: 'void' }, { kind: 'crate', x0: 880, x1: 1014, bottom: 420 }],
       items: [{ kind: 'bubblewrap', x: 647, bottom: 390, w: 152 }, { kind: 'bubblewrap', x: 947, bottom: 370, w: 152 }, bw(560, 580), bw(640, 580), ...stack('cbox', 860, 260, 2), { kind: 'tape', x: 1100, bottom: 200 }] },
@@ -1134,7 +1138,7 @@ const FITS = (() => {
     // inside, was 130, and the shelf 10 lower, so the zoomies there are easier; the pigeon sits on the crate. Any lower and the
     // shelf is in the way of megachonk's cat-a-pult throws: at 300 it stopped all of them.)
     { id: 'wh10', name: 'warehouse 10', world: 'warehouse', title: 'shipping day', w: 1350, perch: { x: 330, top: 430 },
-      lineup: ['toast', 'void', 'chaos', 'unit', 'street', 'void', 'chaos', 'unit', 'street', 'toast', 'void', 'toast'], spareGoal: 2, messGoal: 120,
+      lineup: ['toast', 'void', 'chaos', 'unit', 'street', 'void', 'chaos', 'unit', 'street', 'toast', 'void', 'toast'], spareGoal: 2, messGoal: 61,
       furniture: [{ kind: 'rack', x0: 0, x1: 180, shelves: [240] }, { kind: 'belt', x0: 480, x1: 760, top: 450, speed: 2.6 }, { kind: 'pallet', x0: 884, x1: 1050, top: 450 },
                   { kind: 'pallet', x0: 1050, x1: 1180, top: 260 }, { kind: 'pallet', x0: 1250, x1: 1350, top: 108 }],
       spots: [{ kind: 'crate', x0: 0, x1: 170, bottom: 240, cat: 'chaos' }, { kind: 'crate', x0: 764, x1: 880, bottom: 580, cat: 'unit' }, { kind: 'shoebox', x0: 1110, x1: 1170, bottom: 260, cat: 'void' },
@@ -1201,17 +1205,18 @@ const FITS = (() => {
       items: [fl('snack', 820, 470), fl('fishbowl', 980, 470), fl('wrench', 450, 300), fl('duckie', 1000, 200)] }, SPACE_SP),
     // mission control: every trick in the station. Rebuilt Nov 7 (Adam: "how is space 8 even possible to pass?" ... "When I aim the
     // street cat always hits the lowest box"): every cat has its own box, in throwing order, and nothing sits in a lane.
-    // toast: the big box up on the left (aim at its mouth). street cat: the box on top of the tall strut; claws out, a flat throw
-    // grabs the console, climbs it, runs to the strut and climbs that, a bit higher (to 12 degrees) grabs the strut itself,
-    // and it hops into the box (the lane from the cat tree to them is empty). sir toots: the tall box behind the
-    // hanging strut, out of sight of any straight throw; fly in low under the strut and toot up into it. the void: the tiny
-    // box on the hanging strut; squish right away and fly straight in. chaos: the box behind the cat tree; zoom right away
-    // at the big box's bottom corner and she comes back off it and the ceiling into her box.
+    // toast: the box up on the left (aim at its mouth, 56-60 degrees). street cat: the box on top of the tall strut; claws out, a
+    // flat throw (to 8 degrees, under the hanging strut) grabs the console, climbs it, runs to the strut and climbs that, and it
+    // hops into the box (the lane from the cat tree to them is empty). sir toots: the box behind the hanging strut, out of sight
+    // of any straight throw; fly in low under the strut and toot up into it (a power and a moment to hit). the void: the tiny box
+    // on the hanging strut; squish right away and fly straight in (30-32 degrees). chaos: the box behind the cat tree; zoom right
+    // away at the bottom corner of toast's box (52-54 degrees) and she comes back off it and the ceiling into her box.
+    // Tightened Nov 7 (Adam: "I beat space 8 on the first try. It might be too easy now."): smaller boxes, a lower hanging strut.
     Object.assign({ id: 'sp8', name: 'space 8', world: 'space', title: 'mission control', tip: 'evry cat haz its own box!', w: 1300, perch: { x: 330, top: 430 },
-      lineup: ['toast', 'street', 'toot', 'void', 'chaos', 'street', 'toot', 'void', 'chaos'], spareGoal: 2, messGoal: 80,
-      furniture: [{ kind: 'pad', x0: 0, x1: 230, top: 230 }, { kind: 'strut', x0: 650, x1: 680, top: 0, bottom: 288 },
+      lineup: ['toast', 'street', 'toot', 'void', 'chaos', 'street', 'toot', 'void', 'chaos'], spareGoal: 2, messGoal: 35,
+      furniture: [{ kind: 'pad', x0: 0, x1: 210, top: 230 }, { kind: 'strut', x0: 650, x1: 680, top: 0, bottom: 345 },
                   { kind: 'strut', x0: 1200, x1: 1300, top: 120, bottom: 580 }, { kind: 'console', x0: 1040, x1: 1200, top: 350 }],
-      spots: [{ kind: 'box', x0: 10, x1: 210, bottom: 230, cat: 'chaos' }, sb(1000, 4, 1130, 210, 'toot'), sb(560, 248, 650, 302, 'void'), { kind: 'box', x0: 1204, x1: 1296, bottom: 120, h: 56, cat: 'street' }, sb(500, 60, 640, 220)],
+      spots: [{ kind: 'box', x0: 10, x1: 190, bottom: 230, cat: 'chaos' }, sb(1010, 30, 1120, 200, 'toot'), sb(560, 252, 650, 300, 'void'), { kind: 'box', x0: 1204, x1: 1296, bottom: 120, h: 56, cat: 'street' }, sb(500, 120, 610, 220)],
       items: [fl('fishbowl', 1100, 350), fl('snack', 700, 470), fl('duckie', 820, 470), fl('wrench', 450, 450), fl('snack', 140, 120)] }, SPACE_SP),
     // the zero g party: little floating blocks of fishbowls and fragile boxes all over the station (they break when hit,
     // so a throw clears a path, not the room)
@@ -1234,7 +1239,7 @@ const FITS = (() => {
       items: [{ kind: 'rock', x: 760, bottom: 580 }, { kind: 'flag', x: 1140, bottom: 580 }, al(1280, 574), { kind: 'cheese', x: 1460, bottom: 300 }, { kind: 'cheese', x: 560, bottom: 580 }, al(1600, 300)] }, MOON_MN),
     // spicy's first level: a moon doggo is asleep in the crater on the mesa. nobody else can budge it. HISS.
     Object.assign({ id: 'mn2', name: 'moon 2', world: 'moon', title: 'hisss', tip: 'a doggo iz in ur crater. hiss at it!', w: 1750, perch: PERCH, newCat: 'spicy',
-      lineup: ['spicy', 'toast', 'spicy'], spareGoal: 1, messGoal: 20,
+      lineup: ['spicy', 'toast', 'spicy'], spareGoal: 1, messGoal: 15,
       furniture: [{ kind: 'pillar', x0: 860, x1: 1080, top: 400, moon: true }, { kind: 'pillar', x0: 1480, x1: 1750, top: 300, moon: true }],
       spots: [{ kind: 'crater', x0: 908, x1: 1032, bottom: 400, cat: 'spicy' }, { kind: 'crater', x0: 1280, x1: 1470, bottom: 580, look: 'dish' }],
       items: [{ kind: 'dog', x: 970, bottom: 394 }, al(1375, 574), al(1600, 300), { kind: 'cheese', x: 640, bottom: 580 }, { kind: 'flag', x: 1700, bottom: 300 }] }, MOON_MN),
@@ -1277,7 +1282,7 @@ const FITS = (() => {
       items: [{ kind: 'dog', x: 800, bottom: 414 }, { kind: 'dog', x: 1020, bottom: 574 }, { kind: 'dog', x: 1220, bottom: 574 }, al(620, 580), al(1650, 580), { kind: 'cheese', x: 560, bottom: 580 }, al(1345, 400), al(1500, 300), { kind: 'rover', x: 1760, bottom: 580 }] }, MOON_MN),
     // to da moon: every cat, every trick
     Object.assign({ id: 'mn9', name: 'moon 9', world: 'moon', title: 'to da moon', w: 1850, perch: { x: 330, top: 430, cataDX: -104 },
-      lineup: ['toast', 'chaos', 'unit', 'street', 'void', 'toot', 'spicy', 'chaos', 'unit', 'street', 'void', 'toot', 'spicy'], spareGoal: 2, messGoal: 120,
+      lineup: ['toast', 'chaos', 'unit', 'street', 'void', 'toot', 'spicy', 'chaos', 'unit', 'street', 'void', 'toot', 'spicy'], spareGoal: 2, messGoal: 99,
       furniture: [{ kind: 'lander', x0: 10, x1: 170, top: 230 }, { kind: 'pillar', x0: 560, x1: 760, top: 440, moon: true }, { kind: 'pillar', x0: 884, x1: 1000, top: 440, moon: true },
                   { kind: 'lander', x0: 1210, x1: 1350, top: 260 }, { kind: 'pillar', x0: 1440, x1: 1580, top: 360, moon: true }, { kind: 'pillar', x0: 1580, x1: 1720, top: 270, moon: true }],
       spots: [{ kind: 'box', x0: 20, x1: 160, bottom: 230, cat: 'chaos' }, { kind: 'crater', x0: 760, x1: 884, bottom: 580, cat: 'unit' }, { kind: 'shoebox', x0: 1510, x1: 1570, bottom: 360, cat: 'void' },
@@ -6410,7 +6415,7 @@ let WAVE = null;   // while everyone waves bai (render sets it; drawCat puts a p
 function startYeet(e) {
   const c = e.cat, big = !!c.def.pound, dir = (e.vx || 0) < 0 ? -1 : 1;
   const y0 = reduceMotion ? Math.max(e.y, cam.y - view.availH / 2 / cam.z + 120 / cam.z) : e.y;   // (reduced motion: the camera stays put, so it goes from the top of the picture)
-  fx.yeet = { cat: c, def: c.def, big, dir, x0: e.x, y0, vx: (e.vx || 0) * 60, vy: Math.min(-90, (e.vy || -2) * 60), a0: e.angle || 0, spin: reduceMotion ? 0 : (big ? 4 : 7) * dir, t: 0, twinkled: false };
+  fx.yeet = { cat: c, def: c.def, big, dir, x0: e.x, y0, vx: (e.vx || 0) * 60, vy: Math.min(-90, (e.vy || -2) * 60), a0: e.angle || 0, spin: reduceMotion ? 0 : (big ? 4 : 7) * dir, spin0: reduceMotion ? 0 : (e.spin || 0) * 60, t: 0, twinkled: false };
   cam.mode = 'yeet'; cam.hold = 0; sim.frozen = true;   // (the physics waits for the show: core.js step)
   Snd.fx('yeet'); Snd.voice(big ? 'yowl' : 'meow', c.def.pitch * 1.25, 0.8);
   if (!attract) buzz('boing', 0.6);
@@ -6429,8 +6434,12 @@ function startYeet(e) {
 function endYeet() { fx.yeet = null; WAVE = null; if (sim) sim.frozen = false; if (cam.mode === 'yeet') cam.mode = 'auto'; }
 // where it is t s into the show: still going the way it left, faster and faster, and further away (s: how big it looks)
 function yeetAt(Y, t) {
-  const u = 1 - Math.exp(-t / 0.8), k = reduceMotion ? 0.35 : 1;   // (it slows down in the picture as it goes deeper into the sky)
-  return { x: Y.x0 + Y.vx * 0.8 * u * k, y: Y.y0 + (Y.vy * 0.8 - 260) * u * k, s: reduceMotion ? Math.max(0.05, 1 - t / (YEET.T * YEET.TW)) : 1 / (1 + 0.6 * t + 0.9 * t * t * t), a: Y.a0 + Y.spin * t };
+  // It goes on at exactly the speed and spin it left the physics with, then drifts on up, faster and faster away (Adam, Nov 7:
+  // "the cat launches at one speed and then suddenly yeets like a rocket": the show used to add about 325 px/s upward and a fixed
+  // fast spin the moment it took over). The extra climb builds from nothing to 200 px/s; it ends about as high as before.
+  const u = 1 - Math.exp(-t / 0.8), k = reduceMotion ? 0.35 : 1, up = 200 * (t - 0.8 * u), us = 1 - Math.exp(-t / 0.6);   // (it slows down in the picture as it goes deeper into the sky)
+  return { x: Y.x0 + Y.vx * 0.8 * u * k, y: Y.y0 + (Y.vy * 0.8 * u - up) * k, s: reduceMotion ? Math.max(0.05, 1 - t / (YEET.T * YEET.TW)) : 1 / (1 + 0.6 * t + 0.9 * t * t * t),
+    a: Y.a0 + Y.spin * t + ((Y.spin0 || 0) - Y.spin) * 0.6 * us };
 }
 function yeetCam(dt) {
   const Y = fx.yeet; Y.t += dt;
@@ -6595,7 +6604,7 @@ function fitLineup() {
   const left = faces.filter(f => !f.hidden), tag = document.createElement('span'); tag.className = 'more'; lu.appendChild(tag);
   for (let k = left.length - 1; k > 0 && over(); k--) { left[k].hidden = true; tag.textContent = '+' + (left.length - k); }
 }
-const SCREENS = ['scrTitle', 'scrLevels', 'scrIntro', 'scrPause', 'scrResult', 'scrUnlock', 'scrCloset', 'scrEnd', 'scrCard', 'scrInfo', 'scrCrib', 'scrReset'];   // (scrReset: start over)   // (scrCrib: teh crib, closet.js)
+const SCREENS = ['scrTitle', 'scrLevels', 'scrIntro', 'scrPause', 'scrResult', 'scrUnlock', 'scrCloset', 'scrEnd', 'scrCard', 'scrInfo', 'scrCrib', 'scrReset'];   // (scrReset: reset game)   // (scrCrib: teh crib, closet.js)
 // A safe moment for the app to swap in a newer page (2.0.1's update check while the game loads, Adam, Nov 6: "so they don't have to
 // close the game and reopen it"): only on the title or the level list with nothing else open. Never mid-level, paused, on a
 // result, in the closet or teh crib, on the unlock screen, a postcard or the ending. (Saves go out at once, so nothing is lost.)
@@ -6778,7 +6787,7 @@ $('tglRestore').addEventListener('click', () => { Snd.init(); nativeSay({ type: 
 function showInfo(which) { Snd.init(); Snd.fx('pop'); $('infoTitle').textContent = which; $('infoPrivacy').hidden = which !== 'privacy'; $('infoHelp').hidden = which !== 'help'; showScreen('scrInfo'); }
 $('tglPrivacy').addEventListener('click', () => showInfo('privacy'));
 $('tglHelp').addEventListener('click', () => showInfo('help'));
-// Start over (Adam, Nov 7: "I also wish there was a way to reset my game"): every star, level, world door, the bill, teh closet
+// Reset game (Adam, Nov 7: "I also wish there was a way to reset my game"; it was called start over, like the pause menu's level restart, now retry): every star, level, world door, the bill, teh closet
 // and teh crib, the introductions (new cats, megachonk), the yeeted cats: gone, after a yes on its own screen. The purchase
 // stays (Apple and the app hold it, not the save), and so do the settings. In place, no reload: the app's copy of the save
 // is replaced by this one as it's saved.
@@ -7492,7 +7501,7 @@ function drawSimCat(c, t) {
     if (rx.squish > 0) ctx.scale(fitW ? 1 : 1 + 0.3 * rx.squish, 1 - 0.3 * rx.squish);
     // (megachonk doesn't nap in a box either: he sits there, eyes open, blinking weird, the blep out, a twitch now and then)
     const chonkStare = d.id === 'chonk' && face.eyes === 'closed' && face.mouth === 'w';
-    drawCat(d, 'sit', chonkStare ? { eyes: 'open', mouth: 'blep' } : face, { t, lids: chonkStare ? chonkBlinks(t, c.idx + 1) : null, twitch: chonkStare && !purring ? chonkTwitch(t, c.idx) : null, scale: sv, squash: sq, fitW, knead: purring && !mad && !spook, purr: (purring || laugh) && !mad, puff: spook || mad, tailPuff: spook || mad, earsBack: mad ? 0.9 : 0, pawOut: rx.swipe > 0, pawUp: stink || (laugh && Math.sin(t * 9) > -0.2), headY: laugh ? -Math.abs(Math.sin(t * 22)) * 2.5 : 0, headTilt: laugh ? Math.sin(t * 11) * 0.12 : 0, look: hatLook ? { x: 0, y: -1 } : (rx.stare > 0 || hatSmug || blep) ? { x: 0, y: 0 } : null, blink: 0 });
+    drawCat(d, 'sit', chonkStare ? { eyes: 'open', mouth: 'blep' } : face, { t, lids: chonkStare ? chonkBlinks(t, c.idx + 1) : null, twitch: chonkStare && !purring ? chonkTwitch(t, c.idx) : null, scale: sv, squash: sq, fitW, knead: purring && !mad && !spook && d.id !== 'chonk', purr: (purring || laugh) && !mad, puff: spook || mad, tailPuff: spook || mad, earsBack: mad ? 0.9 : 0, pawOut: rx.swipe > 0, pawUp: stink || (laugh && Math.sin(t * 9) > -0.2), headY: laugh ? -Math.abs(Math.sin(t * 22)) * 2.5 : 0, headTilt: laugh ? Math.sin(t * 11) * 0.12 : 0, look: hatLook ? { x: 0, y: -1 } : (rx.stare > 0 || hatSmug || blep) ? { x: 0, y: 0 } : null, blink: 0 });
     if (c.hat) { const it = c.hat; drawItem(Object.assign(Object.create(it), { body: { position: { x: 8 * K * STYLE.body, y: POSE_PIN.sit[1] * K * (1 - STYLE.body) + (22 - 44 * sq) * K * STYLE.body - 18 * K * STYLE.head - it.h / 2 + 3 }, angle: 0.14 } }), t); }
     ctx.restore();
     const topY = d.id === 'chonk' ? baseY - 40 : baseY - headOff - 32 * K * STYLE.head + 62 * K;   // so the !, anger, stink and z float just over the ears (his are higher)
@@ -8167,7 +8176,7 @@ function render(t, dt) {
   };
   inside.forEach(drawOne);
   for (const s of sim.spots) drawSpotFront(s);
-  for (const c of sim.cats) if (c.state === 'sit' && c.body && c.rx && c.rx.purrOn && c.rx.sitT >= 0.6 && c.rx.sitT < PURR_SHOW) kneadPaws(c, t);   // making biscuits on the rim
+  for (const c of sim.cats) if (c.state === 'sit' && c.body && c.rx && c.rx.purrOn && c.rx.sitT >= 0.6 && c.rx.sitT < PURR_SHOW && !c.def.pound) kneadPaws(c, t);   // making biscuits on the rim (not megachonk, Adam, Nov 7: on his side in a box his own paws show, and two more were kneading the rim)
   for (const f of sim.level.furniture) if (f.kind === 'pond') drawPondFront(f, t);
   for (const s of sim.spots) drawSpotMarker(s, t);
   outside.forEach(drawOne);
