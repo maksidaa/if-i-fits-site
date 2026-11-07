@@ -1,4 +1,4 @@
 {
- "manifest": "{\"native\":\"2.0\",\"seq\":202611071707,\"url\":\"https://maksidaa.github.io/if-i-fits-site/ota/2.0/202611071707.html\",\"sha256\":\"611cf0b20d14e168c08a02e083fbf93743b41a54975dc59edb0b001e811622f7\",\"size\":1749078,\"notes\":\"Play stats kept on the device: tries, wins, stars, time; a stats screen with copy\",\"commit\":\"c2797e5\",\"created\":\"2026-11-07T23:07:46.724Z\"}",
- "signature": "hOJCUrX8cvscDcl8pH6JQQbPCG3h5Sr3OobLShMstz+wY8U5KzU9IAqB4xPkR8hfSIEBPKlosRPiTac0WjPCkA=="
+ "manifest": "{\"native\":\"2.0\",\"seq\":202611071749,\"url\":\"https://maksidaa.github.io/if-i-fits-site/ota/2.0/202611071749.html\",\"sha256\":\"87e7681b957d7b5aae648c2ffa050984a33452ee7906374fd2d5275996d3c30a\",\"size\":1749320,\"notes\":\"Privacy screen: play stats stay on the device; copy stats is the player's choice\",\"commit\":\"a3ae17e\",\"created\":\"2026-11-07T23:49:07.716Z\"}",
+ "signature": "dWrryXO7/Rq5YywcUDem/31eBLbuzWeoLxkm6cTKYgkiVBwGmoG4YI4ogktzU8vV/phd4UIqn7aLPjzrVLjhbg=="
 }

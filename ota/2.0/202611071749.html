@@ -71,6 +71,40 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: var(--wall);
 .reset-card { text-align: center; }
 .reset-say { font-weight: 700; margin: 6px 0 14px; }
 .reset-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+/* play stats (Nov 7): mai stats, a card like teh postcards. Only its table scrolls, so it fits a landscape phone (667 x 375) */
+#scrStats { padding: calc(env(safe-area-inset-top, 0px) + 8px) max(12px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 8px) max(12px, env(safe-area-inset-left, 0px)); }
+.stats-card { max-width: calc(760px + 41px); height: calc(100vh - 16px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); max-height: 620px; display: grid; grid-template-rows: auto auto auto minmax(0, 1fr); gap: 7px; padding: 10px 14px 12px; text-align: left; }
+.stats-head { display: flex; align-items: center; gap: 8px; }
+.stats-head .title { font-size: 24px; }
+.stats-head .spacer { flex: 1; }
+.stats-say { display: flex; align-items: baseline; gap: 2px 12px; flex-wrap: wrap; min-height: 18px; }
+.stats-say .sub { font-size: 14px; color: var(--ink); flex: 1 1 auto; }
+.stats-meta { font-weight: 800; font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.stats-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.st-tile { background: #fff; border: 2px solid var(--ink); border-radius: 12px; padding: 2px 9px 3px; display: grid; min-width: 0; }
+.st-tile b { font-weight: 900; font-size: 18px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.st-tile span { font-weight: 800; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stats-table { overflow: auto; min-height: 0; background: #fff; border: 2px solid var(--ink); border-radius: 14px; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+.stats-table table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+.stats-table th { position: sticky; top: 0; z-index: 1; background: var(--paper); font-weight: 900; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); text-align: right; padding: 5px 8px; border-bottom: 2px solid var(--ink); white-space: nowrap; }
+.stats-table td { text-align: right; padding: 6px 8px; font-weight: 800; border-top: 1px solid rgba(46,58,53,0.12); white-space: nowrap; }
+.stats-table th:first-child, .stats-table td:first-child { text-align: left; }
+.stats-table tbody tr:first-child td { border-top: 0; }
+.stats-table td.hard { text-align: left; color: var(--muted); max-width: 140px; overflow: hidden; text-overflow: ellipsis; }
+.stats-table tr.st-w { cursor: pointer; }
+.stats-table tr.st-w:active td { background: #FFE2C2; }
+.stats-table tr.shut td { color: var(--muted); }
+.stats-table .st-go { font: inherit; font-weight: 900; color: inherit; background: none; border: 0; padding: 2px 0; cursor: pointer; text-align: left; }
+.stats-table .st-go::after { content: " \203A"; color: var(--orange); font-weight: 900; }
+.stats-table .st-go:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+.stats-table .star { width: 13px; height: 13px; vertical-align: -2px; }
+.stats-dump { width: 100%; height: 100%; min-height: 0; box-sizing: border-box; resize: none; font: 600 11px/1.3 ui-monospace, Menlo, monospace; color: var(--ink); background: #fff; border: 2px solid var(--ink); border-radius: 12px; padding: 8px; -webkit-user-select: text; user-select: text; }
+.stats-copy { position: fixed; top: 0; left: 0; width: 1px; height: 1px; opacity: 0; font-size: 16px; -webkit-user-select: text; user-select: text; }
+.reset-say { text-wrap: balance; }   /* (it mentions stats now: no lone "poof." on a line) */
+.wh-time { font-size: 11px; letter-spacing: 0.04em; text-transform: none; color: var(--muted); }
+.st-vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (max-height: 420px) { .stats-head .title { font-size: 21px; } .st-tile b { font-size: 16px; } .stats-table td { padding: 5px 7px; } }
+@media (max-width: 700px) { .stats-table th, .stats-table td { padding-left: 5px; padding-right: 5px; } .stats-table table { font-size: 12px; } }
 .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .btn-row.one { grid-template-columns: 1fr; }
 .btn-row .btn { font-size: 16px; padding: 10px 8px; }
@@ -402,7 +436,7 @@ body.attract #hud, body.attract #hint { display: none; }
     <div class="eyebrow" id="lvlEyebrow">levels</div>
     <h1 class="title">I FITS, I SITS</h1>
     <p class="sub">knock the stuff over. sit in every spot.</p>
-    <div class="bill-row"><span class="bill-pill" id="lvlBill"></span><button class="btn small" id="closetBtn">closet<span class="new-dot" id="closetDot" hidden></span></button><button class="btn small" id="cribBtn">crib</button><button class="btn small" id="albumBtn">postcards<span class="new-dot" id="albumDot" hidden></span></button></div>
+    <div class="bill-row"><span class="bill-pill" id="lvlBill"></span><button class="btn small" id="closetBtn">closet<span class="new-dot" id="closetDot" hidden></span></button><button class="btn small" id="cribBtn">crib</button><button class="btn small" id="albumBtn">postcards<span class="new-dot" id="albumDot" hidden></span></button><button class="btn small" id="statsBtn">stats</button></div>
     <p class="lvl-msg" id="lvlMsg" role="status" hidden></p>
     <div class="levels" id="levelList"></div>
     <div class="toggles">
@@ -423,8 +457,19 @@ body.attract #hud, body.attract #hint { display: none; }
 <div class="overlay" id="scrReset" hidden>
   <div class="card reset-card">
     <h2 class="title">reset game?</h2>
-    <p class="reset-say">ur stars, levels, postcards, cash n closet go poof.<br>ur unlock stays.</p>
+    <p class="reset-say">ur stars, levels, postcards, stats, cash n closet go poof.<br>ur unlock stays.</p>
     <div class="reset-row"><button class="btn" id="resetNo">keep my game</button><button class="btn danger" id="resetYes">reset game</button></div>
+  </div>
+</div>
+<!-- play stats (Nov 7): time played, tries, wins and losses, per world and per level; it all stays on this device, and
+     "copy stats" puts it on the clipboard for the player to paste themselves -->
+<div class="overlay" id="scrStats" hidden>
+  <div class="card wide stats-card">
+    <div class="stats-head"><h2 class="title">mai stats</h2><span class="spacer"></span><button class="btn small" id="stBack" hidden>back</button><button class="btn small" id="stCopy">copy stats</button><button class="btn small" id="stDone">done</button></div>
+    <div class="stats-say"><p class="sub" id="stSay" aria-live="polite"></p><span class="stats-meta" id="stMeta"></span></div>
+    <div class="stats-tiles" id="stTiles"></div>
+    <div class="stats-table" id="stTable"></div>
+    <textarea class="stats-dump" id="stDump" readonly hidden aria-label="your stats, to copy"></textarea>
   </div>
 </div>
 <!-- privacy and help, inside the game (Apple wants the privacy policy reachable in the app; this works offline and needs no
@@ -437,8 +482,9 @@ body.attract #hud, body.attract #hint { display: none; }
       <p><b>I Fits, I Sits: Cat Jump</b> is made by Adam Goodwin. The game does not collect, sell or share any personal data.</p>
       <ul>
         <li>No accounts. We don't ask for your name, email or contacts.</li>
-        <li>No ads, no analytics and no tracking.</li>
-        <li>Your progress (levels, stars, the closet and settings) is saved only on this device. Deleting the game deletes it.</li>
+        <li>No ads, no tracking and no analytics services. Nothing about how you play is sent to us.</li>
+        <li>Your progress (levels, stars, the closet, settings and your play stats, like time played and tries) is saved only on this device. Deleting the game deletes it.</li>
+        <li>If you tap "copy stats", your stats are copied so you can paste them wherever you like. We only see them if you send them to us.</li>
         <li>Purchases go through Apple. We never see your payment details.</li>
         <li>When you're online, the game checks our website for game updates. Nothing about you or your progress is sent. The site is hosted by GitHub Pages, which, like any web host, can see the IP address a request comes from; we don't receive or store it.</li>
         <li>Apple's own "enjoying it?" rating box may appear now and then; the game doesn't see your answer.</li>
@@ -520,6 +566,7 @@ body.attract #hud, body.attract #hint { display: none; }
       <button class="toggle" id="tglSnd2">sound: <b>on</b></button>
       <button class="toggle" id="tglAmb2">room sounds: <b>on</b></button>
       <button class="toggle" id="tglVib2" hidden>vibration: <b>on</b></button>
+      <button class="toggle" id="pStats">stats</button>
     </div>
   </div>
 </div>
@@ -3950,7 +3997,17 @@ function drawRibbon(r, t) {
     ctx.beginPath(); for (let i = 2; i < n - 1; i += 3) { const a = P[i - 1], b = P[i + 1], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1, nx = -dy / d * 3.6, ny = dx / d * 3.6; ctx.moveTo(P[i].x - nx, P[i].y - ny); ctx.lineTo(P[i].x + nx, P[i].y + ny); } ctx.strokeStyle = 'rgba(46,58,53,0.25)'; ctx.lineWidth = 1; ctx.stroke();
     ctx.restore(); return;
   }
-  path(); ctx.strokeStyle = INK; ctx.lineWidth = 4.6; ctx.stroke(); ctx.strokeStyle = '#E2574C'; ctx.lineWidth = 2.6; ctx.stroke();   // yarn
+  // yarn (Adam, Nov 7: "what is the red trail that falls to the ground? Reminds me of a tape worm"): a thinner strand with the
+  // twist of the ply on it, and the ball it's running away from, getting smaller as it unwinds (gone once it's all out)
+  path(); ctx.strokeStyle = INK; ctx.lineWidth = 3.8; ctx.stroke(); ctx.strokeStyle = '#E2574C'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.setLineDash([2.2, 3.2]); path(); ctx.strokeStyle = 'rgba(255,221,214,0.9)'; ctx.lineWidth = 1; ctx.stroke(); ctx.setLineDash([]);
+  if (r.pin0) yarnBall(P[0].x, P[0].y, Math.max(6, 12.5 - n * 0.045));
+  ctx.restore();
+}
+function yarnBall(x, y, R) {   // sitting on the floor at (x, y): wound red yarn
+  const cy = y - R + 1.5; ell(x, cy, R, R); fs('#E2574C', INK, 2);
+  ctx.save(); ctx.beginPath(); ctx.arc(x, cy, R - 1, 0, Math.PI * 2); ctx.clip(); ctx.strokeStyle = 'rgba(255,221,214,0.85)'; ctx.lineWidth = 1.1;
+  for (const [a, k] of [[-0.6, 0.55], [0.5, 0.75], [1.4, 0.4], [2.4, 0.65]]) { ctx.beginPath(); ctx.ellipse(x, cy, R * k, R * 1.05, a, 0, Math.PI * 2); ctx.stroke(); }
   ctx.restore();
 }
 function rainCloud(x, y, a, t, s = 1) {   // my own lil cloud, raining on me
@@ -3967,7 +4024,7 @@ const TRAIL_SHAPE = { stink: 'stink', zzz: 'z', bones: 'bone', bubbles: 'bubble'
 function trailIcon(tr, W, t = 0) {
   const pts = []; for (let i = 0; i <= 24; i++) { const k = i / 24; pts.push({ x: W * (0.12 + 0.72 * k), y: W * (0.78 - 0.55 * Math.sin(k * Math.PI * 0.75)) }); }
   ctx.save();
-  if (tr.ribbon) { const s = W / 64; ctx.translate(W * 0.5 * (1 - s), W * 0.5 * (1 - s)); ctx.scale(s, s); drawRibbon({ kind: tr.ribbon, pts, fade: 1, held: true }, t); }
+  if (tr.ribbon) { const s = W / 64; ctx.translate(W * 0.5 * (1 - s), W * 0.5 * (1 - s)); ctx.scale(s, s); drawRibbon({ kind: tr.ribbon, pts, fade: 1, held: true, pin0: tr.ribbon === 'yarn' ? pts[0] : null }, t); }
   else if (tr.cloud) { rainCloud(W * 0.5, W * 0.36, 1, t); for (let i = 0; i < 5; i++) { ctx.save(); ctx.translate(W * (0.34 + i * 0.08), W * (0.58 + (i % 2) * 0.12)); clShape({ shape: 'drop', size: W * 0.05, rot: 0, x: i }, 1, t); ctx.restore(); } }
   else { const cols = TRAIL_LOOK[tr.emit] || [INK], shape = TRAIL_SHAPE[tr.emit], n = tr.emit === 'glitter' || tr.emit === 'confetti' || tr.emit === 'sparkles' ? 14 : 7;
     for (let i = 0; i < n; i++) { const h = Math.sin(i * 12.9898 + W) * 43758.5453, u = h - Math.floor(h), p = pts[Math.round(i / (n - 1) * 22)], ang = Math.atan2(pts[23].y - pts[1].y, pts[23].x - pts[1].x);
@@ -4564,7 +4621,8 @@ function startClosetPreview() {
         ctx.translate(p.x, p.top - 0.5 - 22 * d.k * (big ? 0.6 : 1)); if (big) ctx.scale(0.6, 0.6); drawCat(d, 'sit', { eyes: 'open', mouth: 'w' }, { t, wear, noSuit: true, blink: (t % 3.6) > 3.45 ? 1 : 0 }); return; }
       if (mode === 'trail') {   // round and round, the trail behind
         const tr = (it && it.kind === 'trail' ? it : TRAILS_BY[wear.trail]), T = 2.4, u = (t % T) / T, s = big ? 0.38 : 0.55, x = -30 + (w + 60) * u, y = h - 34 - Math.sin(u * Math.PI) * (h * 0.36);
-        if (fly.u < 0 || u < fly.u || fly.tr !== tr) { fly.tr = tr; fly.acc = 0; fly.last = { x, y }; PV.cloud = null; if (tr && tr.ribbon) ribbonStart(PV, tr.ribbon, null, x, y, tr.ribbon === 'rainbow' ? null : { x: -20, y: h - 12 }); if (tr && tr.cloud) PV.cloud = { x, y: y - 46, a: 1 }; }
+        if (fly.tr !== tr) { PV.parts = []; PV.decals = []; PV.ribbons = []; }   // a different trail: the last one's bits, floor glitter and ribbons go (Adam, Nov 7: "the trails stay for several seconds when I switch to a different trail and that overlays multiple trails")
+        if (fly.u < 0 || u < fly.u || fly.tr !== tr) { fly.tr = tr; fly.acc = 0; fly.last = { x, y }; PV.cloud = null; if (tr && tr.ribbon) ribbonStart(PV, tr.ribbon, null, x, y, tr.ribbon === 'rainbow' ? null : { x: 18, y: h - 9 }); if (tr && tr.cloud) PV.cloud = { x, y: y - 46, a: 1 }; }
         const vx = (x - fly.last.x) / Math.max(dt, 0.001), vy = (y - fly.last.y) / Math.max(dt, 0.001); fly.u = u;
         if (tr && tr.emit) { fly.acc += Math.hypot(x - fly.last.x, y - fly.last.y); let n = 0; while (fly.acc >= tr.gap && n < 6) { fly.acc -= tr.gap; n++; trailEmit(PV, tr.emit, x, y, vx, vy); } }
         const rib = PV.ribbons[PV.ribbons.length - 1]; if (rib && tr && tr.ribbon && rib.kind === tr.ribbon) ribbonFollow(rib, x, y);
@@ -6482,6 +6540,10 @@ function followCam(p) {
 }
 function updateCam(dt) {
   if (!sim) return;
+  const ox = cam.x, oy = cam.y, oz = cam.z; camStep(dt);
+  if (dt > 0) cam.v = { x: (cam.x - ox) / dt, y: (cam.y - oy) / dt, z: (Math.log(cam.z) - Math.log(oz)) / dt };   // (the yeet show's camera starts at this speed)
+}
+function camStep(dt) {
   if (cam.mode === 'yeet') { if (fx.yeet) yeetCam(dt); else cam.mode = 'auto'; return; }
   let tgt, rate = 4;
   if (cam.mode === 'intro') {
@@ -6514,13 +6576,16 @@ function startIntroPan() {
 // up); the camera pulls back and up after it till it's a dot among the stars; a twinkle; back to the room. Everyone else
 // looks up and waves bai. The physics waits the whole time, like it does for the intro pan, so how long the show takes
 // changes nothing, and a tap skips it. With reduced motion: half as long, no spin, and the camera stays where it is.
-const YEET = { T: reduceMotion ? 1.4 : 2.8, BACK: 0.74, TW: 0.66 };   // (s; BACK: when the camera heads home; TW: the twinkle)
+const YEET = { T: reduceMotion ? 1.4 : 4.6, BACK: reduceMotion ? 0.74 : 0.76, TW: reduceMotion ? 0.66 : 0.70, TAU: 1.3 };   // (s; BACK: when the camera heads home; TW: the twinkle; TAU: how fast it eases from its throw into the slow drift)
 const YEET_SAY = ['yeeted 2 space. bai', 'i am speed. i am gone', 'smol step. big yeet.'], BAI = ['bai bai', 'it waz nice knowin u', 'see u in space, fren'];
 let WAVE = null;   // while everyone waves bai (render sets it; drawCat puts a paw up)
 function startYeet(e) {
   const c = e.cat, big = !!c.def.pound, dir = (e.vx || 0) < 0 ? -1 : 1;
   const y0 = reduceMotion ? Math.max(e.y, cam.y - view.availH / 2 / cam.z + 120 / cam.z) : e.y;   // (reduced motion: the camera stays put, so it goes from the top of the picture)
-  fx.yeet = { cat: c, def: c.def, big, dir, x0: e.x, y0, vx: (e.vx || 0) * 60, vy: Math.min(-90, (e.vy || -2) * 60), a0: e.angle || 0, spin: reduceMotion ? 0 : (big ? 4 : 7) * dir, spin0: reduceMotion ? 0 : (e.spin || 0) * 60, t: 0, twinkled: false };
+  const vx = (e.vx || 0) * 60, vy = Math.min(-90, (e.vy || -2) * 60), dx = vx * 0.6, dy = Math.min(vy, -60), dl = Math.hypot(dx, dy) || 1;
+  fx.yeet = { cat: c, def: c.def, big, dir, x0: e.x, y0, vx, vy, ux: dx / dl * 70, uy: dy / dl * 70, a0: e.angle || 0, spin: reduceMotion ? 0 : (big ? 1 : 1.8) * dir, spin0: reduceMotion ? 0 : (e.spin || 0) * 60, t: 0, twinkled: false,
+    cv: Object.assign({ x: 0, y: 0, z: 0 }, cam.v) };   // (cv: the camera's own speed, carried on from the frame before, so it doesn't lurch)
+  fx.yeet.frame = yeetFrame(fx.yeet);
   cam.mode = 'yeet'; cam.hold = 0; sim.frozen = true;   // (the physics waits for the show: core.js step)
   Snd.fx('yeet'); Snd.voice(big ? 'yowl' : 'meow', c.def.pitch * 1.25, 0.8);
   if (!attract) buzz('boing', 0.6);
@@ -6537,27 +6602,34 @@ function startYeet(e) {
   if (!attract) orbitRemember(c.type);
 }
 function endYeet() { fx.yeet = null; WAVE = null; if (sim) sim.frozen = false; if (cam.mode === 'yeet') cam.mode = 'auto'; }
-// where it is t s into the show: still going the way it left, faster and faster, and further away (s: how big it looks)
+// where it is t s into the show (s: how big it looks). Adam, Nov 7, twice: "the cat launches at one speed and then suddenly
+// yeets like a rocket", then "still too abrupt... the camera zooms out really fast and it's like the cats change velocity at
+// the same time". So it's one ease now: from the speed it left the physics with into a slow drift the same way (TAU), never
+// slowing down and then speeding up again; it shrinks into the distance; its spin eases into a lazy tumble.
 function yeetAt(Y, t) {
-  // It goes on at exactly the speed and spin it left the physics with, then drifts on up, faster and faster away (Adam, Nov 7:
-  // "the cat launches at one speed and then suddenly yeets like a rocket": the show used to add about 325 px/s upward and a fixed
-  // fast spin the moment it took over). The extra climb builds from nothing to 200 px/s; it ends about as high as before.
-  const u = 1 - Math.exp(-t / 0.8), k = reduceMotion ? 0.35 : 1, up = 200 * (t - 0.8 * u), us = 1 - Math.exp(-t / 0.6);   // (it slows down in the picture as it goes deeper into the sky)
-  return { x: Y.x0 + Y.vx * 0.8 * u * k, y: Y.y0 + (Y.vy * 0.8 * u - up) * k, s: reduceMotion ? Math.max(0.05, 1 - t / (YEET.T * YEET.TW)) : 1 / (1 + 0.6 * t + 0.9 * t * t * t),
-    a: Y.a0 + Y.spin * t + ((Y.spin0 || 0) - Y.spin) * 0.6 * us };
+  const k = reduceMotion ? 0.35 : 1, e = 1 - Math.exp(-t / YEET.TAU), es = 1 - Math.exp(-t / 0.8);
+  return { x: Y.x0 + (Y.ux * t + (Y.vx - Y.ux) * YEET.TAU * e) * k, y: Y.y0 + (Y.uy * t + (Y.vy - Y.uy) * YEET.TAU * e) * k,
+    s: reduceMotion ? Math.max(0.05, 1 - t / (YEET.T * YEET.TW)) : 1 / (1 + 0.35 * t + 0.45 * t * t),
+    a: Y.a0 + Y.spin * t + ((Y.spin0 || 0) - Y.spin) * 0.8 * es };
 }
+// the picture the camera pulls back to, once, for the whole trip (the room along the bottom, the cat's path up among the
+// stars): a target that doesn't move, so the camera makes one smooth move instead of chasing the cat
+function yeetFrame(Y) {
+  const f = fitCam(), L = sim.level, tw = YEET.T * YEET.TW;
+  let x0 = -10, x1 = L.w + 10, top = -60;
+  for (let t = 0; t <= tw + 1e-6; t += tw / 24) { const p = yeetAt(Y, t), m = 210 + 60 * p.s; x0 = Math.min(x0, p.x - m); x1 = Math.max(x1, p.x + m); top = Math.min(top, p.y - m); }
+  const bot = FLOOR + 40, z = Math.min(f.z * 0.62, view.availH / (bot - top), view.cw / (x1 - x0));
+  return { x: (x0 + x1) / 2, y: bot - view.availH / 2 / z, z };
+}
+// The camera is a critically damped spring now (it used to chase its target at full speed from the first frame, which is
+// the lurch): it starts at the speed it already had, eases out to the wide picture in about 1.5 s, and eases home after.
 function yeetCam(dt) {
-  const Y = fx.yeet; Y.t += dt;
+  const Y = fx.yeet; if (Y.started) Y.t += dt; else Y.started = true;   // (the physics already moved it this frame, up to where it left: the show's clock starts next frame, so it doesn't jump ahead)
   if (Y.t >= YEET.T) { endYeet(); return; }
-  const f = fitCam(), L = sim.level, p = yeetAt(Y, Math.min(Y.t, YEET.T * YEET.TW));
-  let tgt = f;
-  if (!reduceMotion && Y.t < YEET.T * YEET.BACK) {   // pulled back and up: the room along the bottom, the cat up top among the stars
-    const top = Math.min(p.y - 150, -60), bot = FLOOR + 40, x0 = Math.min(-10, p.x - 150), x1 = Math.max(L.w + 10, p.x + 150);
-    const z = Math.min(f.z * 0.62, view.availH / (bot - top), view.cw / (x1 - x0));
-    tgt = { x: (x0 + x1) / 2, y: bot - view.availH / 2 / z, z };
-  }
-  const k = 1 - Math.exp(-dt * (Y.t < YEET.T * YEET.BACK ? 7 : 5));
-  cam.x += (tgt.x - cam.x) * k; cam.y += (tgt.y - cam.y) * k; cam.z += (tgt.z - cam.z) * k;
+  const home = reduceMotion || Y.t >= YEET.T * YEET.BACK, tgt = home ? fitCam() : Y.frame, w = home ? 4.5 : 2.6, C = Y.cv, h = Math.min(dt, 0.05);
+  const lz = Math.log(cam.z), tz = Math.log(tgt.z);
+  C.x += (w * w * (tgt.x - cam.x) - 2 * w * C.x) * h; C.y += (w * w * (tgt.y - cam.y) - 2 * w * C.y) * h; C.z += (w * w * (tz - lz) - 2 * w * C.z) * h;
+  cam.x += C.x * h; cam.y += C.y * h; cam.z = Math.exp(lz + C.z * h);
 }
 function twinkleStar(r) {   // a four-point sparkle
   ctx.beginPath(); for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, rr = i % 2 ? r * 0.24 : r; ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); } ctx.closePath(); fs('#FFF3B8', null);
@@ -7268,6 +7340,7 @@ function nearCats(x, y, r) {
 function drain() {
   for (const e of sim.events) {
     closetEvent(e);   // (what costumes and shoes do: closet.js)
+    statsEvent(e);   // (play stats: tries, throws, results)
     switch (e.type) {
       case 'perch': {
         fx.cata = null; napRefill();
@@ -8336,9 +8409,12 @@ function frame(now) {
       // catapult rolling noises", and things wobble): a rumble the whole way, and each squeak of the wheels a heave that jolts
       // the screen, rattles the phone and sets everything wobbling (drawn only: the level doesn't move while you aim)
       fx.shake = Math.max(fx.shake || 0, 1.6);
-      if (turns > (fx.roll.sq || 0)) { fx.roll.sq = turns; Snd.fx(turns % 2 ? 'wheel' : 'wheel2', 0.9); fx.shake = Math.max(fx.shake, 6); fx.wob = 1; buzz('bonk', 0.4); }
+      // the phone (Adam, Nov 7: "a low rumbling vibration with peaks of sharp vibration"): a low rumble the whole way (the
+      // native 'loaf' buzz, 0.3 s low and soft, laid end to end), a sharp clack with each squeak, and a heavy thud when it stops
+      if (now - (fx.roll.rum || 0) >= 270) { fx.roll.rum = now; buzz('loaf', 1); }
+      if (turns > (fx.roll.sq || 0)) { fx.roll.sq = turns; Snd.fx(turns % 2 ? 'wheel' : 'wheel2', 0.9); fx.shake = Math.max(fx.shake, 6); fx.wob = 1; buzz('cathit', 1); }
       if (Snd.ok('creak', 1500)) { Snd.fx('creak', 0.6); buzz('tick', 0.8); }
-      if (fx.roll.t >= cataRollDur()) { fx.roll = null; Snd.fx('wheelstop', 1); Snd.fx('wood', 0.9); fx.shake = Math.max(fx.shake || 0, 8); fx.wob = 1.3; buzz('bonk', 0.8); }
+      if (fx.roll.t >= cataRollDur()) { fx.roll = null; Snd.fx('wheelstop', 1); Snd.fx('wood', 0.9); fx.shake = Math.max(fx.shake || 0, 8); fx.wob = 1.3; buzz('shock', 1); }
     }
     tickReactions(dt);
     orbitTick(dt);   // (a yeeted cat floating by, on the moon)
@@ -8350,6 +8426,307 @@ function frame(now) {
   }
   if ($('scrEnd').hidden && $('scrCrib').hidden && $('scrWorld').hidden) render(now / 1000, live ? dt : 0);   // (teh end, teh crib and a world opening cover the whole screen)
   requestAnimationFrame(frame);
+}
+
+// ---------- play stats (Nov 7) ----------
+// Adam: "add playtime trackers as well as track attempts, retries, stats earned, etc. let's do whatever we can to track how
+// the levels are played, advanced, beat, lost, etc." (he's tuning difficulty: how long worlds take, how many tries a level
+// needs, where players get stuck). Nothing leaves the device: the App Store label says Data Not Collected and it stays true.
+// No network and no new bridge messages; it's all in the normal save (store.d.st), shown on "mai stats" (a stats button on
+// the level list and in the pause card), and the only way out is the player tapping "copy stats" and pasting it themselves.
+// It watches the game instead of being wired through it, so it touches the rest of page.js in two lines (drain() hands it
+// the sim's events, worldHead() its time) plus the buttons in head.html: its own frame loop keeps the clock (a level's time
+// runs only while it's live: not paused, no card up, the page visible), and a new Sim for a level is an attempt (the same
+// level again without going back to the level list is a retry). Reset game clears it with everything else (only the
+// settings are kept), and a save from before starts counting at the update.
+// Saved as store.d.st (short keys, arrays, so it stays small; docs/PHYSICS_GAME.md "Play stats"):
+//   v 1 · s0 first tracked (unix s) · o 1: the save had progress from before (counts there start at the update: shown with
+//   "+", unknowns as "–") · n sessions (app opens, and coming back after 30+ min away) · t play time, s (levels live) ·
+//   tm everything else with the app open and showing (title, level list, cards, closet, paused) · L per level, an array in
+//   ST_KEYS order · W per world [door, its date, finished, its date, perfect, its date] (play time s and unix s; null not
+//   yet, -1 before tracking) · g the attempt log, the last ST_LOG tries (an entry: below) · c the try in play (if the app closes
+//   mid-level it's counted as a quit next launch).
+const ST_KEYS = ['a', 'r', 'q', 'rm', 'w', 'l', 'bs', 'fa', 'ft', 'ta', 'tt', 't', 'nt', 'ct', 'cl', 'mb', 'mt', 'ch', 'pw', 'x1', 'yt', 'np', 'h0', 'h1', 'h2', 'h3', 'o'];
+const ST_NAMES = { a: 'attempts', r: 'retries', q: 'quits', rm: 'retriedMidLevel', w: 'wins', l: 'losses', bs: 'bestStars', fa: 'firstWinTry', ft: 'firstWinPlaySec', ta: 'first3StarTry', tt: 'first3StarPlaySec',
+  t: 'playSec', nt: 'napSec', ct: 'catsThrown', cl: 'catsLeftOver', mb: 'messBest', mt: 'messTotal', ch: 'megachonk', pw: 'pawPrints', x1: 'oneMoreCat', yt: 'yeeted', np: 'napModes', o: 'olderSave' };
+const S = {}; ST_KEYS.forEach((k, i) => { S[k] = i; });
+// a log entry: [level, try, result (w won, l lost, q quit, r retry mid-level, n nap mode), stars, seconds, cats thrown, cats left,
+// mess $, help (1 megachonk, 2 paw prints, 4 one more cat, 8 yeeted, 16 nap mode), session, throws]. The throws are one string,
+// "t45.62.0s u30.90.1m": each the cat (ST_CAT; a cat not in it by name, "bubbles:"), angle°, power %, tricks, and the outcome
+// (s sat, m missed, k missed then knocked in by another cat, y yeeted, nothing: never settled). The log is most of the save
+// (a full log is about 25 KB of a 34 KB save; as arrays it was 42 KB of 50), so it's packed; the copy unpacks it.
+const ST_CAT = { toast: 't', unit: 'u', street: 's', chaos: 'c', void: 'v', toot: 'o', spicy: 'y', chonk: 'k' }, ST_CAT_OF = {}; for (const k in ST_CAT) ST_CAT_OF[ST_CAT[k]] = k;
+const stPack = th => th.map(t => (ST_CAT[t[0]] || t[0] + ':') + t[1] + '.' + t[2] + '.' + t[3] + t[4]).join(' ');
+const stUnpack = str => (str || '').split(' ').filter(Boolean).map(x => { const m = /^(?:(.+):|(.))(-?\d+)\.(\d+)\.(\d+)([a-z]?)$/.exec(x); return m ? [m[1] || ST_CAT_OF[m[2]] || m[2], +m[3], +m[4], +m[5], m[6]] : [x]; });
+const ST_LOG = 300, ST_RES = { w: 'won', l: 'lost', q: 'quit', r: 'retry', n: 'nap' }, ST_OUT = { s: 'sat', m: 'miss', k: 'knocked in later', y: 'yeeted', '': '' };
+const ST_HELP = [[1, 'megachonk'], [2, 'paw prints'], [4, '1 more cat'], [8, 'yeeted'], [16, 'nap mode']];
+const ST_AWAY = ['scrLevels', 'scrTitle', 'scrWorld', 'scrEnd', 'scrUnlock', 'scrAlbum', 'scrInfo', 'scrReset'];   // back out of the level (a quit, if it was still going)
+const ST_WORLDS = [...new Set(LEVELS.map(L => L.world))];
+SCREENS.push('scrStats');
+let ST = null, cur = null, curSim = null, curLog = null, thCats = [], actMs = 0, menuMs = 0, stLast = performance.now(), stWorldT = 0, stHidden = 0, stErrs = 0, stView = null, stBack = null, stSayT = 0, stSayBase = '';
+const nowSec = () => Math.round(Date.now() / 1000);
+const stEnt = id => ST.L[id] || (ST.L[id] = ST_KEYS.map(() => 0));
+function stErr(err) { if (stErrs++ < 3) console.error('stats:', err && err.stack || err); }   // (stats never stop the game)
+function stReady() {
+  const d = store.d;
+  if (ST && d.st === ST) return ST;
+  const wiped = !!ST;   // (reset game: the save was cleared under us)
+  if (!d.st || d.st.v !== 1) {
+    const had = o => Object.values(o || {}).some(v => v > 0), old = had(d.stars) || had(d.fails) || had(d.best);
+    d.st = { v: 1, s0: nowSec(), o: old ? 1 : 0, n: 0, t: 0, tm: 0, L: {}, W: {}, g: [], c: null };
+    ST = d.st;
+    if (old) {   // what the save already has: best stars and bills, and what's already done (when: unknown)
+      for (const L of LEVELS) {
+        const st = d.stars[L.id] || 0, f = (d.fails || {})[L.id] || 0, b = (d.best || {})[L.id] || 0;
+        if (!st && !f && !b) continue;
+        const e = stEnt(L.id); e[S.o] = 1; e[S.bs] = st; e[S.mb] = b;
+        if (st) e[S.fa] = e[S.ft] = -1;
+        if (st >= 3) e[S.ta] = e[S.tt] = -1;
+      }
+      for (const w of ST_WORLDS) {
+        const r = [null, null, null, null, null, null];
+        if (worldOpen(w)) r[0] = r[1] = -1;
+        if (worldWon(w)) r[2] = r[3] = -1;
+        if (worldPerfect(w)) r[4] = r[5] = -1;
+        if (r[0] != null) ST.W[w] = r;
+      }
+    }
+  }
+  ST = d.st; cur = null; curSim = null; curLog = null; thCats = []; actMs = 0; menuMs = 0;
+  if (ST.c) {   // the app closed mid-level last time: a quit (in place of its loss, if it was going on after "1 more cat")
+    cur = ST.c; curLog = ST.g.slice().reverse().find(g => g[0] === cur.id && g[1] === cur.n && g[9] === cur.s) || null;
+    if (cur.live) stEnd('q'); else ST.c = null;
+    cur = null; curLog = null;
+  }
+  if (wiped) { ST.n = Math.max(1, ST.n); store.save(); }
+  else { let seen = false; try { seen = sessionStorage.getItem('fits-session') === '1'; sessionStorage.setItem('fits-session', '1'); } catch (e) {} if (!seen) ST.n++; }   // (an update swapping the page in isn't a new session)
+  stWorlds();
+  return ST;
+}
+// which attempt is going on, from what the page is doing
+function stSync() {
+  const real = !!sim && !attract && levelIdx >= 0 && !!LEVELS[levelIdx] && sim.level === LEVELS[levelIdx];
+  const away = ST_AWAY.some(id => { const el = $(id); return el && !el.hidden; });
+  if (cur && cur.live) {
+    if (sim !== curSim) stEnd(real && LEVELS[levelIdx].id === cur.id ? 'r' : 'q');
+    else if (away) { stEnd('q'); cur.away = true; }
+  } else if (cur && !cur.away && away && sim === curSim) cur.away = true;
+  if (cur && !cur.live && cur.res === 'l' && sim === curSim && (sim.extraCats || 0) > cur.x) {   // "1 more cat" after the loss: the try goes on
+    cur.x = sim.extraCats; cur.f |= 4; stEnt(cur.id)[S.x1]++; cur.live = true; ST.c = cur;
+  }
+  if (real && sim !== curSim) stBegin();
+  if (cur && cur.live && sim === curSim && sim._nap && !(cur.f & 16)) {   // nap mode: not a try at the goals
+    const e = stEnt(cur.id); cur.f |= 16; e[S.a] = Math.max(0, e[S.a] - 1); e[S.np]++; if (cur.rt) { e[S.r] = Math.max(0, e[S.r] - 1); cur.rt = 0; }
+  }
+}
+function stBegin() {
+  const id = LEVELS[levelIdx].id, e = stEnt(id), retry = !!cur && cur.id === id && !cur.away;
+  if (retry) e[S.r]++;
+  e[S.a]++;
+  cur = { id, n: e[S.a], ms: 0, th: [], f: 0, x: 0, m: 0, lf: sim.catsLeft(), live: true, res: null, away: false, rt: retry ? 1 : 0, s: ST.n };
+  curSim = sim; curLog = null; thCats = []; ST.c = cur;
+  store.save();
+}
+// the try is over (won, lost, quit, retried); after "1 more cat" its loss is taken back first and it's written again
+function stEnd(res, r) {
+  const e = stEnt(cur.id), sm = cur.live && curSim;
+  if (cur.res) stUndo(e);
+  if ((cur.f & 16) && (res === 'q' || res === 'r')) res = 'n';
+  const stars = r ? r.stars || 0 : 0, left = r ? r.catsLeft || 0 : sm ? sm.catsLeft() : cur.lf || 0, mess = r ? r.mess || 0 : sm ? sm.mess || 0 : cur.m || 0, fin = res === 'w' || res === 'l';
+  if (res === 'w') e[S.w]++; else if (res === 'l') e[S.l]++; else if (res === 'q') e[S.q]++; else if (res === 'r') e[S.rm]++;
+  if (fin) { e[S.h0 + stars]++; e[S.cl] += left; }
+  e[S.mt] += mess; e[S.mb] = Math.max(e[S.mb], mess);
+  if (res === 'w') {
+    e[S.bs] = Math.max(e[S.bs], stars);
+    if (!e[S.fa]) { e[S.fa] = cur.n; e[S.ft] = e[S.t]; }
+    if (stars >= 3 && !e[S.ta]) { e[S.ta] = cur.n; e[S.tt] = e[S.t]; }
+  }
+  cur.res = res; cur.cm = [fin ? left : 0, mess, stars]; cur.live = false; ST.c = null;
+  const entry = [cur.id, cur.n, res, stars, Math.round(cur.ms / 1000), cur.th.length, left, mess, cur.f, cur.s, stPack(cur.th)];
+  const i = curLog ? ST.g.indexOf(curLog) : -1;
+  if (i >= 0) ST.g[i] = entry; else { ST.g.push(entry); if (ST.g.length > ST_LOG) ST.g.splice(0, ST.g.length - ST_LOG); }
+  curLog = entry;
+  stWorlds(); store.save();
+}
+function stUndo(e) {
+  const [left, mess, stars] = cur.cm || [0, 0, 0], k = { w: S.w, l: S.l, q: S.q, r: S.rm }[cur.res];
+  if (k != null) e[k] = Math.max(0, e[k] - 1);
+  if (cur.res === 'w' || cur.res === 'l') { e[S.h0 + stars] = Math.max(0, e[S.h0 + stars] - 1); e[S.cl] -= left; }
+  e[S.mt] -= mess;
+}
+// a world's door, finished (every regular level won) and perfect (3 stars on each): when, in play time and as a date
+function stWorlds() {
+  for (const w of ST_WORLDS) {
+    const r = ST.W[w] || [null, null, null, null, null, null]; let ch = false;
+    if (r[0] == null && worldOpen(w)) { r[0] = ST.t; r[1] = nowSec(); ch = true; }
+    if (r[2] == null && worldWon(w)) { r[2] = ST.t; r[3] = nowSec(); ch = true; }
+    if (r[4] == null && worldPerfect(w)) { r[4] = ST.t; r[5] = nowSec(); ch = true; }
+    if (ch) ST.W[w] = r;
+  }
+}
+// the sim's events (drain() hands them over, before the game reacts to them)
+function statsEvent(e) {
+  try {
+    if (attract || levelIdx < 0 || !stReady()) return;
+    stSync();
+    if (!cur || !cur.live || sim !== curSim) return;
+    const en = stEnt(cur.id), throwOf = c => cur.th[thCats.lastIndexOf(c)];
+    cur.m = sim.mess || 0;
+    switch (e.type) {
+      case 'launch': {
+        const c = e.cat;
+        cur.th.push([c.type, Math.round(e.angle * 180 / Math.PI), Math.round(e.power * 100), 0, '']); thCats.push(c);
+        en[S.ct]++; cur.lf = sim.catsLeft();
+        if (c.bonus && c.def.pound) { en[S.ch]++; cur.f |= 1; }   // megachonk, called in
+        break; }
+      case 'ability': { const t = throwOf(e.cat); if (t) t[3]++; break; }
+      case 'sit': { const t = throwOf(e.cat); if (t) t[4] = t[4] === 'm' ? 'k' : t[4] || 's'; break; }
+      case 'miss': {
+        const t = throwOf(e.cat); if (t && !t[4]) t[4] = e.why === 'space' ? 'y' : 'm';
+        if (e.why === 'space') { en[S.yt]++; cur.f |= 8; }
+        break; }
+      case 'won': case 'lost': stEnd(e.type === 'won' ? 'w' : 'l', e); break;
+    }
+  } catch (err) { stErr(err); }
+}
+// the clock, every frame
+function stTick(now) {
+  const dt = Math.min(250, Math.max(0, now - stLast)); stLast = now;
+  if (!stReady()) return;
+  stSync();
+  if (document.visibilityState === 'hidden') return;
+  if (cur && cur.live && sim === curSim && !paused && !attract) {
+    cur.ms += dt; actMs += dt;
+    if (actMs >= 1000) { const s = Math.floor(actMs / 1000); actMs -= s * 1000; ST.t += s; stEnt(cur.id)[cur.f & 16 ? S.nt : S.t] += s; }
+    if (hint && hint.shown && !(cur.f & 2)) { cur.f |= 2; stEnt(cur.id)[S.pw]++; }   // the paw prints (two losses in a row)
+  } else { menuMs += dt; if (menuMs >= 1000) { const s = Math.floor(menuMs / 1000); menuMs -= s * 1000; ST.tm += s; } }
+  if (now - stWorldT > 1000) { stWorldT = now; stWorlds(); }
+}
+function stLoop(now) { try { stTick(now); } catch (err) { stErr(err); } requestAnimationFrame(stLoop); }
+requestAnimationFrame(stLoop);
+document.addEventListener('visibilitychange', () => {
+  try {
+    if (document.visibilityState === 'hidden') { stHidden = Date.now(); return; }
+    stLast = performance.now();
+    if (stHidden && Date.now() - stHidden >= 30 * 60e3 && stReady()) ST.n++;   // back after half an hour: a new session
+    stHidden = 0;
+  } catch (err) { stErr(err); }
+});
+
+// ---------- the numbers, for the screen and the copy ----------
+const stDur = s => { s = Math.max(0, Math.round(s)); if (s < 60) return s + 's'; const m = Math.floor(s / 60); if (m < 10) return `${m}m ${String(s % 60).padStart(2, '0')}s`; if (m < 60) return m + 'm'; return `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}m`; };
+const stDay = s => new Date(s * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toLowerCase();
+const stIso = s => s == null ? null : s < 0 ? 'before tracking' : new Date(s * 1000).toISOString().slice(0, 16) + 'Z';
+const stTime = e => e ? e[S.t] + e[S.nt] : 0;
+// a count since the update: "–" where a save from before means it's unknown, "+" where it's at least that
+const stNum = (n, old, txt = String(n)) => old && !n ? '–' : old ? txt + '+' : txt;
+const stTry = (n, old) => n < 0 ? '–' : n ? (old ? n + '+' : String(n)) : '';   // tries to a first win (blank: not yet)
+function stRoll(levels) {
+  const o = { time: 0, a: 0, w: 0, l: 0, q: 0, r: 0, won: 0, n: levels.length, stars: 0, old: false, hard: null };
+  for (const L of levels) {
+    const e = ST.L[L.id], st = store.d.stars[L.id] || 0;
+    o.stars += st; if (st > 0) o.won++;
+    if (!e) continue;
+    o.time += stTime(e); o.a += e[S.a]; o.w += e[S.w]; o.l += e[S.l]; o.q += e[S.q]; o.r += e[S.r]; if (e[S.o]) o.old = true;
+    if (e[S.fa] > 0 && (!o.hard || e[S.fa] >= o.hard.n)) o.hard = { L, n: e[S.fa], old: !!e[S.o] };   // the hardest: most tries before its first win
+  }
+  return o;
+}
+const stLevelsOf = w => LEVELS.filter(L => L.world === w);
+const stWorldName = w => WORLD_NAMES[w] || w;
+function staySay(t, old) {
+  if (!t) return 'no stats yet. go sit in a box.';
+  const p = old ? '+' : '';
+  if (t < 60) return `u haz played ${t}${p} second${t === 1 && !old ? '' : 's'}. smol nap.`;
+  if (t < 3600) { const m = Math.max(1, Math.floor(t / 60)); return `u haz played ${m}${p} minute${m === 1 && !old ? '' : 's'}. ${t < 600 ? 'smol nap.' : 'dat iz a gud nap.'}`; }
+  const h = Math.floor(t / 1800) / 2; return `u haz played ${h}${p} hour${h === 1 && !old ? '' : 's'}. dat iz a lot of naps.`;
+}
+function stTiles(r, time, old) {
+  const tile = (v, k) => `<div class="st-tile"><b>${v}</b><span>${k}</span></div>`;
+  return tile(stNum(time, old, stDur(time)), 'time played') + tile(`${r.won}/${r.n}`, 'levels won') + tile(`${r.stars}/${r.n * 3}`, 'stars') + tile(stNum(r.a, old), 'attempts');
+}
+function stRender() {
+  const s = stReady(), w = stView, all = stRoll(LEVELS);
+  $('stDump').hidden = true; $('stTable').hidden = false; $('stBack').hidden = !w;
+  clearTimeout(stSayT);
+  if (!w) {
+    $('stSay').textContent = stSayBase = staySay(s.t, !!s.o);
+    $('stTiles').innerHTML = stTiles(all, s.t, !!s.o);
+    $('stMeta').textContent = `${stDur(s.tm)} in menus · ${s.n} session${s.n === 1 ? '' : 's'} · ${s.o ? 'counting since' : 'first played'} ${stDay(s.s0)}`;
+    const rows = ST_WORLDS.map(x => {
+      const r = stRoll(stLevelsOf(x)), shut = !(s.W[x] && s.W[x][0] != null) && !r.a;
+      return `<tr class="st-w${shut ? ' shut' : ''}" data-w="${x}"><td><button class="st-go" aria-label="${stWorldName(x)}: see its levels">${stWorldName(x)}</button></td><td>${stNum(r.time, r.old, stDur(r.time))}</td><td>${r.won}/${r.n}</td><td>${r.stars}/${r.n * 3}</td><td>${stNum(r.a, r.old)}</td><td class="hard">${r.hard ? `${r.hard.L.name} · ${stTry(r.hard.n, r.hard.old)}` : ''}</td></tr>`;
+    }).join('');
+    $('stTable').innerHTML = `<table aria-label="worlds"><thead><tr><th>world</th><th>time</th><th>won</th><th>stars</th><th>attempts</th><th>hardest</th></tr></thead><tbody>${rows}</tbody></table>`;
+  } else {
+    const levels = stLevelsOf(w), r = stRoll(levels);
+    $('stSay').textContent = stSayBase = r.time ? `u haz played ${stDur(r.time)}${r.old ? '+' : ''} ${WORLD_IN[w] || 'in ' + stWorldName(w)}.` : `no stats ${WORLD_IN[w] || 'in ' + stWorldName(w)} yet.`;
+    $('stTiles').innerHTML = stTiles(r, r.time, r.old);
+    const W = s.W[w] || [], when = (k, label) => W[k] == null ? '' : W[k] < 0 ? `${label} before tracking` : k === 0 && W[k] === 0 ? 'open from the start' : `${label} at ${stDur(W[k])} played`;
+    $('stMeta').textContent = [when(0, 'opened'), when(2, 'finished'), when(4, 'perfect')].filter(Boolean).join(' · ');
+    const rows = levels.map(L => {
+      const e = ST.L[L.id], old = !!(e && e[S.o]), st = store.d.stars[L.id] || 0, n = k => e ? e[k] : 0;
+      return `<tr${e ? '' : ' class="shut"'}><td>${L.name}</td><td>${stNum(n(S.a), old)}</td><td>${stNum(n(S.w), old)}</td><td>${stNum(n(S.l), old)}</td><td aria-label="${st} stars">${[0, 1, 2].map(k => starSvg(k < st)).join('')}</td><td>${stNum(stTime(e), old, stDur(stTime(e)))}</td><td>${stTry(n(S.fa), old)}</td><td>${stTry(n(S.ta), old)}</td></tr>`;
+    }).join('');
+    $('stTable').innerHTML = `<table aria-label="levels in ${stWorldName(w)}"><thead><tr><th>level</th><th>attempts</th><th>wins</th><th>losses</th><th>best</th><th>time</th><th>tries to win</th><th>tries to 3 ★</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+  $('stTable').scrollTop = 0;
+}
+function showStats(back) { try { stBack = back; stView = null; stRender(); showScreen('scrStats'); } catch (err) { stErr(err); } }
+$('stTable').addEventListener('click', e => { const tr = e.target.closest('tr[data-w]'); if (!tr) return; Snd.fx('pop'); stView = tr.dataset.w; try { stRender(); } catch (err) { stErr(err); } });
+$('stBack').addEventListener('click', () => { Snd.fx('pop'); stView = null; try { stRender(); } catch (err) { stErr(err); } });
+$('stDone').addEventListener('click', () => { Snd.fx('pop'); const b = stBack; stBack = null; if (b) b(); else showLevels(); });
+$('statsBtn').addEventListener('click', () => { Snd.init(); Snd.fx('pop'); showStats(() => showLevels()); });
+$('pStats').addEventListener('click', () => { Snd.fx('pop'); showStats(() => { showScreen('scrPause'); }); });
+// the copy: a few plain lines, then everything as JSON (one level or log entry a line)
+function stDumpText() {
+  const s = stReady(), all = stRoll(LEVELS), J = JSON.stringify, lines = [];
+  const named = e => { const o = {}; ST_KEYS.forEach((k, i) => { if (ST_NAMES[k]) o[ST_NAMES[k]] = k === 'o' ? !!e[i] : e[i]; }); o.resultsByStars = [e[S.h0], e[S.h1], e[S.h2], e[S.h3]]; return o; };
+  const worlds = ST_WORLDS.map(w => { const r = stRoll(stLevelsOf(w)), W = s.W[w] || [];
+    return `  ${J(w)}: ${J({ playSec: r.time, won: r.won, levels: r.n, stars: r.stars, starsMax: r.n * 3, attempts: r.a, wins: r.w, losses: r.l, quits: r.q, retries: r.r, hardest: r.hard ? r.hard.L.id : null, hardestTries: r.hard ? r.hard.n : null,
+      opened: W[0] == null ? null : { playSec: W[0], date: stIso(W[1]) }, finished: W[2] == null ? null : { playSec: W[2], date: stIso(W[3]) }, perfect: W[4] == null ? null : { playSec: W[4], date: stIso(W[5]) } })}`; });
+  const levels = LEVELS.filter(L => s.L[L.id]).map(L => `  ${J(L.id)}: ${J(named(s.L[L.id]))}`);
+  const log = s.g.map(g => `  ${J({ level: g[0], try: g[1], result: ST_RES[g[2]] || g[2], stars: g[3], sec: g[4], thrown: g[5], left: g[6], mess: g[7], help: ST_HELP.filter(([b]) => g[8] & b).map(([, n]) => n), session: g[9], throws: stUnpack(g[10]).map(t => [t[0], t[1], t[2] / 100, t[3], ST_OUT[t[4]] != null ? ST_OUT[t[4]] : t[4]]) })}`);
+  lines.push('I Fits, I Sits: play stats (from this device, copied by the player)');
+  lines.push(`played ${stDur(s.t)}, menus ${stDur(s.tm)}, ${s.n} sessions, ${s.o ? 'counting since' : 'first played'} ${stIso(s.s0).slice(0, 10)}. ${all.won}/${all.n} levels won, ${all.stars}/${all.n * 3} stars, ${all.a} attempts.`);
+  if (s.o) lines.push('this save had progress from before stats existed: its counts start at the update ("olderSave"), and -1 means before tracking.');
+  lines.push('');
+  lines.push('{');
+  lines.push(`  "game": "I Fits, I Sits", "copied": ${J(new Date().toISOString())}, "since": ${J(stIso(s.s0))}, "olderSave": ${!!s.o}, "sessions": ${s.n}, "playSec": ${s.t}, "menuSec": ${s.tm},`);
+  lines.push(`  "totals": ${J({ attempts: all.a, wins: all.w, losses: all.l, quits: all.q, retries: all.r, levelsWon: all.won, levels: all.n, stars: all.stars, starsMax: all.n * 3 })},`);
+  lines.push('  "worlds": {'); lines.push(worlds.join(',\n')); lines.push('  },');
+  lines.push('  "levels": {'); lines.push(levels.join(',\n')); lines.push('  },');
+  lines.push('  "throwFormat": ["cat", "angle (degrees)", "power (0 to 1)", "tricks", "outcome"],');
+  lines.push(`  "log": [`); lines.push(log.join(',\n')); lines.push('  ]');
+  lines.push('}');
+  return lines.join('\n');
+}
+function staySet(text, ms) { const el = $('stSay'); clearTimeout(stSayT); el.textContent = text; if (ms) stSayT = setTimeout(() => { el.textContent = stSayBase; }, ms); }
+$('stCopy').addEventListener('click', () => {
+  let text = '', ok = false;
+  try { text = stDumpText(); } catch (err) { stErr(err); return; }
+  Snd.fx('pop');
+  // inside the tap, so the web view allows it: a hidden textarea and execCommand (iOS web views, where navigator.clipboard can
+  // be missing or refuse), then navigator.clipboard too. Nothing is sent anywhere: it's the player's clipboard.
+  try {
+    const ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', ''); ta.className = 'stats-copy';
+    document.body.appendChild(ta); ta.focus({ preventScroll: true }); ta.select(); ta.setSelectionRange(0, text.length);
+    ok = document.execCommand('copy'); ta.remove(); $('stCopy').focus({ preventScroll: true });
+  } catch (err) {}
+  const done = good => {
+    if (good) { staySet('copied! paste it anywhere, hooman.', 3500); return; }
+    const box = $('stDump'); box.value = text; box.hidden = false; $('stTable').hidden = true; box.focus({ preventScroll: true }); box.select();   // (copy it by hand)
+    staySet('i no can copy. hold the text 2 copy.');
+  };
+  try { if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => done(true), () => done(ok)); else done(ok); } catch (err) { done(ok); }
+});
+// the level list: each world's time played on its heading (once there's a minute of it)
+function statsHead(h, w) {
+  try {
+    if (!stReady()) return;
+    const t = stLevelsOf(w).reduce((n, L) => n + stTime(ST.L[L.id]), 0); if (t < 60) return;
+    const s = document.createElement('span'); s.className = 'wh-time'; s.innerHTML = `<span class="st-vh">played </span>${stDur(t)}`; h.appendChild(s);
+  } catch (err) { stErr(err); }
 }
 
 // ---------- teh end ----------
@@ -8872,6 +9249,7 @@ function worldHead(w, i) {
   if ((store.d.worldNew || {})[w] && !isLocked(i)) { const t = document.createElement('span'); t.className = 'wh-new'; t.textContent = 'new!'; h.appendChild(t); }
   const perfect = worldPerfect(w), done = perfect || worldWon(w);
   if (done) { const m = document.createElement('span'); m.className = 'wh-mark ' + (perfect ? 'wh-crown' : 'wh-paw'); m.setAttribute('role', 'img'); m.setAttribute('aria-label', perfect ? '3 stars on every level' : 'every level won'); m.innerHTML = perfect ? CROWN_SVG : PAW_SVG; h.appendChild(m); }
+  statsHead(h, w);   // (its time played: play stats)
   return h;
 }
 
