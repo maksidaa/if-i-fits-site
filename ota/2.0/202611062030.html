@@ -663,6 +663,12 @@ const FITS = (() => {
   const LOOSE = { fly: true, dazed: true, idle: true, knocked: true };   // cats that are loose in the level (belts carry them)
   const SLIPPERY = { awning: 1, slide: 1 };   // canvas and slides: no settling down on them, cats slide off
   const SCARE = 70;   // a pigeon flaps off when a cat comes this close
+  // Escape velocity (Adam, Nov 6: "if you give the cat enough velocity it might actually have enough escape velocity to leave
+  // the moon and then it just goes out outer space"). Under open sky, with gravity, a flying cat that's still rising when it gets
+  // this high has left the moon: it's yeeted into space (a miss, and that cat is gone). On the moon only steep, near-full pulls
+  // get up here (a plain throw peaks at y -283 at most; the line is crossed by about 2.4% of the solver's throw grid). Sir toots
+  // tooting on the way up, zoomies pointed at the sky and a hard cat-a-pult lob can get there too: that's real speed, not a push.
+  const ESCAPE_Y = -175;
 
   // ---- level builders ----
   const dims = (kind, o = {}) => { const d = ITEMS[kind]; return { w: o.w || d.w || d.r * 2, h: o.h || d.h || d.r * 2 }; };
@@ -702,7 +708,7 @@ const FITS = (() => {
   }
   // Too heavy for a regular cat to paw off: a cast-iron pan and cookbooks, with a mug on top.
   // A heavy lid across the gap between two counters: a cast-iron griddle with cookbooks and a mug on it.
-  const heavyLid = (x, top) => [{ kind: 'griddle', x, bottom: top }, ...stack('book', x, top - 14.4, 3), { kind: 'mug', x, bottom: top - 14.4 - 3 * 14.4 }];
+  const heavyLid = (x, top, o = {}) => [Object.assign({ kind: 'griddle', x, bottom: top }, o), ...stack('book', x, top - 14.4, 3), { kind: 'mug', x, bottom: top - 14.4 - 3 * 14.4 }];   // (o: the griddle's own hp, say)
 
   const PERCH = { x: 230, top: 430 };
   // A line of pots along a ledge (or the sidewalk), evenly spaced from x0.
@@ -796,12 +802,13 @@ const FITS = (() => {
       items: [{ kind: 'cereal', x: 520, bottom: 420 }, ...pyramid('can', 600, 420, 3), { kind: 'glass', x: 705, bottom: 420 }, { kind: 'glass', x: 727, bottom: 420 },
               { kind: 'jar', x: 752, bottom: 420 }, { kind: 'bottle', x: 778, bottom: 420 }, hang('frame', 480, 300), hang('clock', 1000, 150),
               { kind: 'plant', x: 400, bottom: 580 }] },
-    // the griddle across the gap is too heavy for toast to paw off; the unit paws right through it
+    // the griddle across the gap is too heavy for toast to paw off; the unit paws right through it. hp 45 (Nov 6): megachonk
+    // landing on it cracks it (his THOOM does 46 to what he's on) and he drops into the box
     { id: 'k8', name: 'kitchen 8', world: 'kitchen', title: 'heavy lid', tip: 'only a chonk can paw dis lid.', w: 1000, perch: PERCH,
       lineup: ['unit', 'toast', 'unit', 'toast'], spareGoal: 2, messGoal: 60,
       furniture: [{ kind: 'counter', x0: 520, x1: 700, top: 420 }, { kind: 'counter', x0: 824, x1: 1000, top: 420 }],
       spots: [{ kind: 'box', x0: 700, x1: 824, bottom: 580, cat: 'unit' }, { kind: 'bowl', x0: 900, x1: 1000, bottom: 420 }],
-      items: [...heavyLid(762, 420), { kind: 'cereal', x: 545, bottom: 420 }, ...pyramid('can', 625, 420, 3),
+      items: [...heavyLid(762, 420, { hp: 45 }), { kind: 'cereal', x: 545, bottom: 420 }, ...pyramid('can', 625, 420, 3),
               { kind: 'glass', x: 862, bottom: 420 }, { kind: 'glass', x: 884, bottom: 420 },
               hang('frame', 760, 300), hang('clock', 560, 220), { kind: 'plant', x: 490, bottom: 580 }] },
     // roll down the counter through the cans into the nook; the box up on the cabinet is for toast
@@ -894,12 +901,13 @@ const FITS = (() => {
       items: [...laundry(['shirt', 'sock', 'sock', 'shirt', 'sock', 'shirt'], 420, 160), pig(840, 160, true), ...pots(['cactus', 'tulips'], 556, 400),
               pig(1046, 528), { kind: 'wcan', x: 700, bottom: 580 }] },
     // a paving slab across the gap between two shops, with bricks on it: too heavy for toast. The unit paws right through.
+    // hp 45 (Nov 6): megachonk landing on it cracks it and drops into the basket
     { id: 'b5', name: 'building 5', world: 'building', title: 'heavy slab', tip: 'only a chonk can paw dis slab.', w: 1100, perch: PERCH,
       lineup: ['unit', 'toast', 'unit', 'toast'], spareGoal: 1, messGoal: 50,
       furniture: [{ kind: 'shop', x0: 480, x1: 680, top: 420, sells: 'bread' }, { kind: 'shop', x0: 804, x1: 1000, top: 420, sells: 'flowers', color: '#EBBAB0' },
                   { kind: 'ledge', x0: 1000, x1: 1100, top: 300, win: false }],
       spots: [{ kind: 'basket', x0: 686, x1: 798, bottom: 580, cat: 'unit' }, { kind: 'flowerbox', x0: 860, x1: 994, bottom: 420 }],
-      items: [{ kind: 'slab', x: 742, bottom: 420 }, ...stack('brick', 742, 406, 2), { kind: 'cactus', x: 712, bottom: 406 }, pig(776, 406),
+      items: [{ kind: 'slab', x: 742, bottom: 420, hp: 45 }, ...stack('brick', 742, 406, 2), { kind: 'cactus', x: 712, bottom: 406 }, pig(776, 406),
               ...pots(['tulips', 'plant', 'cactus'], 496, 420), ...pots(['tulips'], 1030, 300), pig(1075, 300)] },
     // boing: the basket is behind the cat tree, where no throw goes. The shop's awning slopes back toward it.
     { id: 'b6', name: 'building 6', world: 'building', title: 'boing', tip: 'u cant jump backwerds. bounce!', w: 1100, perch: { x: 380, top: 430 },
@@ -978,13 +986,15 @@ const FITS = (() => {
       furniture: [{ kind: 'pond', x0: 440, x1: 720, depth: 34 }, { kind: 'hedge', x0: 900, x1: 1060, top: 360 }],
       spots: [{ kind: 'birdbath', x0: 740, x1: 880, bottom: 470 }, { kind: 'basket', x0: 920, x1: 1080, bottom: 360 }],
       items: [duck(520, PARK_POND + 8), duck(640, PARK_POND + 8), pig(810, 464), { kind: 'gnome', x: 750, bottom: 580 }, { kind: 'frisbee', x: 880, bottom: 580 }] },
-    // chaos's first level: a basket up in the treehouse, behind you. zoomies bounce off the leaves.
+    // chaos's first level: a basket up in the treehouse, behind you. zoomies bounce off the leaves. (Nov 6, Adam: the far-left
+    // boxes "are very challenging": the basket is wider and deeper, 162 x 56 inside instead of 132 x 40, and the pigeon sits on its
+    // rim. It stops at the branch's end, x 180: anything further right is in the way of megachonk's cat-a-pult throws.)
     { id: 'pk3', name: 'park 3', world: 'park', title: 'zoomies', w: 950, perch: { x: 330, top: 430 }, newCat: 'chaos',
       lineup: ['chaos', 'toast', 'chaos'], spareGoal: 1, messGoal: 40,
       furniture: [{ kind: 'tree', x0: 60, x1: 120, top: 230 }, { kind: 'branch', x0: 0, x1: 180, top: 230 }, { kind: 'fence', x0: 560, x1: 760, top: 430 },
                   { kind: 'hedge', x0: 760, x1: 950, top: 400 }],
-      spots: [{ kind: 'basket', x0: 10, x1: 160, bottom: 230, cat: 'chaos' }, { kind: 'basket', x0: 790, x1: 940, bottom: 400 }],
-      items: [{ kind: 'pie', x: 600, bottom: 430 }, { kind: 'lemonade', x: 640, bottom: 430 }, { kind: 'melon', x: 700, bottom: 430 }, pig(170, 230), { kind: 'gnome', x: 500, bottom: 580 }, pig(865, 394)] },
+      spots: [{ kind: 'basket', x0: 0, x1: 180, bottom: 230, h: 56, cat: 'chaos' }, { kind: 'basket', x0: 790, x1: 940, bottom: 400 }],
+      items: [{ kind: 'pie', x: 600, bottom: 430 }, { kind: 'lemonade', x: 640, bottom: 430 }, { kind: 'melon', x: 700, bottom: 430 }, pig(176, 174), { kind: 'gnome', x: 500, bottom: 580 }, pig(865, 394)] },
     // wheee: land on the slide and ride it down into the sandbox
     { id: 'pk4', name: 'park 4', world: 'park', title: 'wheee', tip: 'land on teh slide. wheee!', w: 1100, perch: PERCH,
       lineup: ['toast', 'chaos', 'toast', 'chaos'], spareGoal: 1, messGoal: 25,
@@ -1024,14 +1034,15 @@ const FITS = (() => {
                   { kind: 'tree', x0: 1110, x1: 1180, top: 112 }, { kind: 'branch', x0: 1110, x1: 1250, top: 112 }],
       spots: [{ kind: 'sandbox', x0: 830, x1: 970, bottom: 580 }, { kind: 'box', x0: 1112, x1: 1234, bottom: 112, h: 56, cat: 'street' }, { kind: 'birdbath', x0: 1000, x1: 1070, bottom: 470, t: 6 }],
       items: [seesawEnd(PARK_SS9, 'gnome'), { kind: 'ball', x: 740, bottom: 580 }, pig(1030, 470), pig(1173, 112), { kind: 'pie', x: 560, bottom: 580 }] },
-    // park party: the treehouse, the slide into the sandbox, the tree box, the bird bath and the picnic basket
+    // park party: the treehouse, the slide into the sandbox, the tree box, the bird bath and the picnic basket (the treehouse
+    // basket as on park 3 since Nov 6: wider and deeper, the pigeon on its rim)
     { id: 'pk10', name: 'park 10', world: 'park', title: 'park party', w: 1350, perch: { x: 330, top: 430 },
       lineup: ['toast', 'chaos', 'street', 'chaos', 'toast', 'street', 'unit', 'toast'], spareGoal: 2, messGoal: 120,
       furniture: [{ kind: 'tree', x0: 60, x1: 120, top: 230 }, { kind: 'branch', x0: 0, x1: 180, top: 230 }, { kind: 'slide', x0: 560, y0: 350, x1: 720, y1: 534 },
                   { kind: 'table', x0: 880, x1: 1080, top: 440 }, { kind: 'tree', x0: 1210, x1: 1280, top: 112 }, { kind: 'branch', x0: 1210, x1: 1350, top: 112 }, { kind: 'pond', x0: 1080, x1: 1190, depth: 34 }],
-      spots: [{ kind: 'basket', x0: 10, x1: 160, bottom: 230, cat: 'chaos' }, { kind: 'sandbox', x0: 730, x1: 870, bottom: 580 }, { kind: 'basket', x0: 940, x1: 1072, bottom: 440 },
+      spots: [{ kind: 'basket', x0: 0, x1: 180, bottom: 230, h: 56, cat: 'chaos' }, { kind: 'sandbox', x0: 730, x1: 870, bottom: 580 }, { kind: 'basket', x0: 940, x1: 1072, bottom: 440 },
               { kind: 'box', x0: 1212, x1: 1334, bottom: 112, h: 56, cat: 'street' }],
-      items: [{ kind: 'pie', x: 905, bottom: 440 }, { kind: 'lemonade', x: 925, bottom: 440 }, duck(1135, PARK_POND + 8), pig(170, 230), pig(1273, 112), { kind: 'melon', x: 990, bottom: 580 }, { kind: 'gnome', x: 460, bottom: 580 }] },
+      items: [{ kind: 'pie', x: 905, bottom: 440 }, { kind: 'lemonade', x: 925, bottom: 440 }, duck(1135, PARK_POND + 8), pig(176, 174), pig(1273, 112), { kind: 'melon', x: 990, bottom: 580 }, { kind: 'gnome', x: 460, bottom: 580 }] },
     // teh picnic at 3am: a long branch of gnomes overhead, pies on the bench, two picnic tables (lemonade pyramids, stacks
     // of pies), the seesaw, gnomes on a branch over the far table, pies and lemonade on the grass, gnomes on the fence
     { id: 'pkx', name: 'teh picnic', world: 'park', mode: 'mess', title: 'wreck it', tip: 'nobody iz watching teh picnic.', w: 1500, perch: PERCH,
@@ -1105,14 +1116,16 @@ const FITS = (() => {
       furniture: [{ kind: 'pallet', x0: 500, x1: 760, top: 420 }, { kind: 'pallet', x0: 760, x1: 800, top: 330 }, { kind: 'rack', x0: 800, x1: 1040, shelves: [300, 440] }, { kind: 'pallet', x0: 1100, x1: 1200, top: 108 }],
       spots: [{ kind: 'shoebox', x0: 698, x1: 758, bottom: 420, cat: 'void' }, { kind: 'crate', x0: 870, x1: 1004, bottom: 300 }, { kind: 'box', x0: 1104, x1: 1196, bottom: 108, h: 56, cat: 'street' }],
       items: [...pyramid('fragile', 590, 420, 3), ...stack('fragile', 830, 440, 2), ...stack('fragile', 1010, 440, 2), { kind: 'fragile', x: 840, bottom: 300 }, { kind: 'fragile', x: 1040, bottom: 580 }, pig(1150, 108)] },
-    // shipping day: the belt, the shoebox, the heavy crate, the tall stack and the shelf behind you
+    // shipping day: the belt, the shoebox, the heavy crate, the tall stack and the shelf behind you (Nov 6: its crate is 150
+    // inside, was 130, and the shelf 10 lower, so the zoomies there are easier; the pigeon sits on the crate. Any lower and the
+    // shelf is in the way of megachonk's cat-a-pult throws: at 300 it stopped all of them.)
     { id: 'wh10', name: 'warehouse 10', world: 'warehouse', title: 'shipping day', w: 1350, perch: { x: 330, top: 430 },
       lineup: ['toast', 'void', 'chaos', 'unit', 'street', 'void', 'chaos', 'unit', 'street', 'toast', 'void', 'toast'], spareGoal: 2, messGoal: 120,
-      furniture: [{ kind: 'rack', x0: 0, x1: 180, shelves: [230] }, { kind: 'belt', x0: 480, x1: 760, top: 450, speed: 2.6 }, { kind: 'pallet', x0: 884, x1: 1050, top: 450 },
+      furniture: [{ kind: 'rack', x0: 0, x1: 180, shelves: [240] }, { kind: 'belt', x0: 480, x1: 760, top: 450, speed: 2.6 }, { kind: 'pallet', x0: 884, x1: 1050, top: 450 },
                   { kind: 'pallet', x0: 1050, x1: 1180, top: 260 }, { kind: 'pallet', x0: 1250, x1: 1350, top: 108 }],
-      spots: [{ kind: 'crate', x0: 10, x1: 160, bottom: 230, cat: 'chaos' }, { kind: 'crate', x0: 764, x1: 880, bottom: 580, cat: 'unit' }, { kind: 'shoebox', x0: 1110, x1: 1170, bottom: 260, cat: 'void' },
+      spots: [{ kind: 'crate', x0: 0, x1: 170, bottom: 240, cat: 'chaos' }, { kind: 'crate', x0: 764, x1: 880, bottom: 580, cat: 'unit' }, { kind: 'shoebox', x0: 1110, x1: 1170, bottom: 260, cat: 'void' },
               { kind: 'box', x0: 1254, x1: 1346, bottom: 108, h: 56, cat: 'street' }, { kind: 'crate', x0: 910, x1: 1044, bottom: 450 }],
-      items: [{ kind: 'slab', x: 822, bottom: 450 }, { kind: 'cbox', x: 560, bottom: 450 }, { kind: 'fragile', x: 680, bottom: 450 }, { kind: 'cbox', x: 1070, bottom: 260 }, ...stack('bigbox', 1215, 580, 3), pig(170, 230), pig(1300, 108)] },
+      items: [{ kind: 'slab', x: 822, bottom: 450 }, { kind: 'cbox', x: 560, bottom: 450 }, { kind: 'fragile', x: 680, bottom: 450 }, { kind: 'cbox', x: 1070, bottom: 260 }, ...stack('bigbox', 1215, 580, 3), pig(165, 190), pig(1300, 108)] },
     // the box fort at 3am: boxes by the cat tree, a rack of fragile boxes, a pyramid of fragile on the pallets with more
     // up on a high shelf, the forklift's load under a rack, a tall tower of big boxes, a rack at the far end
     { id: 'whx', name: 'box fort', world: 'warehouse', mode: 'mess', title: 'wreck it', tip: 'teh boss iz out. box fort.', w: 1500, perch: PERCH,
@@ -1189,66 +1202,66 @@ const FITS = (() => {
                 cloud(x, y, 2, 2, 46, 44, k % 2 ? ['fragile', 'fishbowl'] : ['fishbowl', 'fragile'])),
               fl('snack', 880, 360), fl('snack', 1140, 180), fl('snack', 1380, 400), fl('duckie', 360, 300), fl('wrench', 1040, 540)] }, SPACE_SP),
     // ---- world: moon ----
-    // teh moon: spicy (she hisses: stop dead and drop; doggos run from her). Low gravity, no ceiling, craters, a lander, cheese, aliens
-    // one small step: a crater with a big moon rock behind it
-    Object.assign({ id: 'mn1', name: 'moon 1', world: 'moon', title: 'one smol step', w: 1100, perch: PERCH,
+    // teh moon, wide (Nov 6): spicy (she hisses: stop dead and drop; doggos run from her). Low gravity, outdoors under open sky (fling a cat up hard enough and it leaves the moon: ESCAPE_Y), 1,700 to 1,850 wide for the long floaty throws; craters, landers, cheese, aliens
+    // one small step: a crater out at a real moon distance, a big mesa behind it
+    Object.assign({ id: 'mn1', name: 'moon 1', world: 'moon', title: 'one smol step', w: 1700, perch: PERCH,
       lineup: ['toast', 'toast', 'toast'], spareGoal: 1, messGoal: 20,
-      furniture: [{ kind: 'pillar', x0: 860, x1: 960, top: 380, moon: true }],
-      spots: [{ kind: 'crater', x0: 680, x1: 850, bottom: 580 }],
-      items: [{ kind: 'rock', x: 560, bottom: 580 }, { kind: 'flag', x: 620, bottom: 580 }, al(765, 574), { kind: 'cheese', x: 910, bottom: 380 }] }, MOON_MN),
+      furniture: [{ kind: 'pillar', x0: 1400, x1: 1700, top: 300, moon: true }],
+      spots: [{ kind: 'crater', x0: 1170, x1: 1390, bottom: 580 }],
+      items: [{ kind: 'rock', x: 760, bottom: 580 }, { kind: 'flag', x: 1140, bottom: 580 }, al(1280, 574), { kind: 'cheese', x: 1460, bottom: 300 }, { kind: 'cheese', x: 560, bottom: 580 }, al(1600, 300)] }, MOON_MN),
     // spicy's first level: a moon doggo is asleep in the crater on the mesa. nobody else can budge it. HISS.
-    Object.assign({ id: 'mn2', name: 'moon 2', world: 'moon', title: 'hisss', tip: 'a doggo iz in ur crater. hiss at it!', w: 1150, perch: PERCH, newCat: 'spicy',
+    Object.assign({ id: 'mn2', name: 'moon 2', world: 'moon', title: 'hisss', tip: 'a doggo iz in ur crater. hiss at it!', w: 1750, perch: PERCH, newCat: 'spicy',
       lineup: ['spicy', 'toast', 'spicy'], spareGoal: 1, messGoal: 20,
-      furniture: [{ kind: 'pillar', x0: 640, x1: 860, top: 400, moon: true }, { kind: 'pillar', x0: 1060, x1: 1150, top: 300, moon: true }],
-      spots: [{ kind: 'crater', x0: 688, x1: 812, bottom: 400, cat: 'spicy' }, { kind: 'crater', x0: 890, x1: 1050, bottom: 580 }],
-      items: [{ kind: 'dog', x: 750, bottom: 394 }, al(970, 574), al(1100, 300), { kind: 'cheese', x: 560, bottom: 580 }, { kind: 'flag', x: 1110, bottom: 300 }] }, MOON_MN),
+      furniture: [{ kind: 'pillar', x0: 860, x1: 1080, top: 400, moon: true }, { kind: 'pillar', x0: 1480, x1: 1750, top: 300, moon: true }],
+      spots: [{ kind: 'crater', x0: 908, x1: 1032, bottom: 400, cat: 'spicy' }, { kind: 'crater', x0: 1280, x1: 1470, bottom: 580 }],
+      items: [{ kind: 'dog', x: 970, bottom: 394 }, al(1375, 574), al(1600, 300), { kind: 'cheese', x: 640, bottom: 580 }, { kind: 'flag', x: 1700, bottom: 300 }] }, MOON_MN),
     // moon bounce: everything bounces higher up here
-    Object.assign({ id: 'mn3', name: 'moon 3', world: 'moon', title: 'moon bounce', w: 1150, perch: PERCH,
+    Object.assign({ id: 'mn3', name: 'moon 3', world: 'moon', title: 'moon bounce', w: 1800, perch: PERCH,
       lineup: ['toast', 'chaos', 'toast', 'chaos'], spareGoal: 1, messGoal: 30,
-      furniture: [{ kind: 'lander', x0: 620, x1: 780, top: 380 }, { kind: 'pillar', x0: 1020, x1: 1150, top: 300, moon: true }],
-      spots: [{ kind: 'box', x0: 640, x1: 764, bottom: 380 }, { kind: 'crater', x0: 840, x1: 1010, bottom: 580 }],
-      items: [al(925, 574), al(1080, 300), { kind: 'rock', x: 520, bottom: 580 }, { kind: 'cheese', x: 1060, bottom: 300 }] }, MOON_MN),
+      furniture: [{ kind: 'lander', x0: 940, x1: 1100, top: 380 }, { kind: 'pillar', x0: 1600, x1: 1800, top: 300, moon: true }],
+      spots: [{ kind: 'box', x0: 960, x1: 1084, bottom: 380 }, { kind: 'crater', x0: 1420, x1: 1590, bottom: 580 }],
+      items: [al(1505, 574), al(1700, 300), { kind: 'rock', x: 760, bottom: 580 }, { kind: 'cheese', x: 1650, bottom: 300 }, { kind: 'cheese', x: 1240, bottom: 580 }] }, MOON_MN),
     // the moon is made of cheese. the void fits in the little crater between the wedges
-    Object.assign({ id: 'mn4', name: 'moon 4', world: 'moon', title: 'cheez moon', w: 1150, perch: PERCH,
+    Object.assign({ id: 'mn4', name: 'moon 4', world: 'moon', title: 'cheez moon', w: 1800, perch: PERCH,
       lineup: ['void', 'toast', 'void', 'toast'], spareGoal: 1, messGoal: 60,
-      furniture: [{ kind: 'pillar', x0: 560, x1: 800, top: 420, moon: true }, { kind: 'pillar', x0: 980, x1: 1150, top: 300, moon: true }],
-      spots: [{ kind: 'shoebox', x0: 730, x1: 790, bottom: 420, cat: 'void' }, { kind: 'crater', x0: 810, x1: 970, bottom: 580 }, { kind: 'crater', x0: 1000, x1: 1140, bottom: 300 }],
-      items: [...pots(['cheese', 'cheese', 'cheese'], 570, 420, 6), al(890, 574), al(1070, 294), { kind: 'cheese', x: 520, bottom: 580 }] }, MOON_MN),
+      furniture: [{ kind: 'pillar', x0: 720, x1: 960, top: 420, moon: true }, { kind: 'pillar', x0: 1020, x1: 1210, top: 320, moon: true }, { kind: 'pillar', x0: 1540, x1: 1800, top: 320, moon: true }],
+      spots: [{ kind: 'shoebox', x0: 890, x1: 950, bottom: 420, cat: 'void' }, { kind: 'crater', x0: 1340, x1: 1530, bottom: 580 }, { kind: 'crater', x0: 1045, x1: 1185, bottom: 320 }],
+      items: [...pots(['cheese', 'cheese', 'cheese'], 730, 420, 6), al(1440, 574), al(1115, 314), { kind: 'cheese', x: 580, bottom: 580 }, { kind: 'cheese', x: 1640, bottom: 320 }, al(1720, 320), { kind: 'cheese', x: 1270, bottom: 580 }] }, MOON_MN),
     // the lander: a box on top. the street cat climbs the leg (no ceiling up here, so a big lob gets there too)
-    Object.assign({ id: 'mn5', name: 'moon 5', world: 'moon', title: 'teh lander', w: 1200, perch: PERCH,
+    Object.assign({ id: 'mn5', name: 'moon 5', world: 'moon', title: 'teh lander', w: 1800, perch: PERCH,
       lineup: ['street', 'toast', 'street', 'toast'], spareGoal: 1, messGoal: 30,
-      furniture: [{ kind: 'lander', x0: 980, x1: 1120, top: 110 }, { kind: 'dish', x: 600, top: 420 }],
-      spots: [{ kind: 'box', x0: 990, x1: 1110, bottom: 110, h: 56 }, { kind: 'crater', x0: 680, x1: 860, bottom: 580 }],
-      items: [{ kind: 'flag', x: 900, bottom: 580 }, { kind: 'rover', x: 520, bottom: 580 }, al(770, 574), al(1050, 110)] }, MOON_MN),
+      furniture: [{ kind: 'lander', x0: 1560, x1: 1700, top: 110 }, { kind: 'dish', x: 680, top: 420 }],
+      spots: [{ kind: 'box', x0: 1570, x1: 1690, bottom: 110, h: 56, cat: 'street' }, { kind: 'crater', x0: 900, x1: 1080, bottom: 580 }],
+      items: [{ kind: 'flag', x: 1240, bottom: 580 }, { kind: 'rover', x: 560, bottom: 580 }, al(990, 574), al(1630, 110), { kind: 'cheese', x: 1400, bottom: 580 }, al(1760, 580)] }, MOON_MN),
     // aliens! everywhere. they hop off when you come close
-    Object.assign({ id: 'mn6', name: 'moon 6', world: 'moon', title: 'aliens!', w: 1200, perch: { x: 330, top: 430, cataDX: -104 },
+    Object.assign({ id: 'mn6', name: 'moon 6', world: 'moon', title: 'aliens!', w: 1800, perch: { x: 330, top: 430, cataDX: -104 },
       lineup: ['chaos', 'toot', 'toast', 'chaos', 'toot'], spareGoal: 1, messGoal: 30,
-      furniture: [{ kind: 'lander', x0: 10, x1: 170, top: 230 }, { kind: 'lander', x0: 700, x1: 860, top: 360 }, { kind: 'pillar', x0: 1060, x1: 1200, top: 200, moon: true }],
-      spots: [{ kind: 'box', x0: 20, x1: 160, bottom: 230, cat: 'chaos' }, { kind: 'box', x0: 716, x1: 844, bottom: 360 }, { kind: 'crater', x0: 1070, x1: 1190, bottom: 200 }],
-      items: [al(90, 224), al(780, 354), al(1130, 194), al(560, 580), al(950, 580), al(1000, 580), { kind: 'cheese', x: 620, bottom: 580 }] }, MOON_MN),
+      furniture: [{ kind: 'lander', x0: 10, x1: 170, top: 230 }, { kind: 'lander', x0: 880, x1: 1040, top: 360 }, { kind: 'pillar', x0: 1160, x1: 1300, top: 340, moon: true }, { kind: 'pillar', x0: 1580, x1: 1800, top: 320, moon: true }],
+      spots: [{ kind: 'box', x0: 20, x1: 160, bottom: 230, cat: 'chaos' }, { kind: 'box', x0: 896, x1: 1024, bottom: 360 }, { kind: 'crater', x0: 1390, x1: 1570, bottom: 580 }],
+      items: [al(90, 224), al(960, 354), al(1230, 334), al(700, 580), al(1100, 580), al(1350, 580), al(1480, 574), al(1690, 320), { kind: 'cheese', x: 790, bottom: 580 }, { kind: 'cheese', x: 1190, bottom: 340 }] }, MOON_MN),
     // moon rocks: a crater buried under heavy rocks. only a chonk can dig them out
-    Object.assign({ id: 'mn7', name: 'moon 7', world: 'moon', title: 'moon rocks', tip: 'only a chonk can move dis.', w: 1150, perch: PERCH,
+    Object.assign({ id: 'mn7', name: 'moon 7', world: 'moon', title: 'moon rocks', tip: 'only a chonk can move dis.', w: 1800, perch: PERCH,
       lineup: ['unit', 'toast', 'unit', 'toast'], spareGoal: 1, messGoal: 30,
-      furniture: [{ kind: 'pillar', x0: 500, x1: 700, top: 440, moon: true }, { kind: 'pillar', x0: 824, x1: 1000, top: 440, moon: true }, { kind: 'pillar', x0: 1000, x1: 1150, top: 280, moon: true }],
-      spots: [{ kind: 'crater', x0: 700, x1: 824, bottom: 580, cat: 'unit' }, { kind: 'crater', x0: 1010, x1: 1140, bottom: 280 }],
-      items: [{ kind: 'slab', x: 762, bottom: 440 }, ...stack('rock', 762, 426, 2), { kind: 'cheese', x: 560, bottom: 440 }, { kind: 'rover', x: 900, bottom: 440 }, al(1075, 274)] }, MOON_MN),
-    // moon doggos: three of them, asleep in three craters. hiss once and they all run for it (if they're close enough)
-    Object.assign({ id: 'mn8', name: 'moon 8', world: 'moon', title: 'moon doggos', tip: 'hiss near teh doggos', w: 1300, perch: PERCH,
+      furniture: [{ kind: 'pillar', x0: 560, x1: 780, top: 440, moon: true }, { kind: 'pillar', x0: 904, x1: 1100, top: 440, moon: true }, { kind: 'pillar', x0: 1600, x1: 1800, top: 300, moon: true }],
+      spots: [{ kind: 'crater', x0: 780, x1: 904, bottom: 580, cat: 'unit' }, { kind: 'crater', x0: 1400, x1: 1590, bottom: 580 }],
+      items: [{ kind: 'slab', x: 842, bottom: 440 }, ...stack('rock', 842, 426, 2), { kind: 'cheese', x: 620, bottom: 440 }, { kind: 'rover', x: 1000, bottom: 440 }, al(1495, 574), al(1700, 300), { kind: 'rock', x: 1260, bottom: 580 }] }, MOON_MN),
+    // moon doggos: three of them, asleep in three craters (hiss once and they all run, if they're close enough), and a shoebox out on the far mesa
+    Object.assign({ id: 'mn8', name: 'moon 8', world: 'moon', title: 'moon doggos', tip: 'hiss near teh doggos', w: 1850, perch: PERCH,
       lineup: ['spicy', 'toot', 'spicy', 'void', 'spicy', 'toast', 'spicy', 'void'], spareGoal: 1, messGoal: 30,
-      furniture: [{ kind: 'pillar', x0: 560, x1: 760, top: 420, moon: true }, { kind: 'pillar', x0: 1020, x1: 1300, top: 300, moon: true }],
-      spots: [{ kind: 'crater', x0: 603, x1: 727, bottom: 420, cat: 'spicy' }, { kind: 'crater', x0: 828, x1: 952, bottom: 580, cat: 'spicy' }, { kind: 'crater', x0: 1073, x1: 1197, bottom: 300, cat: 'spicy' },
-              { kind: 'shoebox', x0: 1232, x1: 1292, bottom: 300, cat: 'void' }],
-      items: [{ kind: 'dog', x: 665, bottom: 414 }, { kind: 'dog', x: 890, bottom: 574 }, { kind: 'dog', x: 1135, bottom: 294 }, al(500, 580), al(1000, 580), { kind: 'cheese', x: 470, bottom: 580 }] }, MOON_MN),
+      furniture: [{ kind: 'pillar', x0: 700, x1: 900, top: 420, moon: true }, { kind: 'pillar', x0: 1320, x1: 1440, top: 400, moon: true }, { kind: 'pillar', x0: 1440, x1: 1560, top: 300, moon: true }],
+      spots: [{ kind: 'crater', x0: 738, x1: 862, bottom: 420, cat: 'spicy' }, { kind: 'crater', x0: 950, x1: 1090, bottom: 580, cat: 'spicy' }, { kind: 'crater', x0: 1150, x1: 1290, bottom: 580, cat: 'spicy' },
+              { kind: 'shoebox', x0: 1375, x1: 1435, bottom: 400, cat: 'void' }],
+      items: [{ kind: 'dog', x: 800, bottom: 414 }, { kind: 'dog', x: 1020, bottom: 574 }, { kind: 'dog', x: 1220, bottom: 574 }, al(620, 580), al(1650, 580), { kind: 'cheese', x: 560, bottom: 580 }, al(1345, 400), al(1500, 300), { kind: 'rover', x: 1760, bottom: 580 }] }, MOON_MN),
     // to da moon: every cat, every trick
-    Object.assign({ id: 'mn9', name: 'moon 9', world: 'moon', title: 'to da moon', w: 1400, perch: { x: 330, top: 430, cataDX: -104 },
+    Object.assign({ id: 'mn9', name: 'moon 9', world: 'moon', title: 'to da moon', w: 1850, perch: { x: 330, top: 430, cataDX: -104 },
       lineup: ['toast', 'chaos', 'unit', 'street', 'void', 'toot', 'spicy', 'chaos', 'unit', 'street', 'void', 'toot', 'spicy'], spareGoal: 2, messGoal: 120,
-      furniture: [{ kind: 'lander', x0: 10, x1: 170, top: 230 }, { kind: 'pillar', x0: 500, x1: 700, top: 440, moon: true }, { kind: 'pillar', x0: 824, x1: 960, top: 440, moon: true },
-                  { kind: 'lander', x0: 1240, x1: 1380, top: 110 }, { kind: 'pillar', x0: 960, x1: 1100, top: 340, moon: true }],
-      spots: [{ kind: 'box', x0: 20, x1: 160, bottom: 230, cat: 'chaos' }, { kind: 'crater', x0: 700, x1: 824, bottom: 580, cat: 'unit' }, { kind: 'shoebox', x0: 1030, x1: 1090, bottom: 340, cat: 'void' },
-              { kind: 'box', x0: 1250, x1: 1370, bottom: 110, h: 56 }, { kind: 'crater', x0: 1106, x1: 1230, bottom: 580, cat: 'spicy' }],
-      items: [{ kind: 'slab', x: 762, bottom: 440 }, ...stack('rock', 762, 426, 2), al(90, 224), { kind: 'dog', x: 1168, bottom: 574 }, al(1310, 110), { kind: 'cheese', x: 560, bottom: 440 }, { kind: 'flag', x: 900, bottom: 440 }, { kind: 'rover', x: 450, bottom: 580 }] }, MOON_MN),
+      furniture: [{ kind: 'lander', x0: 10, x1: 170, top: 230 }, { kind: 'pillar', x0: 560, x1: 760, top: 440, moon: true }, { kind: 'pillar', x0: 884, x1: 1000, top: 440, moon: true },
+                  { kind: 'lander', x0: 1210, x1: 1350, top: 260 }, { kind: 'pillar', x0: 1440, x1: 1580, top: 360, moon: true }, { kind: 'pillar', x0: 1580, x1: 1720, top: 270, moon: true }],
+      spots: [{ kind: 'box', x0: 20, x1: 160, bottom: 230, cat: 'chaos' }, { kind: 'crater', x0: 760, x1: 884, bottom: 580, cat: 'unit' }, { kind: 'shoebox', x0: 1510, x1: 1570, bottom: 360, cat: 'void' },
+              { kind: 'box', x0: 1220, x1: 1340, bottom: 260, h: 56 }, { kind: 'crater', x0: 1040, x1: 1164, bottom: 580, cat: 'spicy' }],
+      items: [{ kind: 'slab', x: 822, bottom: 440 }, ...stack('rock', 822, 426, 2), al(90, 224), { kind: 'dog', x: 1102, bottom: 574 }, al(1280, 260), { kind: 'cheese', x: 610, bottom: 440 }, { kind: 'flag', x: 950, bottom: 440 }, { kind: 'rover', x: 460, bottom: 580 }, { kind: 'cheese', x: 1470, bottom: 360 }, { kind: 'cheese', x: 1650, bottom: 270 }, al(1790, 580)] }, MOON_MN),
     // the moon party: cheese by the cat tree, a mesa with a cheese tower, a rover convoy (goldfish driving), cheese on the
-    // lander, teh tallest cheese tower, more rovers, a rover and cheese on the far mesa
+    // lander, teh tallest cheese tower, more rovers, a rover and cheese on the far mesa (unchanged: 1,500 wide)
     Object.assign({ id: 'mnx', name: 'moon party', world: 'moon', mode: 'mess', title: 'wreck it', tip: 'nobody up here. break stuff.', w: 1500, perch: PERCH,
       lineup: ['toast', 'unit', 'toot', 'spicy', 'chaos', 'unit', 'spicy', 'street'], messGoals: [225, 325, 900], spareGoal: 0, messGoal: 0,
       furniture: [{ kind: 'pillar', x0: 560, x1: 680, top: 300, moon: true }, { kind: 'lander', x0: 960, x1: 1120, top: 250 }, { kind: 'pillar', x0: 1380, x1: 1500, top: 380, moon: true }],
@@ -1270,6 +1283,10 @@ const FITS = (() => {
       const engine = this.engine = M.Engine.create({ enableSleeping: true, positionIterations: 10, velocityIterations: 8 });
       // gravity, launch speed and air drag can change per level (the moon, outer space); the Earth is 1, 1, 0
       this.grav = level.grav != null ? level.grav : 1; this.g = G * this.grav; this.vscale = level.speed || 1; this.air = level.air || 0;
+      // a cat's own jumps up (a toot, the hop onto a ledge after a climb) in low gravity: the upward push scales with the square
+      // root of the gravity, so they go exactly as high as on Earth, only slower (at full strength a toot made sir toots a rocket
+      // on the moon, and the street cat's hop off the top of a climb sailed right over the box it was climbing to)
+      this.jumpK = this.grav > 0 && this.grav < 1 ? Math.sqrt(this.grav) : 1;
       engine.gravity.y = this.grav;
       this.world = engine.world;
       this.rand = mulberry(level.id.split('').reduce((a, c) => a * 31 + c.charCodeAt(0), 7));
@@ -1390,8 +1407,10 @@ const FITS = (() => {
       if (d.air || this.air) opt.frictionAir = Math.max(d.air || 0, this.air || 0);
       if (d.chamfer) opt.chamfer = { radius: d.chamfer };
       const body = d.r ? M.Bodies.circle(x, y, d.r, opt) : M.Bodies.rectangle(x, y, w, h, opt);
-      const hp = d.hp ? d.hp * (kind === 'board' ? clamp(w / 200, 0.4, 1) : 1) : 0;
-      const item = { kind, def: d, body, w, h, hp, dmg: 0, counted: false, broken: false, n, x0: x, y0: y, a0: 0 };
+      // a level can give one item its own hp or value (Nov 6: { kind: 'griddle', hp: 45 }, a lid megachonk can crack)
+      const hp = o.hp != null ? o.hp : d.hp ? d.hp * (kind === 'board' ? clamp(w / 200, 0.4, 1) : 1) : 0;
+      const value = o.value != null ? o.value : d.value;
+      const item = { kind, def: d, body, w, h, hp, value, dmg: 0, counted: false, broken: false, n, x0: x, y0: y, a0: 0 };
       body.plugin = { item };
       this.items.push(item); M.Composite.add(this.world, body);
       // on the wall: it doesn't block anything, but whatever touches it knocks it off (made dynamic first so it can come off later)
@@ -1429,7 +1448,7 @@ const FITS = (() => {
       // Time stands still while you aim. The solver (and the paw-print hints) throw the moment a cat is ready; a kid
       // takes a while. If the world kept going meanwhile (things drifting in zero gravity, a stunned cat finishing its
       // daze and leaving, belts), how long you aimed would change the level.
-      if (this.state === 'aim') return;
+      if (this.state === 'aim' || this.frozen) return;   // (frozen: the page is showing a cat leave the moon, and the level waits for it)
       const M = this.M;
       this.stepN++;
       const cat = this.active;
@@ -1600,7 +1619,7 @@ const FITS = (() => {
       M.Composite.add(this.world, body);
       M.Body.setVelocity(body, this.launchVel(angle, power, d));
       if (d.catapult) M.Body.setAngularVelocity(body, len(body.velocity.x, body.velocity.y) / CATA.R);
-      Object.assign(c, { body, baseMass: body.mass, hissT: 0, hissDrop: false, touched: false, inSpotT: 0, ghostT: 0, loaf: false, pinballT: 0, clawsOut: false, cling: null, scamperT: 0, splat: null, slid: false, tippedIn: false, waitT: null, faceDir: 1, pushed: false, hat: null, shrink: 1, dashT: 0, tooHeavy: false, state: 'fly', flyT: 0, rest: 0, bonked: false, abilityUsed: false, trail: [], brokeDuring: 0, assistT: 0, scramble: 0, stomped: 0, zoomed: false, slamming: !!d.pound });
+      Object.assign(c, { body, baseMass: body.mass, hissT: 0, hissDrop: false, touched: false, inSpotT: 0, ghostT: 0, loaf: false, pinballT: 0, clawsOut: false, cling: null, scamperT: 0, splat: null, slid: false, tippedIn: false, waitT: null, faceDir: 1, pushed: false, hat: null, shrink: 1, dashT: 0, tooHeavy: false, state: 'fly', flyT: 0, rest: 0, bonked: false, abilityUsed: false, trail: [], brokeDuring: 0, assistT: 0, scramble: 0, stomped: 0, zoomed: false, slamming: !!d.pound, fellThrough: false });
       this.state = 'fly'; this.lastShot = { angle, power }; this.tick = 0;
       this.emit('launch', { cat: c, angle, power });
       return true;
@@ -1646,7 +1665,7 @@ const FITS = (() => {
         const hw = c.def.w * (c.shrink || 1) / 2, solid = this.statics.filter(o => o.label !== 'floor' && o.label !== 'spot' && !SLIPPERY[o.label]);
         if (still) {
           for (const dir of [face, -face]) { const hit = M.Query.point(solid, { x: b.position.x + dir * (hw + 6), y: b.position.y }); if (hit.length) { this.cling(c, hit[0]); break; } }
-          if (!c.cling) M.Body.setVelocity(b, { x: face * 4, y: -4.5 });
+          if (!c.cling) M.Body.setVelocity(b, { x: face * 4, y: -4.5 * this.jumpK });
         }
       }
       else if (c.def.ability === 'hiss') {
@@ -1673,7 +1692,10 @@ const FITS = (() => {
     toot(c, n) {
       const M = this.M, b = c.body, v = b.velocity, face = c.faceDir || 1, s = Math.pow(TOOT_FADE, n - 1);
       if (n >= TOOT_MAX) return;
-      M.Body.setVelocity(b, { x: Math.abs(v.x) < 1 ? face * 2.5 : v.x, y: Math.max(-14, Math.min(v.y, 0) - TOOT * s) });   // from the floor: a toot-jump
+      // in low gravity a toot lifts him exactly as high as on Earth, only slower (jumpK): at full strength it was 3.3 times the
+      // lift on the moon, and with the escape rule nearly every toot on the way up left the moon; now only a toot high up a steep throw does
+      const k = this.jumpK;
+      M.Body.setVelocity(b, { x: Math.abs(v.x) < 1 ? face * 2.5 * k : v.x, y: Math.max(-14 * k, Math.min(v.y, 0) - TOOT * s * k) });   // from the floor: a toot-jump
       for (const it of this.items) {
         if (it.broken || it.hang) continue;
         const ib = it.body, dx = ib.position.x - b.position.x, dy = ib.position.y - b.position.y, dd = len(dx, dy) || 1;
@@ -1732,9 +1754,13 @@ const FITS = (() => {
       this.emit('cling', { cat: c, side, x: b.position.x, y: b.position.y });
     }
     letGo(c, hop) {
-      const M = this.M, b = c.body, side = c.cling.side, top = c.cling.S.bounds.min.y;
+      const M = this.M, b = c.body, side = c.cling.side;
+      // where it's hopping on from: the top of what it climbed, or, on the moon, its feet, if it climbed on up past that (a lander's
+      // leg, then the body over it and the box on top: from the leg's top it saw the lander's body as a taller wall ahead and ran
+      // right over the box)
+      const top = this.jumpK < 1 ? Math.min(c.cling.S.bounds.min.y, b.position.y + c.def.h / 2 + 3) : c.cling.S.bounds.min.y;
       M.Body.setStatic(b, false);
-      if (hop) M.Body.setVelocity(b, { x: side === 'left' ? 4.5 : -4.5, y: -3 });
+      if (hop) M.Body.setVelocity(b, { x: side === 'left' ? 4.5 : -4.5, y: -3 * this.jumpK });   // (jumpK: as high as on Earth, on the moon)
       else M.Body.setVelocity(b, { x: 0, y: 0.5 });
       c.cling = null; c.rest = 0; c.touched = true; b.frictionAir = 0.03;
       this.emit(hop ? 'hop' : 'letgo', { cat: c });
@@ -1898,7 +1924,7 @@ const FITS = (() => {
       body.plugin = { cat: c };
       M.Composite.remove(this.world, old); M.Composite.add(this.world, body);
       M.Body.setAngle(body, old.angle);   // (balled up however he was turned when he came down)
-      M.Body.setVelocity(body, { x: old.velocity.x, y: 0 }); M.Body.setAngularVelocity(body, old.velocity.x / MOCHI.ry);
+      M.Body.setVelocity(body, { x: old.velocity.x, y: old.velocity.y }); M.Body.setAngularVelocity(body, old.velocity.x / MOCHI.ry);   // (y: 0 after a THOOM, unless he's falling through a lid)
       Object.assign(c, { body, mochi: true, rest: 0 });
     }
     // Once it has touched down, a cat stops sliding and rocking, and rights itself if it can (megachonk's mochi just rolls,
@@ -1954,6 +1980,7 @@ const FITS = (() => {
       if (c.scramble > 0) c.scramble--;
       if (c.flyT % 3 === 0) c.trail.push({ x: b.position.x, y: b.position.y });
       if (b.position.y > H + 80 || b.position.x < -80 || b.position.x > this.W + 80) return this.resolve(c, 'yeet');
+      if (this.escapes(c)) return this.resolve(c, 'space');
       if (b.speed < 0.35 && (b.angularSpeed < 0.04 || !this.grav) && !onAwning && !(c.onBelt > 0)) c.rest++; else c.rest = 0;   // (in space a cat can rest while it spins)
       // over an empty spot, start digging a little sooner
       const overSpot = c.stomped < 5 && this.spots.some(s => !s.filled && b.position.x > s.ix0 - 16 && b.position.x < s.ix1 + 16 && b.position.y < s.rim && b.position.y > s.rim - 150);
@@ -2012,6 +2039,7 @@ const FITS = (() => {
       c.flyT++;
       if (c.flyT % 3 === 0) c.trail.push({ x: b.position.x, y: b.position.y });
       if (b.position.y > H + 80 || b.position.x < -80 || b.position.x > this.W + 80) return this.resolve(c, 'yeet');
+      if (this.escapes(c)) return this.resolve(c, 'space');
       const inSpot = this.spots.find(s => !s.filled && this.inZone(s, b.position, c) && this.fits(s, c));
       if (c.loaf) {
         c.loafT--;
@@ -2044,9 +2072,16 @@ const FITS = (() => {
       { const sp = b.speed || 1; M.Body.setVelocity(b, { x: b.velocity.x / sp * ZOOM, y: b.velocity.y / sp * ZOOM }); }
       if (inSpot) this.endPinball(c, true); else if (c.pinballT <= 0) this.endPinball(c, false);
     }
+    // left the moon: open sky (no ceiling, nothing over it), gravity, high up and still going up
+    escapes(c) {
+      const b = c.body;
+      if (!this.level.open || !(this.grav > 0) || b.position.y >= ESCAPE_Y || b.velocity.y >= 0 || c.hissT > 0) return false;
+      const x = b.position.x;   // anything with a roof over the cat (none on the moon today): it bonks into that instead
+      return !this.statics.some(s => s.label !== 'wall' && s.bounds.max.y < b.position.y && s.bounds.min.x < x && s.bounds.max.x > x);
+    }
     resolve(c, why) {
       const b = c.body, M = this.M, pos = { x: b.position.x, y: b.position.y };
-      const spot = why === 'yeet' ? null : this.spots.find(s => !s.filled && this.inZone(s, pos, c) && this.fits(s, c));
+      const spot = why === 'yeet' || why === 'space' ? null : this.spots.find(s => !s.filled && this.inZone(s, pos, c) && this.fits(s, c));
       if (spot) {
         spot.filled = c; c.state = 'sit'; c.spot = spot;
         M.Body.setStatic(b, true);
@@ -2060,9 +2095,10 @@ const FITS = (() => {
         return;
       }
       const blocked = this.spots.some(s => !s.filled && pos.x > s.ix0 - 10 && pos.x < s.ix1 + 10 && pos.y <= s.rim - 14 && pos.y > s.rim - 110);
-      if (why === 'yeet') { M.Composite.remove(this.world, b); c.body = null; c.state = 'gone'; }
+      const vel = { x: b.velocity.x, y: b.velocity.y }, spin = b.angularVelocity, angle = b.angle;
+      if (why === 'yeet' || why === 'space') { M.Composite.remove(this.world, b); c.body = null; c.state = 'gone'; }
       else { c.state = 'dazed'; c.dazeT = c.dazeStart = c.bonked ? 100 : 55; }
-      this.emit('miss', { cat: c, why, bonked: c.bonked, blocked, x: pos.x, y: pos.y, broke: c.brokeDuring });
+      this.emit('miss', { cat: c, why, bonked: c.bonked, blocked: blocked && why !== 'space', x: pos.x, y: pos.y, broke: c.brokeDuring, vx: vel.x, vy: vel.y, spin, angle });
       this.state = 'after'; this.timer = 45;
     }
 
@@ -2129,7 +2165,7 @@ const FITS = (() => {
               if ((hitItem.def.breakAt || hitItem.hp) && !(this.plowed && this.plowed.has(hitItem))) { (this.plowed || (this.plowed = new Set())).add(hitItem); this.toBreak.add(hitItem); this.plowSlow = (this.plowSlow || 1) * 0.9; this.emit('plow', { cat, item: hitItem, x: Y.position.x, y: Y.position.y }); }
             } else {
               const ny = pair.collision.normal.y * (X === pair.bodyA ? 1 : -1);   // < 0: what he hit is under him
-              if ((X.velocity.y > 1.5 && X.velocity.y > Math.abs(X.velocity.x) * 0.35) || (ny < -0.55 && X.velocity.y > 1.2)) { cat.slamming = false; this.pendingShock = { cat }; }
+              if ((X.velocity.y > 1.5 && X.velocity.y > Math.abs(X.velocity.x) * 0.35) || (ny < -0.55 && X.velocity.y > 1.2)) { cat.slamming = false; this.pendingShock = { cat, vy: X.velocity.y }; }   // (vy: how fast he was falling, from before the hit)
             }
           }
           // slapstick: slam sideways into a wall or furniture and the cat sticks there flat, then slides down
@@ -2151,13 +2187,22 @@ const FITS = (() => {
     // Megachonk lands HARD (Adam, Nov 4: "he should land HARD and then stuff breaks... he should break things he doesn't
     // touch"): everything near him jumps, then a beat later the breakables out to 200 shatter, nearest first.
     shock(c) {
-      const M = this.M, b = c.body, big = !!c.def.pound, R = big ? 300 : 130, near = big ? 200 : 80;
+      const M = this.M, b = c.body, big = !!c.def.pound, R = big ? 300 : 130, near = big ? 200 : 80, fallVy = (this.pendingShock && this.pendingShock.vy) || 0;
       this.pendingShock = null;
       if (!b) return;
       const x = b.position.x, y = b.position.y;
+      let under = null;
       if (big) {   // what was knocked about while he flew breaks now too, in the same ripple
         const was = new Set([...(this.held || []), ...this.toBreak]); this.held = null; this.toBreak.clear();
         for (const it of was) if (!it.broken) (this.ripple || (this.ripple = [])).push({ item: it, at: this.stepN + 9 + Math.round(Math.min(400, len(it.body.position.x - x, it.body.position.y - y)) / 22) });
+        // What he lands on takes his whole weight (Nov 6, Adam: "do we have any levels where megachonk really earns his place
+        // in the game?"): a heavy thing right under his middle (a lid, a slab: one he didn't plow through) takes the THOOM full
+        // on, and if that cracks it, it breaks under him there and then and he drops through. Thrown up like everything else,
+        // a lid he lay on jumped up into him, cracked against him and bounced him off, past the box under it (kitchen 8,
+        // building 5). Anything it doesn't crack jumps as before.
+        const heavy = this.items.filter(it => !it.broken && !it.hang && it.hp && it.body.mass >= b.mass * 0.25).map(it => it.body);
+        const hit = heavy.length ? M.Query.point(heavy, { x, y: b.bounds.max.y + 4 })[0] : null;   // (no ray: Matter aims a ray with atan2)
+        if (hit) under = hit.plugin.item;
       }
       for (const it of this.items) {
         if (it.broken) continue;
@@ -2166,6 +2211,7 @@ const FITS = (() => {
         const k = 1 - d / R;
         if (it.def.birb) { (this.scare || (this.scare = new Set())).add(it); continue; }
         if (big) {
+          if (it === under && it.dmg + 40 + 6 >= it.hp) { it.dmg += 40 + 6; this.toBreak.add(it); c.fellThrough = true; continue; }   // (closeness 1: he's on it)
           const breaks = (it.def.breakAt && d < near) || (it.hp && (it.dmg += 40 * k + 6) >= it.hp);
           if (breaks) (this.ripple || (this.ripple = [])).push({ item: it, at: this.stepN + 9 + Math.round(d / 22) });
         } else {
@@ -2179,8 +2225,9 @@ const FITS = (() => {
       }
       if (big) {   // megachonk lands like a sack of potatoes, no bounce, but a heavy one keeps going (Adam, Nov 6: "his size and weight
         // and density should make the physics work differently"): he keeps most of his sideways speed and rolls on through things
-        M.Body.setVelocity(b, { x: b.velocity.x * 0.72, y: 0 });   // (Adam: "he seems to come to a sudden halt instead of kind of bowling
-        // balling": a heavy ball landing flat keeps about 5/7 of its speed and rolls; it used to keep 15%, then 40%)
+        M.Body.setVelocity(b, { x: b.velocity.x * 0.72, y: c.fellThrough ? fallVy : 0 });   // (Adam: "he seems to come to a sudden halt instead of kind of bowling
+        // balling": a heavy ball landing flat keeps about 5/7 of its speed and rolls; it used to keep 15%, then 40%. Through a lid he
+        // cracked he hasn't landed, so he keeps falling.)
         M.Body.setAngularVelocity(b, 0); b.frictionAir = this.grav ? Math.max(0.03, this.air) : this.air;
         if (this.grav && !this.spots.some(s => !s.filled && this.inZone(s, b.position, c) && this.fits(s, c))) this.toMochi(c);
       } else {   // the unit bounces back up off its own BONK and lets the junk fly past it for a moment
@@ -2359,9 +2406,9 @@ const FITS = (() => {
       // everything megachonk breaks counts, like any cat (Adam, Nov 6: his kids "were disappointed that you dont get $$ for stuff he
       // breaks, it didnt make sense to them"; before, on Nov 4, none of it counted). chonkMess keeps his share for the result card.
       const byChonk = !!(fl && fl.def.pound);
-      item.counted = true; this.mess += item.def.value; if (byChonk) this.chonkMess = (this.chonkMess || 0) + item.def.value; this.salami += 1; this.knocked++;
+      item.counted = true; this.mess += item.value; if (byChonk) this.chonkMess = (this.chonkMess || 0) + item.value; this.salami += 1; this.knocked++;
       const c = this.active; if (c) c.brokeDuring++;
-      this.emit('mess', { item, value: item.def.value, chonk: byChonk, x: item.body.position.x, y: item.body.position.y });
+      this.emit('mess', { item, value: item.value, chonk: byChonk, x: item.body.position.x, y: item.body.position.y });
     }
 
     processBreaks() {
@@ -2415,6 +2462,7 @@ const FITS = (() => {
       const pts = [];
       for (let i = 1; i <= steps; i++) {
         vy += this.g; x += vx; y += vy; if (this.air) { vx *= 1 - this.air; vy *= 1 - this.air; }
+        if (this.level.open && this.grav > 0 && y < ESCAPE_Y && vy < 0) { pts.push({ x, y, escape: true }); break; }   // that one leaves the moon
         if (i % 3 === 0) pts.push({ x, y });
         if (y > FLOOR || x < (c.def.catapult ? -300 : 0) || x > this.W || y < (this.level.open ? -900 : 0)) break;
         if (i > 2 && M.Query.point(bodies, { x, y }).length) break;
@@ -2462,12 +2510,12 @@ const FITS = (() => {
     }
   }
 
-  return { HISS_T, H, FLOOR, CATA_TOP, CATA_L, CATA_DX, CATA_MIN, CATA_MAX, CATA_V, cataDX, CATA, cataStop, cataMid, MOCHI, DT, G, MAXV, speedOf, MINANG, MAXANG, CATS, ITEMS, SPOT, LEVELS, Sim, clamp, dims, stack, pyramid, roofFort, glassWall, heavyLid, hang, pots, laundry, seesaw, seesawEnd, SCARE };
+  return { HISS_T, ESCAPE_Y, H, FLOOR, CATA_TOP, CATA_L, CATA_DX, CATA_MIN, CATA_MAX, CATA_V, cataDX, CATA, cataStop, cataMid, MOCHI, DT, G, MAXV, speedOf, MINANG, MAXANG, CATS, ITEMS, SPOT, LEVELS, Sim, clamp, dims, stack, pyramid, roofFort, glassWall, heavyLid, hang, pots, laundry, seesaw, seesawEnd, SCARE };
 })();
 </script>
 
 <script>
-const HINTS = {"b1":[{"a":33,"p":0.84,"ab":null}],"b10":[{"a":36,"p":0.84,"ab":null}],"b2":[{"a":36,"p":0.9,"ab":null}],"b3":[{"a":42,"p":0.8,"ab":8}],"b4":[{"a":39,"p":0.86,"ab":8}],"b5":[{"a":48,"p":0.5,"ab":32}],"b6":[{"a":78,"p":0.56,"ab":null}],"b7":[{"a":6,"p":0.58,"ab":16}],"b8":[{"a":63,"p":0.58,"ab":null}],"b9":[{"a":48,"p":0.88,"ab":null}],"k1":[{"a":27,"p":0.9,"ab":null}],"k10":[{"a":87,"p":0.58,"ab":24}],"k11":[{"a":30,"p":0.56,"ab":16}],"k12":[{"a":24,"p":0.8,"ab":null}],"k2":[{"a":63,"p":0.5,"ab":null}],"k3":[{"a":42,"p":0.84,"ab":null}],"k4":[{"a":66,"p":0.68,"ab":null}],"k5":[{"a":45,"p":0.58,"ab":null}],"k6":[{"a":3,"p":0.24,"ab":null}],"k7":[{"a":15,"p":0.68,"ab":8}],"k8":[{"a":18,"p":0.8,"ab":24}],"k9":[{"a":9,"p":0.72,"ab":24}],"mn1":[{"a":15,"p":0.7,"ab":null}],"mn2":[{"a":27,"p":0.86,"ab":60}],"mn3":[{"a":72,"p":0.9,"ab":null}],"mn4":[{"a":15,"p":0.92,"ab":8}],"mn5":[{"a":75,"p":0.8,"ab":null}],"mn6":[{"a":33,"p":0.6,"ab":8}],"mn7":[{"a":12,"p":0.84,"ab":72}],"mn8":[{"a":24,"p":0.9,"ab":72}],"mn9":[{"a":54,"p":1,"ab":null}],"pk1":[{"a":24,"p":0.8,"ab":null}],"pk10":[{"a":72,"p":0.68,"ab":null}],"pk2":[{"a":24,"p":0.82,"ab":null}],"pk3":[{"a":27,"p":0.92,"ab":8}],"pk4":[{"a":66,"p":0.72,"ab":null}],"pk5":[{"a":27,"p":0.7,"ab":32}],"pk6":[{"a":42,"p":0.82,"ab":8}],"pk7":[{"a":33,"p":0.86,"ab":null}],"pk8":[{"a":75,"p":0.58,"ab":8}],"pk9":[{"a":63,"p":0.7,"ab":null}],"sp1":[{"a":3,"p":0.58,"ab":null}],"sp2":[{"a":54,"p":0.76,"ab":null}],"sp3":[{"a":6,"p":0.5,"ab":40}],"sp4":[{"a":15,"p":0.58,"ab":null}],"sp5":[{"a":6,"p":0.58,"ab":16}],"sp6":[{"a":6,"p":0.58,"ab":8}],"sp7":[{"a":15,"p":0.62,"ab":8}],"sp8":[{"a":39,"p":0.58,"ab":null}],"wh1":[{"a":27,"p":0.8,"ab":null}],"wh10":[{"a":33,"p":0.84,"ab":null}],"wh2":[{"a":21,"p":0.9,"ab":null}],"wh3":[{"a":36,"p":0.84,"ab":8}],"wh4":[{"a":45,"p":0.94,"ab":8}],"wh5":[{"a":3,"p":0.68,"ab":8}],"wh6":[{"a":21,"p":0.9,"ab":8}],"wh7":[{"a":39,"p":0.96,"ab":16}],"wh8":[{"a":63,"p":0.9,"ab":null}],"wh9":[{"a":27,"p":0.9,"ab":24}]};
+const HINTS = {"b1":[{"a":33,"p":0.84,"ab":null}],"b10":[{"a":36,"p":0.84,"ab":null}],"b2":[{"a":36,"p":0.9,"ab":null}],"b3":[{"a":42,"p":0.8,"ab":8}],"b4":[{"a":39,"p":0.86,"ab":8}],"b5":[{"a":48,"p":0.5,"ab":32}],"b6":[{"a":78,"p":0.56,"ab":null}],"b7":[{"a":6,"p":0.58,"ab":16}],"b8":[{"a":63,"p":0.58,"ab":null}],"b9":[{"a":48,"p":0.88,"ab":null}],"k1":[{"a":27,"p":0.9,"ab":null}],"k10":[{"a":87,"p":0.58,"ab":24}],"k11":[{"a":30,"p":0.56,"ab":16}],"k12":[{"a":24,"p":0.8,"ab":null}],"k2":[{"a":63,"p":0.5,"ab":null}],"k3":[{"a":42,"p":0.84,"ab":null}],"k4":[{"a":66,"p":0.68,"ab":null}],"k5":[{"a":45,"p":0.58,"ab":null}],"k6":[{"a":3,"p":0.24,"ab":null}],"k7":[{"a":15,"p":0.68,"ab":8}],"k8":[{"a":18,"p":0.8,"ab":24}],"k9":[{"a":9,"p":0.72,"ab":24}],"mn1":[{"a":36,"p":0.84,"ab":null}],"mn2":[{"a":30,"p":0.9,"ab":86}],"mn3":[{"a":39,"p":0.92,"ab":null}],"mn4":[{"a":21,"p":0.9,"ab":86}],"mn5":[{"a":42,"p":0.94,"ab":8}],"mn6":[{"a":36,"p":0.88,"ab":60}],"mn7":[{"a":15,"p":0.92,"ab":null}],"mn8":[{"a":30,"p":0.84,"ab":132}],"mn9":[{"a":63,"p":0.98,"ab":null}],"pk1":[{"a":24,"p":0.8,"ab":null}],"pk10":[{"a":72,"p":0.68,"ab":null}],"pk2":[{"a":24,"p":0.82,"ab":null}],"pk3":[{"a":27,"p":0.82,"ab":8}],"pk4":[{"a":66,"p":0.72,"ab":null}],"pk5":[{"a":27,"p":0.7,"ab":32}],"pk6":[{"a":42,"p":0.82,"ab":8}],"pk7":[{"a":33,"p":0.86,"ab":null}],"pk8":[{"a":75,"p":0.58,"ab":8}],"pk9":[{"a":63,"p":0.7,"ab":null}],"sp1":[{"a":3,"p":0.58,"ab":null}],"sp2":[{"a":54,"p":0.76,"ab":null}],"sp3":[{"a":6,"p":0.5,"ab":40}],"sp4":[{"a":15,"p":0.58,"ab":null}],"sp5":[{"a":6,"p":0.58,"ab":16}],"sp6":[{"a":6,"p":0.58,"ab":8}],"sp7":[{"a":15,"p":0.62,"ab":8}],"sp8":[{"a":39,"p":0.58,"ab":null}],"wh1":[{"a":27,"p":0.8,"ab":null}],"wh10":[{"a":33,"p":0.84,"ab":null}],"wh2":[{"a":21,"p":0.9,"ab":null}],"wh3":[{"a":36,"p":0.84,"ab":8}],"wh4":[{"a":45,"p":0.94,"ab":8}],"wh5":[{"a":3,"p":0.68,"ab":8}],"wh6":[{"a":21,"p":0.9,"ab":8}],"wh7":[{"a":39,"p":0.96,"ab":16}],"wh8":[{"a":63,"p":0.9,"ab":null}],"wh9":[{"a":27,"p":0.9,"ab":24}]};
 </script>
 
 <script>
@@ -2794,6 +2842,8 @@ const Snd = {
         o.frequency.setValueAtTime(160, t); o.frequency.exponentialRampToValueAtTime(520, t + 0.3); l.frequency.value = 14; lg.gain.value = 30; l.connect(lg); lg.connect(o.frequency);
         this.env(g, t, 0.2 * v, 0.35); o.connect(g); g.connect(this.master); o.start(t); l.start(t); o.stop(t + 0.4); l.stop(t + 0.4); break; }
       case 'whoosh': this.noise(0.3, 1300, 0.12 * v, 'bandpass', 0, 1.2, 380); break;
+      case 'yeet': this.tone(220, 1500, 0.9, 'sine', 0.12 * v); this.noise(0.9, 500, 0.1 * v, 'bandpass', 0, 1.2, 2600); break;   // off into space: a rising whoosh
+      case 'twinkle': [1568, 2093, 2637, 3136].forEach((f, i) => this.tone(f, f, 0.24, 'triangle', 0.06 * v, i * 0.07)); break;   // ...and gone: a twinkle
       case 'slide': this.tone(1300, 280, 0.6, 'sine', 0.14 * v); break;
       case 'dizzy': { // dizzy: a soft wobbly whistle going round and round, then a little tweet
         const c = this.ctx, t = c.currentTime, o = c.createOscillator(), g = c.createGain(), l = c.createOscillator(), lg = c.createGain();
@@ -2852,7 +2902,7 @@ const AMB_OF = { kitchen: 'amb_kitchen', building: 'amb_building', park: 'amb_pa
 // (the kitchen's was 0.17: Adam, Nov 6, his kids asked to turn it down, "they're kind of loud and it's not really obvious what"
 // it is. On a phone speaker the fridge's hum mostly drops out and the clock's ticking is what's left; 0.07 is about 8 dB down.)
 const AMB_GAIN = { amb_kitchen: 0.07, amb_building: 0.14, amb_park: 0.15, amb_warehouse: 0.15, amb_space: 0.22, amb_moon: 0.22 };
-const FX_GAIN = { star: 1, win: 1.2, lose: 1.2, pop: 1.5, zoom: 1.5, slide: 1.5, boing: 2 };
+const FX_GAIN = { star: 1, win: 1.2, lose: 1.2, pop: 1.5, zoom: 1.5, slide: 1.5, boing: 2, yeet: 1.5, twinkle: 1.5 };
 const HIT_SOUND = { bubble: 'soft', clay: 'clinkLow', glass: 'clink', china: 'clinkLow', metal: 'metal', wood: 'wood', paper: 'wood', soft: 'soft', rubber: 'rubber', card: 'soft', flour: 'soft', egg: 'clink', stone: 'wood', cloth: 'soft', birb: 'soft', melon: 'soft', pie: 'soft' };
 const BREAK_SOUND = { bubble: 'pops', clay: 'china', glass: 'glass', china: 'china', egg: 'egg', card: 'card', flour: 'flour', metal: 'crunch', wood: 'snap', paper: 'rustle', soft: 'squish', rubber: 'popb', stone: 'crumble', melon: 'squelch', pie: 'squelch' };
 
@@ -3211,7 +3261,7 @@ const COSTUMES = [
       if (L === 'over' && F.view === 'side') { shell(); fs('#F2C056', INK, 2.6); ctx.save(); shell(); ctx.clip(); crumbs(rx, ry, 8, 'rgba(201,138,60,0.5)', 1); ctx.restore();
         frills(-rx * 1.12, -ry * 0.18, rx * 1.12, -ry * 0.18, 7); for (const x of [-0.6, 0, 0.55]) { ell(x * rx, -ry * 0.28, 5, 3.4); fs('#E2574C', INK, 1.2); } P([-rx * 0.3, -ry * 0.15, -rx * 0.2, ry * 0.2, -rx * 0.1, -ry * 0.15], '#FFD959', 1.2); }
       if (L === 'over' && F.view === 'front') { ctx.beginPath(); ctx.ellipse(0, ry * 0.25, rx * 1.15, ry * 0.85, 0, 0, Math.PI); ctx.closePath(); fs('#F2C056', INK, 2.4); frills(-rx * 1.1, ry * 0.3, rx * 1.1, ry * 0.3, 6); } } },
-  { id: 'c_burger', cat: 'toast', name: 'i can has cheezburger', price: 3600, fur: '#8A5634', light: '#E8B26A', fx: 'crumbs', hatY: -24,
+  { id: 'c_burger', cat: 'toast', name: 'i can has borger', price: 3600, fur: '#8A5634', light: '#E8B26A', fx: 'crumbs', hatY: -24,
     head(L) { if (L !== 'front') return;   // the top bun over the top of the head, sesame seeds, lettuce and cheese dripping under it
       frills(-44, -14, 44, -14, 8); P([-30, -15, -24, -4, -18, -15], '#FFD959', 1.2); P([16, -15, 22, -2, 28, -15], '#FFD959', 1.2);
       ctx.beginPath(); ctx.moveTo(-47, -12); ctx.bezierCurveTo(-48, -56, 48, -56, 47, -12); ctx.quadraticCurveTo(0, -18, -47, -12); ctx.closePath(); fs('#E8A85A', INK, 2.6);
@@ -4587,18 +4637,24 @@ function drawSitPose(d, face, o) {
   ctx.restore();
   const kn = o.knead ? Math.sin(t * 9) : 0;   // making biscuits: one front paw, then the other
   rrect(-22 * d.wide - 9, 12 - Math.max(0, kn) * 5, 18, 11, 5); fs(d.light, INK, 2);
-  if (!o.pawUp && !o.pawOut) { rrect(24 * d.wide - 9, 12 - Math.max(0, -kn) * 5, 18, 11, 5); fs(d.light, INK, 2); }
-  if (STYLE.toes) for (const x of o.pawUp || o.pawOut ? [-22 * d.wide] : [-22 * d.wide, 24 * d.wide]) { line([x - 2, 18, x - 2, 22], INK, 1.3); line([x + 3, 18, x + 3, 22], INK, 1.3); }
-  if (SHOE) { shoeAt(-22 * d.wide, 17.5 - Math.max(0, kn) * 5, 18, 11, 0, 'front'); if (!o.pawUp && !o.pawOut) shoeAt(24 * d.wide, 17.5 - Math.max(0, -kn) * 5, 18, 11, 0, 'front'); }   // (shoes: closet.js)
+  if (!o.pawUp && !o.pawOut && o.wave == null) { rrect(24 * d.wide - 9, 12 - Math.max(0, -kn) * 5, 18, 11, 5); fs(d.light, INK, 2); }
+  if (STYLE.toes) for (const x of o.pawUp || o.pawOut || o.wave != null ? [-22 * d.wide] : [-22 * d.wide, 24 * d.wide]) { line([x - 2, 18, x - 2, 22], INK, 1.3); line([x + 3, 18, x + 3, 22], INK, 1.3); }
+  if (SHOE) { shoeAt(-22 * d.wide, 17.5 - Math.max(0, kn) * 5, 18, 11, 0, 'front'); if (!o.pawUp && !o.pawOut && o.wave == null) shoeAt(24 * d.wide, 17.5 - Math.max(0, -kn) * 5, 18, 11, 0, 'front'); }   // (shoes: closet.js)
   if (d.suit) {   // the suit: red cuffs on its mitts, the little chest panel between them
     suitCuff(-22 * d.wide - 6.5, 15 - Math.max(0, kn) * 5, -22 * d.wide + 6.5, 15 - Math.max(0, kn) * 5);
-    if (!o.pawUp && !o.pawOut) suitCuff(24 * d.wide - 6.5, 15 - Math.max(0, -kn) * 5, 24 * d.wide + 6.5, 15 - Math.max(0, -kn) * 5);
+    if (!o.pawUp && !o.pawOut && o.wave == null) suitCuff(24 * d.wide - 6.5, 15 - Math.max(0, -kn) * 5, 24 * d.wide + 6.5, 15 - Math.max(0, -kn) * 5);
     suitPanel(d.wide, 22 - 5.5 * sq, 0.95);
   }
   ctx.save(); ctx.translate(8 + (o.headX || 0), 22 - 44 * sq + (o.headY || 0)); ctx.rotate(o.headTilt || 0); drawHead(d, face, o);
   // a paw up to the mouth (giggling, or holding its nose), in front of the face and tilting with it
   if (o.pawUp) { const ps = Math.sqrt(hs); ctx.save(); ctx.translate(9 * hs, 18 * hs); ctx.rotate(-0.45); ctx.scale(ps, ps); rrect(-9, -6, 18, 12, 6); fs(d.light, INK, 2 / ps); if (STYLE.toes) { line([-3, -6, -3, -2], INK, 1.3 / ps); line([2, -6, 2, -2], INK, 1.3 / ps); } ctx.restore(); }
   ctx.restore();
+  if (o.wave != null) {   // waving bai: the other front paw up beside the head (over the helmet's glass in a suit), side to side
+    const L = 64; ctx.save(); ctx.translate(34 * d.wide, 6); ctx.rotate(-1.15 + Math.sin(o.wave) * 0.32);
+    rrect(0, -6.5, L, 13, 6.5); fs(d.light, INK, 2.2); if (d.suit) suitCuff(L - 16, -6.5, L - 16, 6.5);
+    ell(L + 2, 0, 11, 10); fs(d.light, INK, 2.2); if (STYLE.toes) { line([L + 6, -5, L + 12, -6], INK, 1.4); line([L + 6, 5, L + 12, 6], INK, 1.4); }
+    ctx.restore();
+  }
   // a paw reaching out past the head (pushing things off edges, sharpening claws)
   // the right front leg slides out along the ground, from where that paw sits to past the side of the head
   if (o.pawOut) { const x0 = 24 * d.wide - 9, x1 = Math.max(24 * d.wide + 28, 8 + 34 * hs + 6); rrect(x0, 11, x1 - x0, 11, 5.5); fs(d.light, INK, 2);
@@ -5094,6 +5150,11 @@ function drawChonk(d, pose, face, o) {
   ctx.restore();
 }
 function drawCat(d, pose, face, o = {}) {
+  if (WAVE && pose === 'sit' && !o.noWave && !o.faceOnly) {   // a cat just got yeeted off the moon: look up and wave bai
+    const ph = WAVE.t * 10 + (o.t || 0) * 1.7, chonk = d.id === 'chonk';
+    face = WAVE.t < 0.6 ? { eyes: 'wide', mouth: 'o' } : chonk ? { eyes: 'open', mouth: 'blep' } : { eyes: 'open', mouth: 'w' };
+    o = Object.assign({}, o, chonk ? { twitch: [0.25 + 0.25 * Math.sin(ph * 0.9), 0.6 + 0.4 * Math.sin(ph)], lids: null } : { wave: ph, pawUp: false, pawOut: false, knead: false, blink: 0 }, { look: { x: 0.25, y: -1 } });
+  }
   if (suitOn(d, o)) {   // in space and on the moon: the suit (and sitting, the head up a little, so there's a neck for the ring)
     o = Object.assign({}, o, { suit: true, ringDown: NECK_DOWN.has(pose) });   // (megachonk's head is always on top of him: his ring always shows)
     if (pose === 'sit' && d.id !== 'chonk') o.headY = (o.headY || 0) + SUIT_LIFT;
@@ -5263,9 +5324,15 @@ function drawWarehouse(t, b) {
   for (let x = Math.floor(x0 / 120) * 120; x < x1; x += 120) line([x, FLOOR + 2, x, y1], 'rgba(46,58,53,0.12)', 2);
   ctx.fillStyle = '#E0A43A'; ctx.fillRect(x0, FLOOR + 26, x1 - x0, 6);
 }
-function starfield(x0, y0, x1, y1, t, dense = 1) {
-  for (let i = 0; i < 160 * dense; i++) { const sx = ((i * 7919) % 2000) - 300, sy = ((i * 104729) % 1300) - 700; if (sx < x0 || sx > x1 || sy < y0 || sy > y1) continue;
-    const tw = 0.5 + 0.5 * Math.sin(t * 2 + i); ell(sx, sy, 1 + (i % 3) * 0.5, 1 + (i % 3) * 0.5); fs(`rgba(255,255,255,${0.4 + tw * 0.6})`, null); }
+function starfield(x0, y0, x1, y1, t, dense = 1, grow = 1) {
+  // the same stars as always, repeated every 2,000 x 1,300 (the moon is up to 1,850 wide now, and the camera pulls way back
+  // to watch a cat leave it), thinned out when there are a lot of tiles, and on the moon (grow) never smaller on screen than
+  // they look close up
+  const n = 160 * dense, tx0 = Math.floor((x0 + 300) / 2000), tx1 = Math.floor((x1 + 300) / 2000), ty0 = Math.floor((y0 + 700) / 1300), ty1 = Math.floor((y1 + 700) / 1300);
+  const tiles = (tx1 - tx0 + 1) * (ty1 - ty0 + 1), every = Math.max(1, Math.ceil(tiles * n / 1400)), k = grow;
+  for (let ty = ty0; ty <= ty1; ty++) for (let tx = tx0; tx <= tx1; tx++) for (let i = 0; i < n; i += every) {
+    const sx = ((i * 7919) % 2000) - 300 + tx * 2000, sy = ((i * 104729) % 1300) - 700 + ty * 1300; if (sx < x0 || sx > x1 || sy < y0 || sy > y1) continue;
+    const tw = 0.5 + 0.5 * Math.sin(t * 2 + i), r = (1 + (i % 3) * 0.5) * k; ell(sx, sy, r, r); fs(`rgba(255,255,255,${0.4 + tw * 0.6})`, null); }
 }
 function earth(x, y, r) {
   ell(x, y, r, r); fs('#63B0ED', INK, 2); ell(x - r * 0.3, y - r * 0.2, r * 0.35, r * 0.25, 0.4); fs('#6FAE62', null); ell(x + r * 0.35, y + r * 0.25, r * 0.3, r * 0.2, -0.3); fs('#6FAE62', null);
@@ -5289,10 +5356,15 @@ function drawSpace(t, b) {
 function drawMoon(t, b) {
   const L = sim.level, x0 = b.x0, x1 = b.x1, y0 = b.y0, y1 = b.y1;
   ctx.fillStyle = '#141826'; ctx.fillRect(x0, y0, x1 - x0, FLOOR - y0);
-  starfield(x0, y0, x1, FLOOR - 60, t, 2);
+  starfield(x0, y0, x1, FLOOR - 60, t, 2, Math.max(1, 0.45 / cam.z));
   earth(L.w * 0.72, 90, 54);
+  drawOrbiter(t);   // a cat that was yeeted off the moon, floating by
   ctx.fillStyle = '#8F8C86'; ctx.beginPath(); ctx.moveTo(x0, FLOOR); for (let x = Math.floor(x0 / 50) * 50; x <= x1 + 50; x += 50) ctx.lineTo(x, FLOOR - 70 - Math.sin(x * 0.005) * 40 - Math.sin(x * 0.013) * 12); ctx.lineTo(x1 + 50, FLOOR); ctx.fill();
-  for (const x of [-60, L.w + 60]) { rrect(x - 50, 0, 100, FLOOR, 30); fs('#6F6C66', INK, 2); }   // big moon rocks at the ends
+  for (const [x, s] of [[-12, -1], [L.w + 12, 1]]) {   // the ends: big moon hills rising past the walls (they used to be two tall rocks, posts when the camera pulls back), just out of the usual view
+    if (s < 0 ? x0 > x : x1 < x) continue;
+    poly([x, FLOOR + 2, x, 30, x + s * 30, 4, x + s * 90, 18, x + s * 170, 90, x + s * 230, 150, x + s * 330, 250, x + s * 420, 330, x + s * 560, 450, x + s * 760, FLOOR + 2]); fs('#6F6C66', INK, 2);
+    for (const [dx, y, r] of [[60, 120, 16], [150, 230, 12], [250, 330, 18], [90, 380, 14], [380, 450, 12], [200, 480, 20]]) { ell(x + s * dx, y, r, r * 0.6); fs('#5F5C57', 'rgba(46,58,53,0.3)', 1.2); }
+  }
   ctx.fillStyle = '#B9B6AE'; ctx.fillRect(x0, FLOOR, x1 - x0, y1 - FLOOR); ctx.fillStyle = '#C9C6BE'; ctx.fillRect(x0, FLOOR - 4, x1 - x0, 8);
   for (let x = Math.floor(x0 / 110) * 110 + 30; x < x1; x += 110) { ell(x, FLOOR + 20 + (Math.round(x / 110) % 2) * 14, 16, 4); fs('#A3A098', null); }
 }
@@ -6188,14 +6260,17 @@ function fitCam() {
 }
 function followCam(p) {
   const f = fitCam(), L = sim.level;
-  const z = Math.max(f.z, Math.min(1.0, f.z * 1.55));
+  let z = Math.max(f.z, Math.min(1.0, f.z * 1.55));
+  if (L.open && sim.grav > 0) z = Math.max(Math.min(z, view.availH / (FLOOR + 40 - (p.y - 100))), f.z * 0.7);   // (under open sky: a high lob pulls it back, so the ground stays in the picture)
   const hw = view.cw / 2 / z, hh = view.availH / 2 / z;
   const x = L.w + 20 <= hw * 2 ? L.w / 2 : clamp(p.x, hw - 10, L.w + 10 - hw);
-  const y = clamp(p.y, hh - 30, FLOOR + 36 - hh);
+  const y = L.open && sim.grav > 0 ? clamp(p.y - 120 + hh, FITS.ESCAPE_Y - 140 + hh, FLOOR + 36 - hh)   // (under open sky: the ground along the bottom while the cat fits, then up after it)
+    : clamp(p.y, hh - 30, FLOOR + 36 - hh);
   return { x, y, z };
 }
 function updateCam(dt) {
   if (!sim) return;
+  if (cam.mode === 'yeet') { if (fx.yeet) yeetCam(dt); else cam.mode = 'auto'; return; }
   let tgt, rate = 4;
   if (cam.mode === 'intro') {
     cam.t += dt;
@@ -6217,6 +6292,112 @@ function startIntroPan() {
   const from = followCam({ x: far.x1, y: far.rim });
   if (from.z <= f.z * 1.05 || reduceMotion) { Object.assign(cam, f); cam.mode = 'auto'; return; }
   Object.assign(cam, from); cam.from = Object.assign({}, from); cam.mode = 'intro'; cam.t = 0;
+}
+// ---------- escape velocity: yeeted off the moon (Nov 6) ----------
+// Adam: "if you give the cat enough velocity it might actually have enough escape velocity to leave the moon and then it just
+// goes out outer space can be sad, but it would also be funny to just see a cat yeeted out into space"; then "if a cat is
+// yeeted into space the camera zooms out to watch it as it turns into a tiny dot", "the other cats should wave bye", "the
+// yeeted cat should show up later floating by waving" and "megachonk can get yeeted too". core.js decides when (ESCAPE_Y);
+// this is the show. The cat keeps going the way it left, faster and faster, smaller and smaller, spinning (megachonk balled
+// up); the camera pulls back and up after it till it's a dot among the stars; a twinkle; back to the room. Everyone else
+// looks up and waves bai. The physics waits the whole time, like it does for the intro pan, so how long the show takes
+// changes nothing, and a tap skips it. With reduced motion: half as long, no spin, and the camera stays where it is.
+const YEET = { T: reduceMotion ? 1.4 : 2.8, BACK: 0.74, TW: 0.66 };   // (s; BACK: when the camera heads home; TW: the twinkle)
+const YEET_SAY = ['yeeted 2 space. bai', 'i am speed. i am gone', 'smol step. big yeet.'], BAI = ['bai bai', 'it waz nice knowin u', 'see u in space, fren'];
+let WAVE = null;   // while everyone waves bai (render sets it; drawCat puts a paw up)
+function startYeet(e) {
+  const c = e.cat, big = !!c.def.pound, dir = (e.vx || 0) < 0 ? -1 : 1;
+  const y0 = reduceMotion ? Math.max(e.y, cam.y - view.availH / 2 / cam.z + 120 / cam.z) : e.y;   // (reduced motion: the camera stays put, so it goes from the top of the picture)
+  fx.yeet = { cat: c, def: c.def, big, dir, x0: e.x, y0, vx: (e.vx || 0) * 60, vy: Math.min(-90, (e.vy || -2) * 60), a0: e.angle || 0, spin: reduceMotion ? 0 : (big ? 4 : 7) * dir, t: 0, twinkled: false };
+  cam.mode = 'yeet'; cam.hold = 0; sim.frozen = true;   // (the physics waits for the show: core.js step)
+  Snd.fx('yeet'); Snd.voice(big ? 'yowl' : 'meow', c.def.pitch * 1.25, 0.8);
+  if (!attract) buzz('boing', 0.6);
+  addText(big ? 'i iz a moon now' : c.type === 'toot' && Math.random() < 0.5 ? 'tooted 2 da stars' : c.type === 'chaos' && Math.random() < 0.5 ? 'zoomed rite off da moon' : pick(YEET_SAY), e.x, reduceMotion ? y0 + 50 / cam.z : e.y - 50, GOLD, 18, 0, 1.6);
+  // everyone else looks up and waves; one says bai (megachonk going gets a bigger one)
+  const fans = sim.cats.filter(k => k !== c && (k.state === 'queue' || (['sit', 'idle', 'dazed'].includes(k.state) && k.body)));
+  if (fans.length) {
+    const q = sim.cats.filter(k => k.state === 'queue'), k = pick(fans), at = k.body ? k.body.position : queuePos(q.indexOf(k));
+    const zz = reduceMotion ? cam.z : fitCam().z * 0.62;   // (how far out the camera will be: the line goes well over their heads, and not off the left edge)
+    addText(big ? 'OH LAWD HE GOIN' : pick(BAI), Math.max(at.x, cam.x - view.cw / 2 / zz + 130 / zz), at.y - 30 - 45 / zz, big ? RED : INK, big ? 24 : 17, 0.45, 1.9);
+    for (const f of fans) Object.assign(RX(f), { cheer: 0, sad: 0, spook: 0 });
+    Snd.voice(big ? 'mraow' : 'mew', big ? 1 : 1.3, 0.5, 0.5); if (big) Snd.voice('mew', 1.4, 0.45, 0.8);
+  }
+  if (!attract) orbitRemember(c.type);
+}
+function endYeet() { fx.yeet = null; WAVE = null; if (sim) sim.frozen = false; if (cam.mode === 'yeet') cam.mode = 'auto'; }
+// where it is t s into the show: still going the way it left, faster and faster, and further away (s: how big it looks)
+function yeetAt(Y, t) {
+  const u = 1 - Math.exp(-t / 0.8), k = reduceMotion ? 0.35 : 1;   // (it slows down in the picture as it goes deeper into the sky)
+  return { x: Y.x0 + Y.vx * 0.8 * u * k, y: Y.y0 + (Y.vy * 0.8 - 260) * u * k, s: reduceMotion ? Math.max(0.05, 1 - t / (YEET.T * YEET.TW)) : 1 / (1 + 0.6 * t + 0.9 * t * t * t), a: Y.a0 + Y.spin * t };
+}
+function yeetCam(dt) {
+  const Y = fx.yeet; Y.t += dt;
+  if (Y.t >= YEET.T) { endYeet(); return; }
+  const f = fitCam(), L = sim.level, p = yeetAt(Y, Math.min(Y.t, YEET.T * YEET.TW));
+  let tgt = f;
+  if (!reduceMotion && Y.t < YEET.T * YEET.BACK) {   // pulled back and up: the room along the bottom, the cat up top among the stars
+    const top = Math.min(p.y - 150, -60), bot = FLOOR + 40, x0 = Math.min(-10, p.x - 150), x1 = Math.max(L.w + 10, p.x + 150);
+    const z = Math.min(f.z * 0.62, view.availH / (bot - top), view.cw / (x1 - x0));
+    tgt = { x: (x0 + x1) / 2, y: bot - view.availH / 2 / z, z };
+  }
+  const k = 1 - Math.exp(-dt * (Y.t < YEET.T * YEET.BACK ? 7 : 5));
+  cam.x += (tgt.x - cam.x) * k; cam.y += (tgt.y - cam.y) * k; cam.z += (tgt.z - cam.z) * k;
+}
+function twinkleStar(r) {   // a four-point sparkle
+  ctx.beginPath(); for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, rr = i % 2 ? r * 0.24 : r; ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); } ctx.closePath(); fs('#FFF3B8', null);
+}
+function drawYeet(t) {
+  const Y = fx.yeet; if (!Y) return;
+  const tw = YEET.T * YEET.TW, p = yeetAt(Y, Math.min(Y.t, tw)), z = cam.z, d = Y.def;
+  if (Y.t < tw) {
+    const sz = d.w * p.s * z;   // how big it is on screen
+    if (sz > 4) {
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); ctx.scale(p.s * Y.dir, p.s);
+      if (Y.big) { ctx.translate(0, MOCHI_DRAW.dy); drawCat(d, 'sit', { eyes: 'wide', mouth: 'o' }, { t, headY: MOCHI_DRAW.headY, scale: MOCHI_DRAW.s, look: { x: 0, y: -1 }, noWave: true }); }   // balled up, like after a THOOM
+      else drawCat(d, 'fly', { eyes: 'happy', mouth: 'yell' }, { t, up: true });
+      ctx.restore();
+    }
+    if (sz < 10) { const r = Math.max(1.7, sz / 2) / z; ctx.save(); ctx.globalAlpha = clamp((10 - sz) / 5, 0, 1); ell(p.x, p.y, r, r); fs('#FFFFFF', null); ctx.restore(); }   // the tiny dot it turns into
+  } else if (Y.t < tw + 0.6) {   // ...and gone: a twinkle
+    if (!Y.twinkled) { Y.twinkled = true; Snd.fx('twinkle'); }
+    const k = (Y.t - tw) / 0.6, r = (5 + 11 * Math.sin(k * Math.PI)) / z;
+    ctx.save(); ctx.globalAlpha = 1 - k * 0.5; ctx.translate(p.x, p.y); ctx.rotate(k * 1.6); twinkleStar(r); ctx.restore();
+  }
+}
+
+// ---------- the yeeted, floating by (Nov 6) ----------
+// Adam: "the yeeted cat should show up later floating by waving". Every cat that leaves the moon goes in the save (store.d.orbit,
+// the last 8 kinds), and now and then one drifts across the moon's sky, far off and small, turning slowly and waving, with a
+// tiny "hai again". Drawing only, behind everything: the physics never knows. One at a time: 20 to 60 s after a yeet on that
+// level, or 10 to 40 s into a later moon level (two times in three). Not in space: the station has no sky, only portholes.
+const ORBIT = { next: 0, cur: null }, ORBIT_SAY = ['hai again', 'still yeetin', 'hai from space'];
+function orbitRemember(type) {
+  const o = (store.d.orbit || []).filter(x => x !== type); o.push(type); store.d.orbit = o.slice(-8); store.save();
+  if (!ORBIT.cur) ORBIT.next = performance.now() + rand(20, 60) * 1000;
+}
+function orbitPlan() {   // a level starts
+  ORBIT.cur = null;
+  ORBIT.next = sim && sim.level.world === 'moon' && (store.d.orbit || []).length && Math.random() < 0.67 ? performance.now() + rand(10, 40) * 1000 : 0;
+}
+function orbitTick(dt) {
+  if (!sim || sim.level.world !== 'moon' || attract) return;
+  const L = sim.level;
+  if (!ORBIT.cur && ORBIT.next && performance.now() >= ORBIT.next && !fx.yeet && (store.d.orbit || []).length) {
+    const dir = Math.random() < 0.5 ? 1 : -1;
+    ORBIT.cur = { type: pick(store.d.orbit), dir, x: dir > 0 ? -160 : L.w + 160, y: rand(40, 150), t: 0, said: false }; ORBIT.next = 0;
+  }
+  const O = ORBIT.cur; if (!O) return;
+  O.t += dt; O.x += O.dir * (L.w + 320) / 30 * dt;   // across the sky in about 30 s
+  if (!O.said && Math.abs(O.x - cam.x) < 160) { O.said = true; addText(pick(ORBIT_SAY), O.x, O.y - 40, GOLD, 13, 0, 2.6); Snd.voice('mew', (CATS[O.type] ? CATS[O.type].pitch : 1) * 1.4, 0.2); }
+  if (O.x < -220 || O.x > L.w + 220) ORBIT.cur = null;
+}
+function drawOrbiter(t) {
+  const O = ORBIT.cur; if (!O || attract || !sim || sim.level.world !== 'moon') return;
+  const d = CATS[O.type]; if (!d) return;
+  ctx.save(); ctx.translate(O.x, O.y + Math.sin(O.t * 0.8) * 14); ctx.rotate(Math.sin(O.t * 0.6) * 0.35 + O.t * 0.18 * O.dir); ctx.scale(0.55 * O.dir, 0.55);
+  if (d.pound) { ctx.translate(0, MOCHI_DRAW.dy); drawCat(d, 'sit', { eyes: 'happy', mouth: 'smile' }, { t, headY: MOCHI_DRAW.headY, scale: MOCHI_DRAW.s, twitch: [0, 0.55 + 0.45 * Math.sin(t * 9)], noWave: true }); }   // his smol arm, waving
+  else drawCat(d, 'sit', { eyes: 'happy', mouth: 'smile' }, { t, wave: t * 9, noWave: true });
+  ctx.restore();
 }
 const toScreen = (x, y) => ({ x: (x - cam.x) * cam.z + view.cw / 2, y: (y - cam.y) * cam.z + view.top + view.availH / 2 });
 function worldBounds() { const hw = view.cw / 2 / cam.z, hh = (view.availH / 2 + view.top) / cam.z; return { x0: cam.x - hw - 20, x1: cam.x + hw + 20, y0: cam.y - hh - 20, y1: cam.y + (view.ch - view.top - view.availH / 2) / cam.z + 20 }; }
@@ -6313,6 +6494,10 @@ function fitLineup() {
   for (let k = left.length - 1; k > 0 && over(); k--) { left[k].hidden = true; tag.textContent = '+' + (left.length - k); }
 }
 const SCREENS = ['scrTitle', 'scrLevels', 'scrIntro', 'scrPause', 'scrResult', 'scrUnlock', 'scrCloset', 'scrEnd', 'scrCard', 'scrInfo', 'scrCrib'];   // (scrCrib: teh crib, closet.js)
+// A safe moment for the app to swap in a newer page (2.0.1's update check while the game loads, Adam, Nov 6: "so they don't have to
+// close the game and reopen it"): only on the title or the level list with nothing else open. Never mid-level, paused, on a
+// result, in the closet or teh crib, on the unlock screen, a postcard or the ending. (Saves go out at once, so nothing is lost.)
+const canSwap = () => (!$('scrTitle').hidden || !$('scrLevels').hidden) && SCREENS.every(s => s === 'scrTitle' || s === 'scrLevels' || $(s).hidden);
 function anyScreen() { return SCREENS.some(s => !$(s).hidden) || !$('scrRotate').hidden; }
 function showScreen(id) { if (id !== 'scrTitle') stopAttract(); for (const s of SCREENS) $(s).hidden = s !== id; paused = anyScreen(); if (!paused) acc = 0; }
 const isLocked = i => !unlock.owned && LEVELS[i] && LEVELS[i].world !== FREE_WORLD;
@@ -6381,6 +6566,7 @@ function startLevel(i) {
   buildHud(); setHint(null); Object.assign(cam, fitCam()); cam.mode = 'auto';
   document.body.classList.remove('nap'); if (Snd.master) Snd.master.gain.value = 0.7;
   Snd.ambPlay(AMB_OF[LEVELS[i].world]); Snd.ambSet(0.6);
+  fx.yeet = null; orbitPlan();   // (no yeet show left over; maybe someone floats by on the moon)
   showIntro();
 }
 // Nap mode (ASMR, Nov 5), on the wreck-its: no goals and nothing on the bill, the cats keep coming, everything a bit slower
@@ -6631,7 +6817,7 @@ const ATTRACT = [
   { cat: 'chonk', level: 'k12', a: 59, p: 0.32, ab: null },
   { cat: 'void', level: 'whx', a: 15, p: 0.9, ab: 58 },
   { cat: 'toot', level: 'spx', a: 5, p: 0.8, ab: 22 },
-  { cat: 'spicy', level: 'mn4', a: 15, p: 0.8, ab: 44 },
+  { cat: 'spicy', level: 'mn4', a: 15, p: 0.96, ab: 70 },   // (re-found on the wide moon 4, Nov 6: still 3 cheeses)
 ];
 let attract = null, attractNext = 0;
 function startAttract(i) {
@@ -6641,6 +6827,7 @@ function startAttract(i) {
   fx.parts = []; fx.decals = []; fx.texts = []; fx.walkers = []; fx.rings = []; fx.stinks = []; fx.hop = null; fx.cata = null; fx.roll = null; fx.hand = null;
   aim = null; lastTrail = []; firstShot = false; demo = null; hint = null; seenHint.add(D.cat); setHint(null);
   Object.assign(cam, fitCam()); cam.mode = 'auto';
+  fx.yeet = null;
   attract = { i, D, ticks: 0, thrown: false, end: null, t: 0 }; attractNext = i + 1; Snd.ambPlay(AMB_OF[L.world]); Snd.ambSet(0.8);
   document.body.classList.add('attract'); if (Snd.master) Snd.master.gain.value = 0.35;
   const cap = $('tCap'); cap.innerHTML = ''; cap.appendChild(makeFace(D.cat, 26));
@@ -6966,6 +7153,7 @@ function drain() {
         if (e.cat.def.ability) setHint(null);
         if (hint && hint.cur && !hint.cur.miss) hint.ok = false;   // off the path (a pass throw is meant to miss)
         lastTrail = e.cat.trail.slice();
+        if (e.why === 'space') { startYeet(e); updateHud(); break; }   // yeeted off the moon
         const rx = RX(e.cat);
         if (e.why === 'yeet') Snd.fx('slide');
         else if (e.bonked) Snd.fx('slide', 0.7);
@@ -7091,6 +7279,7 @@ cv.addEventListener('pointerdown', e => {
   if (paused || !sim) return;
   Snd.init();
   if (cam.mode === 'intro') { cam.mode = 'auto'; }
+  if (cam.mode === 'yeet') { endYeet(); return; }   // skip the yeet show
   if (fx.roll && sim.state === 'aim') return;   // the catapult is still rolling in
   if (sim.state === 'fly') {
     const h = hint && hint.cur, c = sim.active;
@@ -7649,6 +7838,8 @@ function drawAim() {
   const full = store.d.aimFull || (levelIdx === 0 && sim.catIdx === 0);
   const pts = sim.previewPath(shot.angle, shot.power, full ? 320 : 42);
   pts.forEach((p, i) => { const r = Math.max(2.2, 4.6 - i * (full ? 0.045 : 0.17)); ell(p.x, p.y, r, r); fs(`rgba(46,58,53,${alpha})`, null); });
+  const end = pts[pts.length - 1];
+  if (end && end.escape) { ctx.save(); ctx.globalAlpha = alpha; ctx.translate(end.x, end.y); ctx.rotate(performance.now() / 600); twinkleStar(12 / Math.max(0.3, cam.z)); ctx.restore(); }   // that one leaves the moon
 }
 function pawPrint(x, y, s, col) {
   ell(x, y + s * 0.3, s * 0.6, s * 0.48); fs(col, null);
@@ -7807,6 +7998,7 @@ function render(t, dt) {
   if (!sim) return;
   let sx = 0, sy = 0; if (fx.shake > 0 && !reduceMotion) { sx = (Math.random() - 0.5) * fx.shake; sy = (Math.random() - 0.5) * fx.shake; fx.shake = Math.max(0, fx.shake - dt * 30); }
   const z = cam.z;
+  WAVE = fx.yeet && fx.yeet.t > 0.2 && fx.yeet.t < YEET.T * 0.92 ? { t: fx.yeet.t } : null;
   ctx.setTransform(view.dpr * z, 0, 0, view.dpr * z, view.dpr * (view.cw / 2 - cam.x * z + sx), view.dpr * (view.top + view.availH / 2 - cam.y * z + sy));
   drawRoom(t, worldBounds());
   for (const f of sim.level.furniture) drawFurniture(f);
@@ -7844,6 +8036,8 @@ function render(t, dt) {
   drawWalkers(dt, t);
   drawRings(dt);
   drawParticles(dt);
+  drawYeet(t);
+  WAVE = null;
   drawClosetFront(t);
   drawStinks(dt, t);
   drawHintPaws(t);
@@ -7875,6 +8069,7 @@ function frame(now) {
       if (fx.roll.t >= cataRollDur()) { fx.roll = null; Snd.fx('wheelstop', 1); Snd.fx('wood', 0.9); fx.shake = Math.max(fx.shake || 0, 8); fx.wob = 1.3; buzz('bonk', 0.8); }
     }
     tickReactions(dt);
+    orbitTick(dt);   // (a yeeted cat floating by, on the moon)
     closetTick(dt, now / 1000);
     if (sim.state === 'aim' && firstShot && levelIdx === 0 && sim.catIdx === 0 && !aim && !demo) showDemo();
     if (aim) demo = null;
@@ -8344,7 +8539,7 @@ function drawPostcard(world, t, w, h, dpr) {
 }
 $('pcNext').addEventListener('click', () => { Snd.fx('pop'); const f = pcThen; pcThen = null; if (f) f(); else showLevels(); });
 
-window.__fits = { openAll: () => { allOpen = true; }, slowmo: k => { timeScale = k; }, showEnding, showPostcard, END_T, get endT() { return E && E.t; }, endSeek: k => { if (E) E.t0 = performance.now() - k * 1000; }, CLOSET, gate, WORLD_NEED, starsBefore, showTitle, get attract() { return attract; }, ATTRACT, STYLE, art: { ell, fs, line, rrect, poly, symbol, starPath, heartPath, INK, PAPER, ORANGE, GOLD, RED }, get sim() { return sim; }, cam, Snd, drawCat, withCtx, CATS, LEVELS, showResult, startLevel, showScreen, showLevels, drain, store, maxPullPx, SHOP, closetDebug: () => CL, drawPost, showCloset, earn: earnItem, itemIcon, showCrib };
+window.__fits = { get yeetShow() { return fx.yeet; }, ORBIT, orbitRemember, YEET, openAll: () => { allOpen = true; }, slowmo: k => { timeScale = k; }, showEnding, showPostcard, END_T, get endT() { return E && E.t; }, endSeek: k => { if (E) E.t0 = performance.now() - k * 1000; }, CLOSET, gate, WORLD_NEED, starsBefore, showTitle, get attract() { return attract; }, ATTRACT, STYLE, art: { ell, fs, line, rrect, poly, symbol, starPath, heartPath, INK, PAPER, ORANGE, GOLD, RED }, get sim() { return sim; }, get canSwap() { return canSwap(); }, cam, Snd, drawCat, withCtx, CATS, LEVELS, showResult, startLevel, showScreen, showLevels, drain, store, maxPullPx, SHOP, closetDebug: () => CL, drawPost, showCloset, earn: earnItem, itemIcon, showCrib };
 layout();
 showTitle();
 requestAnimationFrame(frame);
