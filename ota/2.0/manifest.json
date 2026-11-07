@@ -1,4 +1,4 @@
 {
- "manifest": "{\"native\":\"2.0\",\"seq\":202611062115,\"url\":\"https://maksidaa.github.io/if-i-fits-site/ota/2.0/202611062115.html\",\"sha256\":\"21fa86fb43e57182c69a5c941edfd089ce5aa8e47ca92f35a0727c7d7169c079\",\"size\":1649946,\"notes\":\"Moon spots: craters, satellite dishes, cheese wheels; nothing frozen mid-air after a THOOM; megachonk THOOMs when he hits\",\"commit\":\"1716a0f\",\"created\":\"2026-11-07T03:15:47.196Z\"}",
- "signature": "o61Rts0PBuHJeospM8WTQxmQUMKGJIXK5aO0y0/Io5qFF0BzqZEROO6EtTPO8SkqgElNSAMlPjVGQdqSzG3rhQ=="
+ "manifest": "{\"native\":\"2.0\",\"seq\":202611062202,\"url\":\"https://maksidaa.github.io/if-i-fits-site/ota/2.0/202611062202.html\",\"sha256\":\"65d93c7aaffbedac0dc074537ef83c1dcc6f3f6f67c57d24c483849df74cee26\",\"size\":1650341,\"notes\":\"World doors at 2.5 stars a level: building 33, park 60, warehouse 88, space 115, moon 138 (opened worlds stay open)\",\"commit\":\"01c9e61\",\"created\":\"2026-11-07T04:02:07.419Z\"}",
+ "signature": "2ZY079hSaMfwbFsAjJ2D1um3qEY8jLquGJWOpn/e6+03HD8srdebnTLTEuql0asOx0RfWtEatkj024NWQUlm2g=="
 }
