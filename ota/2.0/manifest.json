@@ -1,4 +1,4 @@
 {
- "manifest": "{\"native\":\"2.0\",\"seq\":202611072103,\"url\":\"https://maksidaa.github.io/if-i-fits-site/ota/2.0/202611072103.html\",\"sha256\":\"a50c5e688b7917cd73d186e9f92e61aa05e47d47cb5a1f5be518ef527914dbcc\",\"size\":1984884,\"notes\":\"Unlock screen counts what buying adds: 100 moar levels n 5 new cats\",\"commit\":\"29d18f7\",\"created\":\"2026-11-08T03:03:24.667Z\"}",
- "signature": "0SrV2HDmJSxjNqeVT41Gvk3wC+XnJ8gWOEficjin25n8AgyrSHYuWmw7MESYYnTUOd9nUN47OP71c90IHpxEvQ=="
+ "manifest": "{\"native\":\"2.0\",\"seq\":202611072103,\"url\":\"https://maksidaa.github.io/if-i-fits-site/ota/2.0/202611072103.html\",\"sha256\":\"a50c5e688b7917cd73d186e9f92e61aa05e47d47cb5a1f5be518ef527914dbcc\",\"size\":1984884,\"notes\":\"Unlock screen: correctly shows 100 more levels and five new cats\",\"commit\":\"29d18f7\",\"created\":\"2026-11-08T03:03:58.392Z\"}",
+ "signature": "zhpC4lpMg6mPh0bp0cgYwWiVbuBYDTX87DIuYQRmcZSkvuzgaDcs1wBM+GcnhF5KTev4POx7diemBVhMJowXCA=="
 }
