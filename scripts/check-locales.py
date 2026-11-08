@@ -24,8 +24,9 @@ for locale in locales:
   f=root/name if locale=='en' else root/locale/name
   p=Page();p.feed(f.read_text());assert p.lang==locale,(f,'language');assert p.choices==6,(f,'language choices')
   for link in p.links:assert (f.parent/link).exists(),(f,link)
+base=subprocess.check_output(['git','merge-base','HEAD','origin/main'],cwd=root).decode().strip()
 for name in ['index.html','support.html','privacy.html']:
- original=subprocess.check_output(['git','show',f'HEAD:{name}'],cwd=root).decode()
+ original=subprocess.check_output(['git','show',f'{base}:{name}'],cwd=root).decode()
  strip=lambda s:re.sub(r'\n?<!-- language-(?:head|nav):start -->.*?<!-- language-(?:head|nav):end -->','',s,flags=re.S).replace('\n\n</head>','\n</head>')
  assert strip((root/name).read_text())==strip(original),(name,'unrelated English change')
 assert not subprocess.check_output(['git','diff','--name-only','--','ota/'],cwd=root).strip(),'ota files changed'
