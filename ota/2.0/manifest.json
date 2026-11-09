@@ -1,4 +1,4 @@
 {
- "manifest": "{\"native\":\"2.0\",\"seq\":202611072103,\"url\":\"https://maksidaa.github.io/if-i-fits-site/ota/2.0/202611072103.html\",\"sha256\":\"a50c5e688b7917cd73d186e9f92e61aa05e47d47cb5a1f5be518ef527914dbcc\",\"size\":1984884,\"notes\":\"Unlock screen: correctly shows 100 more levels and five new cats\",\"commit\":\"29d18f7\",\"created\":\"2026-11-08T03:03:58.392Z\"}",
- "signature": "zhpC4lpMg6mPh0bp0cgYwWiVbuBYDTX87DIuYQRmcZSkvuzgaDcs1wBM+GcnhF5KTev4POx7diemBVhMJowXCA=="
+ "manifest": "{\"native\":\"2.0\",\"seq\":202611090936,\"url\":\"https://maksidaa.github.io/if-i-fits-site/ota/2.0/202611090936.html\",\"sha256\":\"807cdb5debd37dc58f12ac2c797b51e110f5944e0cfcbf6bad69cd26d880fa21\",\"size\":1987444,\"notes\":\"Loo roll looks like paper; each cat keeps its own trail; a cat in a full tub sits inside it\",\"commit\":\"050d18d\",\"created\":\"2026-11-09T15:36:50.008Z\"}",
+ "signature": "NdM4Pe3kku5MpYOxSrfbON0aUx7HZx/7xiGGfmfq61Q24623oYMQR24x7Sd/NfFn+7VMGW6KOp04BKRPUxuH1A=="
 }
