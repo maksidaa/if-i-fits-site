@@ -8,7 +8,7 @@
 <style>
 /* Layout: one full-bleed canvas (a side view of the kitchen, landscape), a one-row HUD on top,
    centered cards for menus. One committed light look, the same paper-and-ink palette as the app. */
-:root {
+:root { --ui: 1;
   --ink: #2E3A35;
   --paper: #FAF5E8;
   --green: #456954;
@@ -193,6 +193,24 @@ body.attract #hud, body.attract #hint { display: none; }
 .bill-row { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
 .bill-pill { font-weight: 900; font-size: 15px; background: #fff; border: 2px solid var(--ink); border-radius: 999px; padding: 6px 14px; }
 .btn.small { padding: 7px 16px; font-size: 15px; position: relative; }
+/* the level list's nav bar: it sticks to the top of the screen while the list scrolls under it (Adam, Nov 11) */
+.lvl-nav { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; gap: 8px; margin: -4px -18px; padding: 6px 18px; background: var(--paper); }
+.lvl-nav.stuck { padding-top: calc(env(safe-area-inset-top, 0px) + 6px); box-shadow: 0 2.5px 0 var(--ink); }
+.lvl-worlds { position: relative; flex: 1 1 auto; min-width: 0; display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; padding: 2px 0; }
+.lvl-worlds::-webkit-scrollbar { display: none; }
+/* (on a phone the seven don't all fit beside the buttons: the strip slides, the lit world slides into view, and a faded edge says there's more) */
+.lvl-worlds.more { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent); }
+.lvl-worlds.less { -webkit-mask-image: linear-gradient(90deg, transparent, #000 24px); mask-image: linear-gradient(90deg, transparent, #000 24px); }
+.lvl-worlds.more.less { -webkit-mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent); mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent); }
+.lvl-chip { font: inherit; font-weight: 900; font-size: 13px; line-height: 1; color: var(--muted); background: none; border: 2px solid transparent; border-radius: 999px; padding: 6px 6px; white-space: nowrap; flex: none; cursor: pointer; }
+.lvl-chip.on { color: var(--ink); background: #fff; border-color: var(--ink); }
+.lvl-chip:focus-visible { outline: 3px solid var(--orange); outline-offset: 1px; }
+.lvl-go { display: flex; align-items: center; gap: 6px; flex: none; }
+.lvl-nav .btn.small { padding: 5px 9px; font-size: 14px; box-shadow: 0 2px 0 var(--ink); border-radius: 13px; }
+.lvl-nav .lvl-gear { padding: 5px 6px; display: grid; place-items: center; } .lvl-gear svg { width: 19px; height: 19px; display: block; }
+.world-head, .toggles { scroll-margin-top: 58px; }
+#scrLevels { padding-top: 0; } #scrLevels > .card { margin-top: calc(env(safe-area-inset-top, 0px) + 12px); grid-template-columns: minmax(0, 1fr); }   /* (the top gap is the card's, not the scroller's: the bar sticks flush to the screen's top edge) */
+@media (max-width: 760px) { .lvl-nav { gap: 6px; } .lvl-chip { font-size: 12px; padding: 6px 5px; } .lvl-go { gap: 4px; } .lvl-nav .btn.small { padding: 5px 7px; font-size: 13px; } }
 .new-dot { position: absolute; top: -5px; right: -5px; width: 14px; height: 14px; border-radius: 50%; background: var(--orange); border: 2px solid var(--ink); }
 .goal.bill .val { color: var(--red); font-size: 18px; }
 .goal.unlock { color: var(--green); font-weight: 900; }
@@ -267,6 +285,34 @@ body.attract #hud, body.attract #hint { display: none; }
   .cl-tab { font-size: 16px; padding: 6px 14px; } .cl-tab .n { font-size: 13px; } .cl-info .closet-next { font-size: 17px; } .cl-count { font-size: 16px; } #scrCloset .closet-goal { font-size: 15px; }
   .cl-grid { grid-template-columns: repeat(auto-fill, minmax(108px, 1fr)); gap: 10px; } .cl-grid .cl-item canvas { width: 80px; height: 80px; } .cl-item .nm { font-size: 13px; } .cl-item .q { top: 26px; font-size: 30px; }
   .cl-grid.top { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); } .cl-grid.top .cl-item canvas { width: 90px; height: 90px; } .cl-item.top .tn { font-size: 18px; } }
+/* An iPad (Adam, Nov 11: "we should optimize the iPad app"): the same game a size up. The top bar and the cards grow with the
+   screen (--ui: 1.2 on a mini, 1.3 on an 11", 1.45 on a 13"), the level list uses the width (five across), and the stats get
+   room. A phone, and an iPhone Duo open or shut (about 890 x 626 and 678 x 466), keep the phone sizes: their points are a
+   phone's size in the hand. (The top bar is scaled with a transform, so its own measurements stay the same in every browser;
+   layout() reads its drawn height.) */
+@media (min-width: 900px) and (min-height: 600px) {
+  :root { --ui: 1.2; }
+  #hud { right: auto; box-sizing: border-box; width: calc(100% / var(--ui)); transform: scale(var(--ui)); transform-origin: 0 0; }
+  #hint { font-size: calc(15px * var(--ui)); padding: calc(6px * var(--ui)) calc(14px * var(--ui)); } #hint canvas { width: calc(28px * var(--ui)); height: calc(28px * var(--ui)); }
+  #scrIntro .card, #scrPause .card, #scrResult .card, #scrUnlock .card, #scrCard .card, #scrInfo .card, #scrReset .card, #scrWorld .wm-card { zoom: var(--ui); }
+  #scrTitle .title-top, #scrTitle .title-bottom { zoom: var(--ui); }
+  #scrLevels > .card { max-width: 1280px; padding: 22px 24px 20px; gap: 14px; }
+  #scrLevels .title { font-size: 38px; } #scrLevels .sub { font-size: 17px; } #scrLevels .eyebrow { font-size: 14px; } #scrLevels .bill-pill { font-size: 17px; padding: 7px 16px; }
+  .lvl-nav { margin: -4px -24px; padding: 8px 24px; gap: 12px; } .lvl-worlds { gap: 4px; } .lvl-chip { font-size: 16px; padding: 8px 12px; }
+  .lvl-go { gap: 8px; } .lvl-nav .btn.small { padding: 7px 14px; font-size: 16px; border-radius: 15px; } .lvl-nav .lvl-gear { padding: 7px 9px; } .lvl-gear svg { width: 22px; height: 22px; }
+  .world-head { font-size: 15px; margin: 10px 0 -2px; } .world-head, .toggles { scroll-margin-top: 72px; }
+  .levels { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .level-card { padding: 12px 14px; gap: 6px; border-radius: 20px; } .level-card .name { font-size: 12.5px; } .level-card .what { font-size: 21px; }
+  .level-card .star { width: 24px; height: 24px; } .level-card .faces canvas { width: 26px; height: 26px; } .level-card .faces svg { width: 28px; height: 25px; } .level-card .bill { font-size: 17px; }
+  .toggles { gap: 10px; } .toggle { font-size: 17px; padding: 10px 8px; border-radius: 14px; }
+  #scrStats .stats-card { max-width: 1080px; max-height: 860px; padding: 16px 20px 18px; gap: 10px; } .stats-head .title { font-size: 32px; }
+  .st-tile { padding: 5px 12px 6px; } .st-tile b { font-size: 24px; } .st-tile span { font-size: 12px; }
+  .stats-table table { font-size: 16px; } .stats-table th { font-size: 12px; padding: 8px 12px; } .stats-table td { padding: 9px 12px; } .stats-table .star { width: 16px; height: 16px; } .stats-table td.hard { max-width: 220px; }
+}
+@media (min-width: 1150px) and (min-height: 800px) { :root { --ui: 1.3; } }
+@media (min-width: 1300px) and (min-height: 950px) { :root { --ui: 1.45; } }
+/* (the paused level's top bar doesn't show around a menu: on a wide screen it peeked out beside the level list) */
+body:has(#scrLevels:not([hidden]), #scrCloset:not([hidden]), #scrStats:not([hidden]), #scrAlbum:not([hidden]), #scrUnlock:not([hidden]), #scrInfo:not([hidden]), #scrReset:not([hidden])) :is(#hud, #hint) { visibility: hidden; }
 @media (max-width: 600px) and (orientation: portrait) { #scrCloset .closet-body { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); } #scrCloset .closet-left { grid-template-columns: 40% 1fr; } }
 @media (max-width: 560px) { #scrTitle .title-bottom { flex-direction: column; align-items: center; } #scrTitle .title-btns .btn { min-width: 120px; } }
   .goal .chonkface canvas { display: block; width: 24px !important; height: auto !important; max-height: 24px; object-fit: contain; }
@@ -280,7 +326,7 @@ body.attract #hud, body.attract #hint { display: none; }
      presses down), the money on the left and a gold shop tab with the bag on the right, the gold of the result card's shop */
   .chonk-bank { pointer-events: auto; cursor: pointer; -webkit-appearance: none; appearance: none; font: inherit; color: inherit; text-align: left;
     display: flex; align-items: stretch; padding: 0; overflow: hidden; border: 2.5px solid var(--ink); border-radius: 13px; box-shadow: 0 3px 0 var(--ink);
-    margin-left: -4px; margin-bottom: 3px; transition: transform 0.06s, box-shadow 0.06s; }
+    margin-left: -4px; margin-bottom: 3px; transition: transform 0.06s, box-shadow 0.06s; flex: none; }   /* (flex: none: a long lineup on a narrow screen squeezed this box and cut its bag off; now the lineup folds to "+3" instead) */
   .chonk-bank:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
   .chonk-bank:focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; }
   .chonk-bank .money { display: flex; flex-direction: column; justify-content: center; gap: 0; padding: 3px 8px 3px 8px; line-height: 1.05; }
@@ -436,7 +482,14 @@ body.attract #hud, body.attract #hint { display: none; }
     <div class="eyebrow" id="lvlEyebrow">levels</div>
     <h1 class="title">I FITS, I SITS</h1>
     <p class="sub">knock the stuff over. sit in every spot.</p>
-    <div class="bill-row"><span class="bill-pill" id="lvlBill"></span><button class="btn small" id="closetBtn">closet<span class="new-dot" id="closetDot" hidden></span></button><button class="btn small" id="cribBtn">crib</button><button class="btn small" id="albumBtn">postcards<span class="new-dot" id="albumDot" hidden></span></button><button class="btn small" id="statsBtn">stats</button></div>
+    <div class="bill-row"><span class="bill-pill" id="lvlBill"></span></div>
+    <!-- the way out stays at the top (Adam, Nov 11: "once you scroll down you have to scroll way up to navigate out of the levels screen"):
+         this bar sticks while the list scrolls under it. Left, a chip per world to jump to (the one you're in is lit); right, the
+         closet, crib, postcards, stats, and the settings at the list's far end -->
+    <div class="lvl-nav" id="lvlNav">
+      <div class="lvl-worlds" id="lvlWorlds" role="navigation" aria-label="jump to a world"></div>
+      <div class="lvl-go"><button class="btn small" id="closetBtn">closet<span class="new-dot" id="closetDot" hidden></span></button><button class="btn small" id="cribBtn">crib</button><button class="btn small" id="albumBtn">postcards<span class="new-dot" id="albumDot" hidden></span></button><button class="btn small" id="statsBtn">stats</button><button class="btn small lvl-gear" id="lvlSet" aria-label="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M12 8.6a3.4 3.4 0 1 0 0 6.8a3.4 3.4 0 0 0 0-6.8zM12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg></button></div>
+    </div>
     <p class="lvl-msg" id="lvlMsg" role="status" hidden></p>
     <div class="levels" id="levelList"></div>
     <div class="toggles">
@@ -4636,7 +4689,7 @@ function closetEvent(e) {
 }
 // once a frame, in play: particles move, timers run down
 function closetTick(dt, t) {
-  if (CL.sim !== sim) { CL.sim = sim; CL.W = sim; CL.parts = []; CL.decals = []; CL.ribbons = []; CL.fly = null; }
+  if (CL.sim !== sim) { CL.sim = sim; CL.W = sim; CL.parts = []; CL.decals = []; CL.ribbons = []; CL.clouds = []; CL.fly = null; }
   if (!sim) return;
   for (const c of sim.cats) if (c.rx) { if (c.rx.skate > 0) c.rx.skate = Math.max(0, c.rx.skate - dt * 0.9); if (c.rx.swat > 0) c.rx.swat = Math.max(0, c.rx.swat - dt); }
   stepParts(CL, dt);
@@ -4704,7 +4757,8 @@ function drawStageBack(S, t) { for (const d of S.decals) clDecalDraw(d, t); for 
 function drawStageFront(S, t) {
   for (const q of S.parts) { const a = clamp(q.life / q.max * 2, 0, 1); if (q.shape === 'glint') { glintFast(q.x, q.y, q.size, q.col, a * (0.55 + 0.45 * Math.sin(t * 9 + q.size * 7))); continue; } ctx.save(); ctx.globalAlpha = a; ctx.translate(q.x, q.y); ctx.rotate(q.rot); clShape(q, a, t); ctx.restore(); }
   ctx.globalAlpha = 1;
-  if (S.cloud && S.cloud.a > 0) rainCloud(S.cloud.x, S.cloud.y, S.cloud.a, t, 1.45);
+  if (S.cloud && S.cloud.a > 0) rainCloud(S.cloud.x, S.cloud.y, S.cloud.a, t, 1.45);   // (teh closet's preview)
+  for (const cc of S.clouds || []) if (cc.a > 0) rainCloud(cc.x, cc.y, cc.a, t, 1.45);
 }
 
 // ---------- trails (a new slot, every cat): drawn behind a flying cat. Ribbons that follow its path (toilet paper, yarn: they
@@ -4775,7 +4829,7 @@ function ribbonStart(S, kind, cat, x, y, from) {   // from: where its end is tuc
   const r = { kind, cat, pts: [], held: true, age: 0, fade: 1, pin0: kind !== 'rainbow' ? from || { x, y } : null };
   if (from && kind !== 'rainbow') { const n = Math.max(1, Math.round(Math.hypot(x - from.x, y - from.y) / RIB_GAP)); for (let i = 0; i < n; i++) { const k = i / n, px = from.x + (x - from.x) * k, py = from.y + (y - from.y) * k - Math.sin(k * Math.PI) * 20; r.pts.push({ x: px, y: py, px, py }); } }
   r.pts.push({ x, y, px: x, py: y });
-  S.ribbons.push(r); while (S.ribbons.length > 3) S.ribbons.shift();
+  S.ribbons.push(r); const live = S.ribbons.filter(q => !q.dying); if (live.length > 3) live[0].dying = true; while (S.ribbons.length > 6) S.ribbons.shift();   // (the oldest fades out, not gone in a blink)
   return r;
 }
 function ribbonFollow(r, x, y) {   // the path so far: a point every RIB_GAP (from r.tail, the last one laid), and the end in the cat's paws
@@ -4788,6 +4842,7 @@ function ribbonFollow(r, x, y) {   // the path so far: a point every RIB_GAP (fr
 }
 function ribbonStep(S, r, dt, hold) {
   r.age += dt;
+  if (r.dying) { r.held = false; r.fade = Math.max(0, r.fade - dt * 1.2); }
   if (r.kind === 'rainbow') { if (!r.held) r.fade = Math.max(0, r.fade - dt * 0.6); return; }
   const g = (S.W && S.W.grav != null ? S.W.grav : 1) * 260, P = r.pts, n = P.length, stiff = r.kind === 'yarn' ? 0.5 : 0.35;
   for (let i = 0; i < n; i++) {   // verlet: paper floats down slowly, yarn a bit faster
@@ -4858,7 +4913,7 @@ function trailsInPlay(dt, t) {
   if (tr && CL.fly !== c) {   // a new throw
     CL.fly = c; CL.flyKind = tr; CL.acc = 0; CL.last = { x: c.body.position.x, y: c.body.position.y };
     if (tr.ribbon) { const pp = sim.level.perch; CL.rib = ribbonStart(CL, tr.ribbon, c, c.body.position.x, c.body.position.y, tr.ribbon === 'rainbow' ? null : { x: pp.x - 64, y: FLOOR - 3 }); if (tr.ribbon === 'tp' && Snd.ok('rustle', 300)) Snd.fx('rustle', 0.3); }
-    if (tr.cloud) CL.cloud = { x: c.body.position.x, y: c.body.position.y - 70, a: 0, cat: c };
+    if (tr.cloud) { (CL.clouds = CL.clouds || []).push({ x: c.body.position.x, y: c.body.position.y - 70, a: 0, cat: c }); if (CL.clouds.length > 4) CL.clouds.shift(); }
   }
   const F = CL.fly;
   if (F && F.body) {
@@ -4873,19 +4928,19 @@ function trailsInPlay(dt, t) {
   }
   if (!c && F && F.state !== 'fly' && sim.state !== 'fly' && CL.fly === F && !F.body) CL.fly = null;
   for (const r of CL.ribbons) {
-    const holder = r.cat && r.cat.body && (r.cat.state === 'fly' || r.cat.state === 'sit' || r.cat.state === 'dazed' || r.cat.state === 'idle') && r === CL.ribbons[CL.ribbons.length - 1] ? r.cat.body.position : null;
+    const holder = !r.dying && r.cat && r.cat.body && (r.cat.state === 'fly' || r.cat.state === 'sit' || r.cat.state === 'dazed' || r.cat.state === 'idle') && r === CL.ribbons.filter(q => q.cat === r.cat).pop() ? r.cat.body.position : null;   // (each cat holds its own: Adam, Nov 9)
     if (!holder && r.held && r.kind !== 'rainbow') r.held = false;
     ribbonStep(CL, r, dt, holder);
   }
   CL.ribbons = CL.ribbons.filter(r => r.fade > 0);
-  if (CL.cloud) {   // the cloud follows its cat round, raining, and drifts away a while after it's down
-    const cc = CL.cloud, cat = cc.cat, alive = cat.body && cat.state !== 'gone';
+  for (const cc of CL.clouds || []) {   // each cloud follows its own cat round, raining, and drifts away a while after it's down
+    const cat = cc.cat, alive = cat.body && cat.state !== 'gone';
     if (alive) { const p = cat.body.position; cc.x += (p.x - cc.x) * Math.min(1, dt * 6); cc.y += (p.y - 72 - cc.y) * Math.min(1, dt * 6); }
     cc.t = (cc.t || 0) + dt; const down = cat.state !== 'fly'; cc.down = down ? (cc.down || 0) + dt : 0;
     cc.a = Math.min(1, cc.a + dt * 3) * (cc.down > 2.5 ? Math.max(0, 1 - (cc.down - 2.5)) : 1);
     if (cc.a > 0.3 && Math.floor(cc.t * 16) !== Math.floor((cc.t - dt) * 16)) clPart({ x: cc.x + rand(-22, 22), y: cc.y + 14, vx: 0, vy: 120, g: 500 * Math.max(0.12, sim.grav), shape: 'drop', size: 3, life: 1, rot: 0 });
-    if (cc.a <= 0 && cc.down > 2.5) CL.cloud = null;
   }
+  if (CL.clouds && CL.clouds.length) CL.clouds = CL.clouds.filter(cc => !(cc.a <= 0 && cc.down > 2.5));
   // the others bat at paper and yarn going past (the cats waiting their turn, the one on the tree, the ones in boxes)
   const ropes = CL.ribbons.filter(r => r.kind !== 'rainbow' && r.pts.length > 3 && (r.age < 6 || (t % 8) < 1.4));   // (as it goes past and settles; then now and then, a pounce on it)
   if (!ropes.length) return;
@@ -6612,13 +6667,29 @@ const BATH_BREAK = {
   bathboard(it, x, y, fy) { burst(x, y, 14, [BT.wood, BT.woodD], { floorY: fy, decal: true, shape: 'splinter', size: 9, speed: 220 }); addText('CRACK', x, y - 26, INK, 18); fx.shake = Math.max(fx.shake, 7); },
   scale(it, x, y, fy) { burst(x, y, 10, ['#EEF1F2', '#2E3A35', '#7FE0A0'], { floorY: fy, decal: true, size: 7, speed: 180 }); addText('?? kg', x, y - 24, '#2E3A35', 15); fx.shake = Math.max(fx.shake, 6); },
 };
-// a loo roll's paper, left behind along the floor as it rolls (core.js: $1 a turn): from where it started to where it is now
+// a loo roll's paper, left behind along the floor as it rolls (core.js: $1 a turn): from where it started to where it is now.
+// Adam, Nov 9: "when toilet paper rolls are pushed around the toilet paper just looks like a white stripe". Seen from the side,
+// paper lying flat is a line, so it's drawn as a loose, crumpled strip instead: it ruffles up off the floor in soft humps, the
+// sheets' perforations cross it, a fold catches the light now and then, and it peels off the bottom of the roll
 function drawPaperTrail(d) {
-  const it = d.item, pts = d.pts.slice(); if (!it.broken && it.body) pts.push({ x: it.body.position.x, y: it.body.position.y + it.def.r });
-  if (pts.length < 2) return;
-  ctx.beginPath(); pts.forEach((p, i) => { const wob = Math.sin(i * 2.1) * 1.5; if (i) ctx.lineTo(p.x, p.y - 2 + wob); else ctx.moveTo(p.x, p.y - 2); }); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-  ctx.strokeStyle = 'rgba(46,58,53,0.35)'; ctx.lineWidth = 9 * STYLE.ink; ctx.stroke(); ctx.strokeStyle = '#FFFDF6'; ctx.lineWidth = 7; ctx.stroke();
-  for (let i = 1; i < pts.length; i++) { const p = pts[i]; line([p.x, p.y - 5, p.x, p.y + 1], 'rgba(46,58,53,0.18)', 1); }   // the perforations
+  const it = d.item, raw = d.pts.slice(), live = !it.broken && it.body; if (live) raw.push({ x: it.body.position.x, y: it.body.position.y + it.def.r });
+  if (raw.length < 2) return;
+  const pts = []; let s = 0;   // every 5 px along it (s: how far along)
+  for (let i = 1; i < raw.length; i++) { const a = raw[i - 1], b = raw[i], L = Math.hypot(b.x - a.x, b.y - a.y), n = Math.max(1, Math.ceil(L / 5));
+    for (let k = i === 1 ? 0 : 1; k <= n; k++) { const u = k / n; pts.push({ x: a.x + (b.x - a.x) * u, y: a.y + (b.y - a.y) * u, s: s + L * u }); } s += L; }
+  const total = s, hump = q => { const h = Math.abs(Math.sin(q.s / 23 + (it.n || 0))) * 5 + Math.abs(Math.sin(q.s / 9.5)) * 1.6;   // soft humps of loose paper
+    return Math.min(h, (total - q.s) * 0.5 + 1.5, q.s * 0.4 + 1.5); };   // (flat where it starts, and where it meets the roll)
+  const path = (dy = 0) => { ctx.beginPath(); pts.forEach((q, i) => { const y = q.y - 2.5 - hump(q) + dy; if (i) ctx.lineTo(q.x, y); else ctx.moveTo(q.x, y); }); };
+  ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  path(3.2); ctx.strokeStyle = 'rgba(46,58,53,0.12)'; ctx.lineWidth = 7; ctx.stroke();   // its shadow on the floor
+  path(); ctx.strokeStyle = INK; ctx.lineWidth = 9.6 * STYLE.ink + 2; ctx.stroke(); ctx.strokeStyle = '#FFFDF6'; ctx.lineWidth = 9.6 * STYLE.ink; ctx.stroke();
+  path(-1.6); ctx.strokeStyle = 'rgba(46,58,53,0.10)'; ctx.lineWidth = 2; ctx.stroke();   // the paper's top edge, a touch darker: it reads as a strip with a face
+  for (const q of pts) {   // the perforations every sheet, and a quilted dot pattern between them
+    const y = q.y - 2.5 - hump(q);
+    if (Math.floor(q.s / 16) !== Math.floor((q.s - 5) / 16)) line([q.x, y - 4, q.x + 0.6, y + 4], 'rgba(46,58,53,0.38)', 1.1);
+    else if (Math.floor(q.s / 5) % 2) { ell(q.x, y, 0.7, 0.7); fs('rgba(46,58,53,0.12)', null); }
+  }
+  ctx.restore();
 }
 const SPRAY_SAY = ['i got sprayed. never forget.', 'WATER?! do not want.', 'betrayal.'];
 // bath tiem's postcard: the cats in a dry clawfoot tub (not a box), a rubber duckie on the rim, a bubble or two drifting up
@@ -7782,7 +7853,7 @@ const cam = { x: 500, y: 300, z: 0.6, mode: 'auto', t: 0, hold: 0, from: null };
 function layout() {
   const dpr = Math.min(window.devicePixelRatio || 1, 3), cw = window.innerWidth, ch = window.innerHeight;
   cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr);
-  const top = ($('hud').offsetHeight || 44) + 2;
+  const top = Math.round($('hud').getBoundingClientRect().height || 44) + 2;   // (its drawn height: on an iPad the bar is scaled up)
   view = { cw, ch, dpr, top, availH: Math.max(140, ch - top - 4) };
   if (sim) fitLineup();
   checkRotate();
@@ -8056,12 +8127,17 @@ function updateHud() {
 // A long lineup (moon 9 has 13 cats) squeezes to fit the top bar on a phone: smaller faces, then the thrown ones go, then
 // the last ones become "+3" (the top bar ran off the right edge there, megachonk's button and the $ with it)
 function fitLineup() {
-  const hud = $('hud'), lu = $('lineup'), over = () => hud.scrollWidth > hud.clientWidth + 1;
-  lu.classList.remove('tight'); const more = lu.querySelector('.more'); if (more) more.remove();
+  // (Over = past the bar's right padding, not past the bar: on a phone with a notch that padding is the 50-odd px beside the
+  // camera, and the old test let the $ and the saved box slide into it, or squeezed the saved box till its bag was cut off.
+  // The level's name goes before the cats do.)
+  const hud = $('hud'), lu = $('lineup'), label = $('lvlLabel'), padR = parseFloat(getComputedStyle(hud).paddingRight) || 0;
+  const over = () => { const kids = [...hud.children].filter(c => !c.hidden && c.offsetWidth), last = kids[kids.length - 1]; return !!last && last.offsetLeft + last.offsetWidth > hud.clientWidth - padR + 1; };
+  lu.classList.remove('tight'); label.hidden = false; const more = lu.querySelector('.more'); if (more) more.remove();
   const faces = [...lu.querySelectorAll('canvas')]; faces.forEach(f => { f.hidden = false; });
   if (!over()) return;
   lu.classList.add('tight'); if (!over()) return;
   faces.forEach(f => { if (f.classList.contains('used')) f.hidden = true; }); if (!over()) return;
+  label.hidden = true; if (!over()) return;
   const left = faces.filter(f => !f.hidden), tag = document.createElement('span'); tag.className = 'more'; lu.appendChild(tag);
   for (let k = left.length - 1; k > 0 && over(); k--) { left[k].hidden = true; tag.textContent = '+' + (left.length - k); }
 }
@@ -8243,8 +8319,36 @@ function showLevelsNow() {
   syncToggles(); showScreen('scrLevels');
   // (it always opened at the top: back from moon 5, its card was 2,600 px down)
   const here = LEVELS[levelIdx] && levelIdx >= 0 ? levelIdx : LEVELS.findIndex((L, k) => !store.d.stars[L.id] && !isLocked(k) && !gate(k));
+  lvlNavBuild();
   const card = here >= 0 && $('lvl-' + LEVELS[here].id); if (card) card.scrollIntoView({ block: 'center' });
+  lvlNavSync();
 }
+// The level list's nav bar (Adam, Nov 11: "in the levels screen keep some navigation help at the top of the screen. Right now once
+// you scroll down you have to scroll way up to navigate out of the levels screen"): it sticks to the top while the list scrolls
+// under it. A chip per world jumps to that world (the one on screen is lit), and the gear jumps to the settings at the list's end.
+const WORLD_CHIP = { kitchen: 'kitchen', bath: 'bath', building: 'window', park: 'park', warehouse: 'boxes', space: 'space', moon: 'moon' };
+const lvlJump = el => { Snd.init(); Snd.fx('pop'); if (el) el.scrollIntoView({ block: 'start', behavior: reduceMotion ? 'auto' : 'smooth' }); };
+function lvlNavBuild() {
+  const box = $('lvlWorlds'); box.innerHTML = ''; box._lit = null;
+  for (const w of [...new Set(LEVELS.map(L => L.world).filter(Boolean))]) {
+    const b = document.createElement('button'); b.className = 'lvl-chip'; b.dataset.w = w; b.textContent = WORLD_CHIP[w] || w; b.setAttribute('aria-label', WORLD_NAMES[w] || w);
+    b.addEventListener('click', () => lvlJump($('wh-' + w)));
+    box.appendChild(b);
+  }
+}
+function lvlNavSync() {
+  const scr = $('scrLevels'), nav = $('lvlNav'), box = $('lvlWorlds'); if (scr.hidden) return;
+  const nr = nav.getBoundingClientRect(); nav.classList.toggle('stuck', nr.top <= scr.getBoundingClientRect().top + 0.5);
+  let cur = null; for (const h of scr.querySelectorAll('.world-head')) { if (cur && h.getBoundingClientRect().top > nr.bottom + 28) break; if (!cur || h.getBoundingClientRect().top <= nr.bottom + 28) cur = h.id.slice(3); }
+  const edges = () => { box.classList.toggle('more', box.scrollLeft + box.clientWidth < box.scrollWidth - 2); box.classList.toggle('less', box.scrollLeft > 2); };
+  if (cur === box._lit) { edges(); return; } box._lit = cur;
+  for (const c of box.children) { const on = c.dataset.w === cur; c.classList.toggle('on', on); if (on) c.setAttribute('aria-current', 'true'); else c.removeAttribute('aria-current');
+    if (on) { if (c.offsetLeft < box.scrollLeft) box.scrollLeft = c.offsetLeft - 6; else if (c.offsetLeft + c.offsetWidth > box.scrollLeft + box.clientWidth) box.scrollLeft = c.offsetLeft + c.offsetWidth - box.clientWidth + 6; } }
+  edges();
+}
+{ let raf = 0; const tick = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; lvlNavSync(); }); };
+  $('scrLevels').addEventListener('scroll', tick, { passive: true }); $('lvlWorlds').addEventListener('scroll', tick, { passive: true }); window.addEventListener('resize', tick);
+  $('lvlSet').addEventListener('click', () => lvlJump($('scrLevels').querySelector('.toggles'))); }
 function showUnlock(i) {
   unlock.want = i; unlock.state = 'ready'; syncUnlock();
   // what buying adds, counted from the levels so it can't go stale (it said "65 moar levels" after the Nov 7 levels made it 100)
@@ -9501,6 +9605,9 @@ function clipToSpot(s) {
 }
 function insideFront(p) {
   for (const s of sim.spots) if (p.x > s.ix0 - 6 && p.x < s.ix1 + 6 && p.y > s.rim - 34 && p.y < s.bottom + 4) return true;
+  // in a full tub's water (bath tiem): drawn before its front, so a soaked cat (megachonk too) is IN the tub, head over the rim
+  // (Adam, Nov 9: "mega chunk... goes into the bathtub but then you still see his full body and there's like no side to the bathtub")
+  for (const f of sim.level.furniture) if (f.kind === 'bath' && p.x > f.x0 + 6 && p.x < f.x1 - 6 && p.y > f.top - 6 && p.y < FLOOR + 4) return true;
   return false;
 }
 function drawAim() {
