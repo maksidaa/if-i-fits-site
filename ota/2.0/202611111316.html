@@ -8,7 +8,7 @@
 <style>
 /* Layout: one full-bleed canvas (a side view of the kitchen, landscape), a one-row HUD on top,
    centered cards for menus. One committed light look, the same paper-and-ink palette as the app. */
-:root {
+:root { --ui: 1;
   --ink: #2E3A35;
   --paper: #FAF5E8;
   --green: #456954;
@@ -193,6 +193,24 @@ body.attract #hud, body.attract #hint { display: none; }
 .bill-row { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
 .bill-pill { font-weight: 900; font-size: 15px; background: #fff; border: 2px solid var(--ink); border-radius: 999px; padding: 6px 14px; }
 .btn.small { padding: 7px 16px; font-size: 15px; position: relative; }
+/* the level list's nav bar: it sticks to the top of the screen while the list scrolls under it (Adam, Nov 11) */
+.lvl-nav { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; gap: 8px; margin: -4px -18px; padding: 6px 18px; background: var(--paper); }
+.lvl-nav.stuck { padding-top: calc(env(safe-area-inset-top, 0px) + 6px); box-shadow: 0 2.5px 0 var(--ink); }
+.lvl-worlds { position: relative; flex: 1 1 auto; min-width: 0; display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; padding: 2px 0; }
+.lvl-worlds::-webkit-scrollbar { display: none; }
+/* (on a phone the seven don't all fit beside the buttons: the strip slides, the lit world slides into view, and a faded edge says there's more) */
+.lvl-worlds.more { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent); }
+.lvl-worlds.less { -webkit-mask-image: linear-gradient(90deg, transparent, #000 24px); mask-image: linear-gradient(90deg, transparent, #000 24px); }
+.lvl-worlds.more.less { -webkit-mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent); mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent); }
+.lvl-chip { font: inherit; font-weight: 900; font-size: 13px; line-height: 1; color: var(--muted); background: none; border: 2px solid transparent; border-radius: 999px; padding: 6px 6px; white-space: nowrap; flex: none; cursor: pointer; }
+.lvl-chip.on { color: var(--ink); background: #fff; border-color: var(--ink); }
+.lvl-chip:focus-visible { outline: 3px solid var(--orange); outline-offset: 1px; }
+.lvl-go { display: flex; align-items: center; gap: 6px; flex: none; }
+.lvl-nav .btn.small { padding: 5px 9px; font-size: 14px; box-shadow: 0 2px 0 var(--ink); border-radius: 13px; }
+.lvl-nav .lvl-gear { padding: 5px 6px; display: grid; place-items: center; } .lvl-gear svg { width: 19px; height: 19px; display: block; }
+.world-head, .toggles { scroll-margin-top: 58px; }
+#scrLevels { padding-top: 0; } #scrLevels > .card { margin-top: calc(env(safe-area-inset-top, 0px) + 12px); grid-template-columns: minmax(0, 1fr); }   /* (the top gap is the card's, not the scroller's: the bar sticks flush to the screen's top edge) */
+@media (max-width: 760px) { .lvl-nav { gap: 6px; } .lvl-chip { font-size: 12px; padding: 6px 5px; } .lvl-go { gap: 4px; } .lvl-nav .btn.small { padding: 5px 7px; font-size: 13px; } }
 .new-dot { position: absolute; top: -5px; right: -5px; width: 14px; height: 14px; border-radius: 50%; background: var(--orange); border: 2px solid var(--ink); }
 .goal.bill .val { color: var(--red); font-size: 18px; }
 .goal.unlock { color: var(--green); font-weight: 900; }
@@ -267,6 +285,34 @@ body.attract #hud, body.attract #hint { display: none; }
   .cl-tab { font-size: 16px; padding: 6px 14px; } .cl-tab .n { font-size: 13px; } .cl-info .closet-next { font-size: 17px; } .cl-count { font-size: 16px; } #scrCloset .closet-goal { font-size: 15px; }
   .cl-grid { grid-template-columns: repeat(auto-fill, minmax(108px, 1fr)); gap: 10px; } .cl-grid .cl-item canvas { width: 80px; height: 80px; } .cl-item .nm { font-size: 13px; } .cl-item .q { top: 26px; font-size: 30px; }
   .cl-grid.top { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); } .cl-grid.top .cl-item canvas { width: 90px; height: 90px; } .cl-item.top .tn { font-size: 18px; } }
+/* An iPad (Adam, Nov 11: "we should optimize the iPad app"): the same game a size up. The top bar and the cards grow with the
+   screen (--ui: 1.2 on a mini, 1.3 on an 11", 1.45 on a 13"), the level list uses the width (five across), and the stats get
+   room. A phone, and an iPhone Duo open or shut (about 890 x 626 and 678 x 466), keep the phone sizes: their points are a
+   phone's size in the hand. (The top bar is scaled with a transform, so its own measurements stay the same in every browser;
+   layout() reads its drawn height.) */
+@media (min-width: 900px) and (min-height: 600px) {
+  :root { --ui: 1.2; }
+  #hud { right: auto; box-sizing: border-box; width: calc(100% / var(--ui)); transform: scale(var(--ui)); transform-origin: 0 0; }
+  #hint { font-size: calc(15px * var(--ui)); padding: calc(6px * var(--ui)) calc(14px * var(--ui)); } #hint canvas { width: calc(28px * var(--ui)); height: calc(28px * var(--ui)); }
+  #scrIntro .card, #scrPause .card, #scrResult .card, #scrUnlock .card, #scrCard .card, #scrInfo .card, #scrReset .card, #scrWorld .wm-card { zoom: var(--ui); }
+  #scrTitle .title-top, #scrTitle .title-bottom { zoom: var(--ui); }
+  #scrLevels > .card { max-width: 1280px; padding: 22px 24px 20px; gap: 14px; }
+  #scrLevels .title { font-size: 38px; } #scrLevels .sub { font-size: 17px; } #scrLevels .eyebrow { font-size: 14px; } #scrLevels .bill-pill { font-size: 17px; padding: 7px 16px; }
+  .lvl-nav { margin: -4px -24px; padding: 8px 24px; gap: 12px; } .lvl-worlds { gap: 4px; } .lvl-chip { font-size: 16px; padding: 8px 12px; }
+  .lvl-go { gap: 8px; } .lvl-nav .btn.small { padding: 7px 14px; font-size: 16px; border-radius: 15px; } .lvl-nav .lvl-gear { padding: 7px 9px; } .lvl-gear svg { width: 22px; height: 22px; }
+  .world-head { font-size: 15px; margin: 10px 0 -2px; } .world-head, .toggles { scroll-margin-top: 72px; }
+  .levels { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .level-card { padding: 12px 14px; gap: 6px; border-radius: 20px; } .level-card .name { font-size: 12.5px; } .level-card .what { font-size: 21px; }
+  .level-card .star { width: 24px; height: 24px; } .level-card .faces canvas { width: 26px; height: 26px; } .level-card .faces svg { width: 28px; height: 25px; } .level-card .bill { font-size: 17px; }
+  .toggles { gap: 10px; } .toggle { font-size: 17px; padding: 10px 8px; border-radius: 14px; }
+  #scrStats .stats-card { max-width: 1080px; max-height: 860px; padding: 16px 20px 18px; gap: 10px; } .stats-head .title { font-size: 32px; }
+  .st-tile { padding: 5px 12px 6px; } .st-tile b { font-size: 24px; } .st-tile span { font-size: 12px; }
+  .stats-table table { font-size: 16px; } .stats-table th { font-size: 12px; padding: 8px 12px; } .stats-table td { padding: 9px 12px; } .stats-table .star { width: 16px; height: 16px; } .stats-table td.hard { max-width: 220px; }
+}
+@media (min-width: 1150px) and (min-height: 800px) { :root { --ui: 1.3; } }
+@media (min-width: 1300px) and (min-height: 950px) { :root { --ui: 1.45; } }
+/* (the paused level's top bar doesn't show around a menu: on a wide screen it peeked out beside the level list) */
+body:has(#scrLevels:not([hidden]), #scrCloset:not([hidden]), #scrStats:not([hidden]), #scrAlbum:not([hidden]), #scrUnlock:not([hidden]), #scrInfo:not([hidden]), #scrReset:not([hidden])) :is(#hud, #hint) { visibility: hidden; }
 @media (max-width: 600px) and (orientation: portrait) { #scrCloset .closet-body { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); } #scrCloset .closet-left { grid-template-columns: 40% 1fr; } }
 @media (max-width: 560px) { #scrTitle .title-bottom { flex-direction: column; align-items: center; } #scrTitle .title-btns .btn { min-width: 120px; } }
   .goal .chonkface canvas { display: block; width: 24px !important; height: auto !important; max-height: 24px; object-fit: contain; }
@@ -280,7 +326,7 @@ body.attract #hud, body.attract #hint { display: none; }
      presses down), the money on the left and a gold shop tab with the bag on the right, the gold of the result card's shop */
   .chonk-bank { pointer-events: auto; cursor: pointer; -webkit-appearance: none; appearance: none; font: inherit; color: inherit; text-align: left;
     display: flex; align-items: stretch; padding: 0; overflow: hidden; border: 2.5px solid var(--ink); border-radius: 13px; box-shadow: 0 3px 0 var(--ink);
-    margin-left: -4px; margin-bottom: 3px; transition: transform 0.06s, box-shadow 0.06s; }
+    margin-left: -4px; margin-bottom: 3px; transition: transform 0.06s, box-shadow 0.06s; flex: none; }   /* (flex: none: a long lineup on a narrow screen squeezed this box and cut its bag off; now the lineup folds to "+3" instead) */
   .chonk-bank:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
   .chonk-bank:focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; }
   .chonk-bank .money { display: flex; flex-direction: column; justify-content: center; gap: 0; padding: 3px 8px 3px 8px; line-height: 1.05; }
@@ -436,7 +482,14 @@ body.attract #hud, body.attract #hint { display: none; }
     <div class="eyebrow" id="lvlEyebrow">levels</div>
     <h1 class="title">I FITS, I SITS</h1>
     <p class="sub">knock the stuff over. sit in every spot.</p>
-    <div class="bill-row"><span class="bill-pill" id="lvlBill"></span><button class="btn small" id="closetBtn">closet<span class="new-dot" id="closetDot" hidden></span></button><button class="btn small" id="cribBtn">crib</button><button class="btn small" id="albumBtn">postcards<span class="new-dot" id="albumDot" hidden></span></button><button class="btn small" id="statsBtn">stats</button></div>
+    <div class="bill-row"><span class="bill-pill" id="lvlBill"></span></div>
+    <!-- the way out stays at the top (Adam, Nov 11: "once you scroll down you have to scroll way up to navigate out of the levels screen"):
+         this bar sticks while the list scrolls under it. Left, a chip per world to jump to (the one you're in is lit); right, the
+         closet, crib, postcards, stats, and the settings at the list's far end -->
+    <div class="lvl-nav" id="lvlNav">
+      <div class="lvl-worlds" id="lvlWorlds" role="navigation" aria-label="jump to a world"></div>
+      <div class="lvl-go"><button class="btn small" id="closetBtn">closet<span class="new-dot" id="closetDot" hidden></span></button><button class="btn small" id="cribBtn">crib</button><button class="btn small" id="albumBtn">postcards<span class="new-dot" id="albumDot" hidden></span></button><button class="btn small" id="statsBtn">stats</button><button class="btn small lvl-gear" id="lvlSet" aria-label="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M12 8.6a3.4 3.4 0 1 0 0 6.8a3.4 3.4 0 0 0 0-6.8zM12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg></button></div>
+    </div>
     <p class="lvl-msg" id="lvlMsg" role="status" hidden></p>
     <div class="levels" id="levelList"></div>
     <div class="toggles">
@@ -515,7 +568,7 @@ body.attract #hud, body.attract #hint { display: none; }
     <h2 class="title">u wants moar?</h2>
     <div class="peeks" id="unPeeks"></div>
     <p class="sub" id="unMore">100 moar levels n 5 new cats. pay once. no ads. evr.</p>
-    <p class="sub tip">bath tiem opens rite away. more worlds open wif ★ as u play.</p>
+    <p class="sub tip">earn ★ to open each world. bonus levels open wif their world.</p>
     <button class="btn go" id="unBuy">unlock everything · $2.99</button>
     <div class="btn-row">
       <button class="btn" id="unRestore">restore purchase</button>
@@ -2030,6 +2083,7 @@ const FITS = (() => {
       this.world = engine.world;
       this.rand = mulberry(level.id.split('').reduce((a, c) => a * 31 + c.charCodeAt(0), 7));
       this.bath = level.world === 'bath';   // (fixes from Adam's play of bath 1 to 5, Nov 7, kept to bath tiem so the levels before it play as they did)
+      this.bathWreck = this.bath && level.mode === 'mess';   // loose wreckage can keep falling while the next cat is aimed
       this.items = []; this.spots = []; this.statics = [];
       // megachonk in a lineup is on the team (C8, bath tiem on): free, he doesn't count against the cats left over, and the
       // page hides his paid button there. (Every tool reads a lineup as cat types, so 'chonk' is how a level says it.)
@@ -2223,10 +2277,11 @@ const FITS = (() => {
     }
 
     step() {
-      // Time stands still while you aim. The solver (and the paw-print hints) throw the moment a cat is ready; a kid
+      // Puzzle time stands still while you aim. The solver (and the paw-print hints) throw the moment a cat is ready; a kid
       // takes a while. If the world kept going meanwhile (things drifting in zero gravity, a stunned cat finishing its
-      // daze and leaving, belts), how long you aimed would change the level.
-      if (this.state === 'aim' || this.frozen) return;   // (frozen: the page is showing a cat leave the moon, and the level waits for it)
+      // daze and leaving, belts), how long you aimed would change the level. Bathroom wreck-its are free to keep falling:
+      // they have no sitting puzzle, and preparing the next cat shouldn't wait for the whole mess to stop (Adam, Nov 9).
+      if ((this.state === 'aim' && !this.bathWreck) || this.frozen) return;   // bathroom wreck-its keep settling; puzzles still freeze while aiming
       const M = this.M;
       this.stepN++;
       const cat = this.active;
@@ -2359,6 +2414,9 @@ const FITS = (() => {
     // had thrown things up, and in low gravity they were still coming down), 8 s at most on the moon. Not in space, where
     // things float on.
     holdTurn() {
+      // Bathroom wreck-its have no seats to fill: prepare the next cat after its normal handoff, while wreckage keeps moving.
+      // The final throw still gets its settling time before the wreck-it's score is decided.
+      if (this.bathWreck && (this.state === 'hopin' || this.catIdx + 1 < this.cats.length)) { this.held4 = 0; return false; }
       const busy = this.every.some(c => {
         const b = c.body; if (!b || b.isStatic || !LOOSE[c.state] || c.state === 'fly') return false;
         const riding = this.belts && this.belts.some(bb => { const f = bb.plugin.belt; return Math.abs(b.bounds.max.y - bb.bounds.min.y) <= 5 && b.position.x >= f.x0 - 4 && b.position.x <= f.x1 + 4; });
@@ -3569,14 +3627,12 @@ window.fitsStoreUpdate = st => {
   syncUnlock();
   if (unlock.owned && !was) {
     Snd.init(); Snd.fx('win');
-    // (the launch review: buying early and then tapping building 1 showed "15 stars opens dis world", which reads as "the purchase
-    // did nothing"): u land on the level list with a thank-you, the bonus levels open, and the level u wanted if its world is open.
-    // Since Nov 7 the world the purchase opens is bath tiem, right after the kitchen (Adam: "Right after the kitchen").
+    // Buying removes the purchase locks; each world's star door still applies, including its bonus levels (Adam, Nov 9).
     if (!$('scrUnlock').hidden || !$('scrLevels').hidden) {   // (not mid-level: a purchase approved later doesn't pull u out of a level)
       const w = unlock.want; unlock.want = null;
-      const thanks = () => { showLevelsNow(); lvlSay('u got teh whole game! bath tiem iz open now. more worlds open wif ★ as u play.', 7000); };
-      // bath tiem opening is a world opening too (world milestones): its moment the first time, then go lands where u were headed
-      if (!(store.d.worldsCheered || {}).bath) showWorldMoment('bath', { from: 'kitchen', bought: true, line: 'thx hooman! more worlds open wif ★', go: () => startLevel(w != null && !gate(w) ? w : firstOf('bath')), levels: thanks });
+      const thanks = () => { showLevelsNow(); lvlSay('u got teh whole game! earn ★ to open each world.', 7000); };
+      // Only celebrate bath tiem if its stars have actually opened it, then go where u were headed if that door is open too.
+      if (worldOpen('bath') && !(store.d.worldsCheered || {}).bath) showWorldMoment('bath', { from: 'kitchen', line: 'thx hooman! more worlds open wif ★', go: () => startLevel(w != null && !gate(w) ? w : firstOf('bath')), levels: thanks });
       else if (w != null && !gate(w)) startLevel(w);
       else thanks();
     }
@@ -6479,17 +6535,20 @@ function bathSpotBack(s) {
   if (s.kind === 'sidebox' && s.look === 'nook') { ctx.fillStyle = 'rgba(120,70,40,0.25)'; ctx.fillRect(s.x0, s.y0 + 4, s.x1 - s.x0, s.y1 - s.y0 - 8); return true; }
   return false;
 }
+function drawSinkFront(f) {
+  const b = f.basin, x0 = b.x0 - 7, x1 = b.x1 + 7, cx = (b.x0 + b.x1) / 2, lip = f.top + 11;
+  ctx.fillStyle = '#F7EFE4'; ctx.fillRect(x0, f.top + 6, x1 - x0, b.depth + 8);
+  ctx.fillStyle = 'rgba(46,58,53,0.07)'; ctx.fillRect(x0, lip + 2, x1 - x0, 6);
+  ctx.beginPath(); ctx.moveTo(b.x0 - 6, f.top - 2); ctx.lineTo(b.x1 + 6, f.top - 2); ctx.lineTo(b.x1 + 6, lip - 2); ctx.quadraticCurveTo(cx, lip + 7, b.x0 - 6, lip - 2); ctx.closePath(); fs(BT.enamel, INK, 2.4);
+  line([b.x0 + 4, f.top + 3, b.x1 - 4, f.top + 3], 'rgba(255,255,255,0.95)', 2); line([b.x0 + 10, lip - 1, cx - 10, lip + 2], 'rgba(160,180,190,0.5)', 1.6);
+}
 function bathSpotFront(s) {
   // Adam, Nov 7: "the sink is just a u shape that doesn't have a full side. The cats can be seen full body, the sink should have an
   // outer shape that hides part of the cat body". The vanity's face and the basin's front lip go over a cat in it, so only its head
   // and shoulders (and ears, and the tip of its tail) show over the edge, as in a box
   if (s.kind === 'sink') {
     const f = sim.level.furniture.find(q => q.kind === 'sinkCounter'); if (!f) return false;
-    const b = f.basin, x0 = b.x0 - 7, x1 = b.x1 + 7, cx = (b.x0 + b.x1) / 2, lip = f.top + 11;
-    ctx.fillStyle = '#F7EFE4'; ctx.fillRect(x0, f.top + 6, x1 - x0, b.depth + 8);   // the vanity's face, up to its doors
-    ctx.fillStyle = 'rgba(46,58,53,0.07)'; ctx.fillRect(x0, lip + 2, x1 - x0, 6);   // the lip's shadow
-    ctx.beginPath(); ctx.moveTo(b.x0 - 6, f.top - 2); ctx.lineTo(b.x1 + 6, f.top - 2); ctx.lineTo(b.x1 + 6, lip - 2); ctx.quadraticCurveTo(cx, lip + 7, b.x0 - 6, lip - 2); ctx.closePath(); fs(BT.enamel, INK, 2.4);   // the basin's front lip
-    line([b.x0 + 4, f.top + 3, b.x1 - 4, f.top + 3], 'rgba(255,255,255,0.95)', 2); line([b.x0 + 10, lip - 1, cx - 10, lip + 2], 'rgba(160,180,190,0.5)', 1.6);
+    drawSinkFront(f);
     return true;
   }
   if (s.kind === 'tub') {   // a clawfoot tub, dry (nobody's running a bath: sit in it)
@@ -6565,6 +6624,8 @@ const BATH_ITEMS = {
 // over the cats (page.js calls it for every piece of furniture, after the spots' fronts): the full tub's front, with the water's
 // front and foam over a soaked cat bobbing in it (its head over the rim), and the spray bottle's jet
 function bathFront(f, t) {
+  // A wreck-it's sink has no scoring spot, but still needs its front in front of whoever falls inside it.
+  if (f.kind === 'sinkCounter' && !sim.spots.some(s => s.kind === 'sink')) drawSinkFront(f);
   if (f.kind === 'bath') {
     const wl = f.top + (f.fill != null ? f.fill : 16), bot = (f.bottom || f.top + 70), w = f.x1 - f.x0;
     ctx.save(); ctx.globalAlpha = 0.5; ctx.fillStyle = '#9CD3EA'; ctx.fillRect(f.x0 + 14, wl + 2, w - 28, bot - wl - 2); ctx.restore();
@@ -6614,16 +6675,67 @@ const BATH_BREAK = {
   bathboard(it, x, y, fy) { burst(x, y, 14, [BT.wood, BT.woodD], { floorY: fy, decal: true, shape: 'splinter', size: 9, speed: 220 }); addText('CRACK', x, y - 26, INK, 18); fx.shake = Math.max(fx.shake, 7); },
   scale(it, x, y, fy) { burst(x, y, 10, ['#EEF1F2', '#2E3A35', '#7FE0A0'], { floorY: fy, decal: true, size: 7, speed: 180 }); addText('?? kg', x, y - 24, '#2E3A35', 15); fx.shake = Math.max(fx.shake, 6); },
 };
-// a loo roll's paper, left behind along the floor as it rolls (core.js: $1 a turn): from where it started to where it is now.
+// Loose paper is a light visual ribbon: gravity, a fixed amount per turn, and a free end, attached only to its roll.
+// It never adds bodies, collisions, money or goals to the game. A flying roll cannot pin its old paper in the air.
+function paperPoint(x, y) { return { x, y, px: x, py: y }; }
+function unrollPaper(e) {
+  let d = fx.decals.find(q => q.kind === 'paper' && q.item === e.item);
+  if (!d) { d = { kind: 'paper', item: e.item, pts: [paperPoint(e.x, e.y)] }; fx.decals.push(d); }
+  const dir = Math.sign(e.item.body.velocity.x) || 1, n = Math.ceil(Math.PI * 2 * e.item.def.r / 16);
+  const fresh = Array.from({ length: n }, (_, k) => paperPoint(e.x - (n - k) * dir, e.y + (n - k) * 0.3));
+  d.pts.splice(d.pts.length - 1, 0, ...fresh);
+  d.floorRest = false;
+}
+function stepPaperTrails(dt) {
+  if (!sim || dt <= 0) return;
+  // Two short steps keep a dropped frame from stretching a ribbon or throwing it through the floor.
+  const h = Math.min(dt, 1 / 30) / 2;
+  for (const d of fx.decals) {
+    if (d.kind !== 'paper') continue;
+    const p = d.pts, it = d.item, tied = !it.broken && it.body, last = p.length - 1;
+    // Paper resting entirely on the permanent floor needs no more physics until its roll moves or unrolls again.
+    if (d.floorRest && (!tied || (Math.abs(it.body.position.x - d.restX) < 0.25 && Math.abs(it.body.position.y - d.restY) < 0.25))) continue;
+    const anchor = () => { if (tied) Object.assign(p[last], { x: it.body.position.x, y: it.body.position.y + it.def.r, px: it.body.position.x, py: it.body.position.y + it.def.r }); };
+    for (let step = 0; step < 2; step++) {
+      for (let i = 0; i < p.length; i++) {
+        if (tied && i === last) continue;
+        const q = p[i], x = q.x, y = q.y;
+        q.x += (q.x - q.px) * 0.97; q.y += (q.y - q.py) * 0.97 + 650 * h * h;
+        q.px = x; q.py = y;
+      }
+      anchor();
+      for (let pass = 0; pass < 5; pass++) {
+        for (let i = 1; i < p.length; i++) {
+          const a = p[i - 1], b = p[i], dx = b.x - a.x, dy = b.y - a.y, length = Math.hypot(dx, dy);
+          if (length <= 16) continue;
+          const k = (length - 16) / length * (tied && i === last ? 1 : 0.5);
+          a.x += dx * k; a.y += dy * k;
+          if (!tied || i !== last) { b.x -= dx * k; b.y -= dy * k; }
+        }
+        anchor();
+      }
+      for (let i = 0; i < p.length; i++) {
+        if (tied && i === last) continue;
+        const q = p[i], floor = sim.surfaceAt(q.x, q.py - 2) - 2;
+        if (q.y >= floor) { q.y = q.py = floor; q.px = q.x - (q.x - q.px) * 0.45; }
+      }
+    }
+    d.floorRest = p.every(q => q.y >= FLOOR - 2.1 && Math.abs(q.x - q.px) + Math.abs(q.y - q.py) < 0.05);
+    if (d.floorRest && tied) { d.restX = it.body.position.x; d.restY = it.body.position.y; }
+  }
+}
+// A crumpled strip: the sheets' perforations cross it, with a soft fold and the game's ink outline.
 // Adam, Nov 9: "when toilet paper rolls are pushed around the toilet paper just looks like a white stripe". Seen from the side,
 // paper lying flat is a line, so it's drawn as a loose, crumpled strip instead: it ruffles up off the floor in soft humps, the
 // sheets' perforations cross it, a fold catches the light now and then, and it peels off the bottom of the roll
 function drawPaperTrail(d) {
-  const it = d.item, raw = d.pts.slice(), live = !it.broken && it.body; if (live) raw.push({ x: it.body.position.x, y: it.body.position.y + it.def.r });
+  const it = d.item, raw = d.pts;
   if (raw.length < 2) return;
   const pts = []; let s = 0;   // every 5 px along it (s: how far along)
   for (let i = 1; i < raw.length; i++) { const a = raw[i - 1], b = raw[i], L = Math.hypot(b.x - a.x, b.y - a.y), n = Math.max(1, Math.ceil(L / 5));
-    for (let k = i === 1 ? 0 : 1; k <= n; k++) { const u = k / n; pts.push({ x: a.x + (b.x - a.x) * u, y: a.y + (b.y - a.y) * u, s: s + L * u }); } s += L; }
+    if (L < 0.5) { s += L; continue; }
+    for (let k = pts.length ? 1 : 0; k <= n; k++) { const u = k / n; pts.push({ x: a.x + (b.x - a.x) * u, y: a.y + (b.y - a.y) * u, s: s + L * u }); } s += L; }
+  if (pts.length < 2) return;
   const total = s, hump = q => { const h = Math.abs(Math.sin(q.s / 23 + (it.n || 0))) * 5 + Math.abs(Math.sin(q.s / 9.5)) * 1.6;   // soft humps of loose paper
     return Math.min(h, (total - q.s) * 0.5 + 1.5, q.s * 0.4 + 1.5); };   // (flat where it starts, and where it meets the roll)
   const path = (dy = 0) => { ctx.beginPath(); pts.forEach((q, i) => { const y = q.y - 2.5 - hump(q) + dy; if (i) ctx.lineTo(q.x, y); else ctx.moveTo(q.x, y); }); };
@@ -6631,11 +6743,15 @@ function drawPaperTrail(d) {
   path(3.2); ctx.strokeStyle = 'rgba(46,58,53,0.12)'; ctx.lineWidth = 7; ctx.stroke();   // its shadow on the floor
   path(); ctx.strokeStyle = INK; ctx.lineWidth = 9.6 * STYLE.ink + 2; ctx.stroke(); ctx.strokeStyle = '#FFFDF6'; ctx.lineWidth = 9.6 * STYLE.ink; ctx.stroke();
   path(-1.6); ctx.strokeStyle = 'rgba(46,58,53,0.10)'; ctx.lineWidth = 2; ctx.stroke();   // the paper's top edge, a touch darker: it reads as a strip with a face
+  const seams = [], dots = [];
   for (const q of pts) {   // the perforations every sheet, and a quilted dot pattern between them
     const y = q.y - 2.5 - hump(q);
-    if (Math.floor(q.s / 16) !== Math.floor((q.s - 5) / 16)) line([q.x, y - 4, q.x + 0.6, y + 4], 'rgba(46,58,53,0.38)', 1.1);
-    else if (Math.floor(q.s / 5) % 2) { ell(q.x, y, 0.7, 0.7); fs('rgba(46,58,53,0.12)', null); }
+    if (Math.floor(q.s / 16) !== Math.floor((q.s - 5) / 16)) seams.push([q.x, y]);
+    else if (Math.floor(q.s / 5) % 2) dots.push([q.x, y]);
   }
+  // Draw each pattern in one batch, so a room full of unrolled paper stays cheap to draw.
+  ctx.beginPath(); for (const [x, y] of seams) { ctx.moveTo(x, y - 4); ctx.lineTo(x + 0.6, y + 4); } fs(null, 'rgba(46,58,53,0.38)', 1.1);
+  ctx.beginPath(); for (const [x, y] of dots) { ctx.moveTo(x + 0.7, y); ctx.ellipse(x, y, 0.7, 0.7, 0, 0, Math.PI * 2); } fs('rgba(46,58,53,0.12)', null);
   ctx.restore();
 }
 const SPRAY_SAY = ['i got sprayed. never forget.', 'WATER?! do not want.', 'betrayal.'];
@@ -6699,8 +6815,7 @@ function bathEvent(e) {
       addText(SPRAY_SAY[(sim.sprayT || 0) % SPRAY_SAY.length], e.x, e.y - 50, '#4F8FC6', 16, 0.05, 1.5); Snd.voice('mraow', (c.def.pitch || 1) * 1.1, 0.7, 0.1);
       burst(e.x, e.y, 10, ['#9CC9E4', '#BFE3F2', '#FFFFFF'], { speed: 120, g: 500, life: 0.7, shape: 'dot', size: 4, dir: e.dir < 0 ? Math.PI : 0, spread: Math.PI * 0.6 }); return true; }
     case 'unroll': {   // a loo roll unrolling: $1, and the paper stays behind
-      let d = fx.decals.find(q => q.kind === 'paper' && q.item === e.item); if (!d) { d = { kind: 'paper', item: e.item, pts: [{ x: e.item.x0, y: e.y }] }; fx.decals.push(d); }
-      d.pts.push({ x: e.x, y: e.y }); if (e.n % 2 === 0) addText('+$1', e.x, e.y - 30, GOLD, 13); if (e.n === 1) Snd.fx('rustle', 0.6); return true; }
+      unrollPaper(e); if (e.n % 2 === 0) addText('+$1', e.x, e.y - 30, GOLD, 13); if (e.n === 1) Snd.fx('rustle', 0.6); return true; }
     case 'smol': {   // on top of a spot it doesn't fit: it hops off to the side
       const c = e.cat; addText('too smol. i no fits.', e.x, e.y - 56, INK, 16, 0.1, 1.6); Snd.voice('huh', (c.def.pitch || 1), 0.6); Snd.fx('soft', 0.5); RX(c).sad = 0.8; return true; }
     case 'evict': {   // the squatter has had enough: it shakes itself, hops down and strolls off ("ight imma head out")
@@ -7800,7 +7915,7 @@ const cam = { x: 500, y: 300, z: 0.6, mode: 'auto', t: 0, hold: 0, from: null };
 function layout() {
   const dpr = Math.min(window.devicePixelRatio || 1, 3), cw = window.innerWidth, ch = window.innerHeight;
   cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr);
-  const top = ($('hud').offsetHeight || 44) + 2;
+  const top = Math.round($('hud').getBoundingClientRect().height || 44) + 2;   // (its drawn height: on an iPad the bar is scaled up)
   view = { cw, ch, dpr, top, availH: Math.max(140, ch - top - 4) };
   if (sim) fitLineup();
   checkRotate();
@@ -8074,12 +8189,17 @@ function updateHud() {
 // A long lineup (moon 9 has 13 cats) squeezes to fit the top bar on a phone: smaller faces, then the thrown ones go, then
 // the last ones become "+3" (the top bar ran off the right edge there, megachonk's button and the $ with it)
 function fitLineup() {
-  const hud = $('hud'), lu = $('lineup'), over = () => hud.scrollWidth > hud.clientWidth + 1;
-  lu.classList.remove('tight'); const more = lu.querySelector('.more'); if (more) more.remove();
+  // (Over = past the bar's right padding, not past the bar: on a phone with a notch that padding is the 50-odd px beside the
+  // camera, and the old test let the $ and the saved box slide into it, or squeezed the saved box till its bag was cut off.
+  // The level's name goes before the cats do.)
+  const hud = $('hud'), lu = $('lineup'), label = $('lvlLabel'), padR = parseFloat(getComputedStyle(hud).paddingRight) || 0;
+  const over = () => { const kids = [...hud.children].filter(c => !c.hidden && c.offsetWidth), last = kids[kids.length - 1]; return !!last && last.offsetLeft + last.offsetWidth > hud.clientWidth - padR + 1; };
+  lu.classList.remove('tight'); label.hidden = false; const more = lu.querySelector('.more'); if (more) more.remove();
   const faces = [...lu.querySelectorAll('canvas')]; faces.forEach(f => { f.hidden = false; });
   if (!over()) return;
   lu.classList.add('tight'); if (!over()) return;
   faces.forEach(f => { if (f.classList.contains('used')) f.hidden = true; }); if (!over()) return;
+  label.hidden = true; if (!over()) return;
   const left = faces.filter(f => !f.hidden), tag = document.createElement('span'); tag.className = 'more'; lu.appendChild(tag);
   for (let k = left.length - 1; k > 0 && over(); k--) { left[k].hidden = true; tag.textContent = '+' + (left.length - k); }
 }
@@ -8091,39 +8211,28 @@ const canSwap = () => (!$('scrTitle').hidden || !$('scrLevels').hidden) && SCREE
 function anyScreen() { return SCREENS.some(s => !$(s).hidden) || !$('scrRotate').hidden; }
 function showScreen(id) { if (id !== 'scrTitle') stopAttract(); for (const s of SCREENS) $(s).hidden = s !== id; paused = anyScreen(); if (!paused) acc = 0; }
 const isLocked = i => !unlock.owned && LEVELS[i] && LEVELS[i].world !== FREE_WORLD;
-// Progress. Adam, Nov 4: "right now the game lets players skip to the later levels immediately. It needs to make them get a
-// certain number of stars on the previous levels before unlocking". Nov 6, sharper: "players have to get a certain # of stars on
-// say the kitchen to advance to the next level" (docs/NEXT_LEVELS.md, star gates). So:
-// - Each world opens with stars earned anywhere before it, wreck-its included (Adam, Nov 6: "let's switch it to accumulate
-//   stars to open up more levels"): 2.5 a level since Nov 7 (see WORLD_NEED), so a kid stuck in one world can go back and earn stars anywhere.
-//   (Full paw-print paths earned about 2.2 a level; since Nov 6 the paws show only the first throw, so the rest is the player's.)
-// - Inside a world, a win opens the next level, as before.
-// - A world that has opened stays open (it's remembered), and so does any level already won. Saves from the old rule
-//   (all stars together, 1.25 a level) keep every world that rule had open.
-// - Once the game is bought, bath tiem is open (the purchase visibly unlocks something), and so is every wreck-it.
-// - Locks look different: a padlock only ever means buy, a star door means earn, and a dimmed card means win the one before.
-// Nov 7, Adam: "opening a new world should be a bit challenging. It should require more than 2 stars per level and at least a
-// few 3 stars per level. Replay should be driven"; he picked 2.5 a level, with the mess goals as they are (it was about 1.4).
-// His own casual play got 30 stars from the kitchen and 22 from the building. 2.5 a level counts the wreck-its as levels.
-// Nov 7, Adam: "I vote we move the bath time to earlier in the game", and his pick, "Right after the kitchen": bath tiem is the
-// second world and the one buying opens (its door never shows: buying is its door), so every door after it moved up. Then, the
-// same day, "every world gets three wreck-its". The rule stays 2.5 x every level before the world, wreck-its counted, so the table
-// is worked out from LEVELS and follows any world that grows: today the kitchen's 13 and bath tiem's 13 make the building 65, then
-// the park 93, the warehouse 120, outer space 148, the moon 170 (bath tiem's own, 33, only matters to the old-save rule). Doors a
-// save already had open stay open (migrateBathMove).
+// Progress. Adam, Nov 9 (to Codex): lock every world and all its levels, including bonuses, until there are enough stars.
+// Adam, Nov 11, asked the two open points directly: after buying, bath tiem "Needs 45 kitchen stars"; a world a save already
+// opened "Stay open". So:
+// - Stars earned anywhere before a world count, bonuses included: 2.5 per earlier level (Adam's Nov 7 rule).
+// - Buying removes the padlocks, not the star doors. Bath tiem has its door like every later world (45 of the kitchen's 54).
+// - A world's bonus levels open with the world, never before it; inside a world a regular win opens the next regular level.
+// - A world that has opened on a save stays open (it's remembered), and so does any level already won: a door is something
+//   u get through once, it never shuts behind u. Saves from the older rules keep every world those rules had open
+//   (the first run under the 2.5 rule, migrateBathMove, migrateBathDoor).
+// - A padlock means buy, a star door means earn stars, and a dimmed card means win the previous regular level.
 const WORLD_NEED = (() => { const need = {}; LEVELS.forEach((L, i) => { if (i && L.world !== LEVELS[i - 1].world && !(L.world in need) && L.world !== FREE_WORLD) need[L.world] = Math.round(2.5 * i); }); return need; })();   // stars from every level before the world
 const starsBefore = w => { const f = LEVELS.findIndex(L => L.world === w); return LEVELS.reduce((n, L, i) => n + (i < f ? store.d.stars[L.id] || 0 : 0), 0); };
-const OLD_WORLD_STARS = (() => { const need = {}; let regular = 0; LEVELS.filter(L => L.world !== 'bath').forEach((L, i, LV) => { if (i && L.world !== LV[i - 1].world) need[L.world] = Math.round(regular * 1.25); if (L.mode !== 'mess') regular++; }); return need; })();   // (the old rule, in the old order: no bath tiem)
-// The browser test page (test-kitchen.html) opens bath tiem without its 163 stars, so Adam can play it on his phone (Nov 7). Only
+// The browser test page (test-kitchen.html) opens bath tiem without its star door, so Adam can play it on his phone (Nov 7). Only
 // there: build.py writes TEST_PAGE true into the test page and false into App2/game.html, which keeps the real door.
 const TESTPAGE = typeof TEST_PAGE !== 'undefined' && TEST_PAGE === true, TEST_OPEN = { bath: true };
+const OLD_WORLD_STARS = (() => { const need = {}; let regular = 0; LEVELS.filter(L => L.world !== 'bath').forEach((L, i, LV) => { if (i && L.world !== LV[i - 1].world) need[L.world] = Math.round(regular * 1.25); if (L.mode !== 'mess') regular++; }); return need; })();   // (the first rule, in the old order: all stars together, 1.25 a level, no bath tiem)
 function worldOpen(w) {   // has world w opened (and stayed open)?
   const need = WORLD_NEED[w]; if (!need) return true;
   if (TESTPAGE && TEST_OPEN[w]) return true;
-  if (w === 'bath' && owned()) return true;   // buying opens the second world right away (Adam, Nov 6: "make buying The Whole Game open building 1 right away, so the purchase visibly unlocks something while 2.0 is in review. Later worlds keep their star gates."). Since Nov 7 that's bath tiem
   const op = store.d.worldsOpen || (store.d.worldsOpen = {});
   if (op[w]) return true;
-  if (!store.d.gates2) {   // first run under these gates: keep what the old rule had open
+  if (!store.d.gates2) {   // first run under these doors: keep what the first rule had open
     store.d.gates2 = true; for (const k in OLD_WORLD_STARS) if (starTotal() >= OLD_WORLD_STARS[k]) op[k] = true; store.save();
     if (op[w]) return true;
   }
@@ -8132,8 +8241,8 @@ function worldOpen(w) {   // has world w opened (and stayed open)?
 }
 const owned = () => unlock.owned || !NATIVE;
 // Bath tiem moved to right after the kitchen (Nov 7). A save from before keeps every door it had open: the building (a buyer's, or by
-// its old 33 stars) and the rest by their old numbers, counted the old way (stars in bath tiem don't count toward them). A buyer gets
-// bath tiem with its moment, on the way to the level list (pendingMoment). Once per save; a new save has nothing to keep.
+// its old 33 stars) and the rest by their old numbers, counted the old way (stars in bath tiem don't count toward them). Once per
+// save; a new save has nothing to keep.
 function migrateBathMove() {
   const d = store.d; if (d.bathMoved) return;
   d.bathMoved = true;
@@ -8141,19 +8250,31 @@ function migrateBathMove() {
     const op = d.worldsOpen || (d.worldsOpen = {}), OLD = { building: 33, park: 60, warehouse: 88, space: 115, moon: 138 }, order = LEVELS.filter(L => L.world !== 'bath');
     const before = w => { const f = order.findIndex(L => L.world === w); return order.reduce((n, L, i) => n + (i < f ? d.stars[L.id] || 0 : 0), 0); };
     for (const w in OLD) if ((w === 'building' && owned()) || before(w) >= OLD[w] || LEVELS.some(L => L.world === w && d.stars[L.id])) op[w] = true;
-    if (owned() && !(d.worldsCheered || {}).bath) (d.worldNew || (d.worldNew = {})).bath = true;
   }
   store.save();
 }
-migrateBathMove();
+// Until Nov 11 buying opened bath tiem straight away. Someone who bought under that rule had it open, so their save keeps it
+// (with its moment, if it hasn't played); from now on a buyer earns the 45 stars like everyone. Once per save, in the app only:
+// a new save, or one that buys later, gets nothing here.
+function migrateBathDoor() {
+  const d = store.d; if (d.bathDoor) return;
+  d.bathDoor = true;
+  if (NATIVE && unlock.owned && (d.gates2 || Object.keys(d.stars || {}).length)) {
+    (d.worldsOpen || (d.worldsOpen = {})).bath = true;
+    if (!(d.worldsCheered || {}).bath) (d.worldNew || (d.worldNew = {})).bath = true;
+  }
+  store.save();
+}
 let allOpen = false;   // for the browser checks (window.__fits.openAll()); never saved
 const starTotal = () => LEVELS.reduce((n, L) => n + (store.d.stars[L.id] || 0), 0);
-function gate(i) {   // null if level i is open, else what it needs: { stars, from } for the world, or { after } (the level to win first)
+migrateBathMove(); migrateBathDoor();
+function gate(i) {   // null if level i is open, else { stars, w } for the world or { after } for the previous regular level
   const L = LEVELS[i];
-  if (!L || allOpen || store.d.stars[L.id]) return null;
+  if (!L || allOpen) return null;
   if (TESTPAGE && TEST_OPEN[L.world]) return null;   // (the test page: every bath tiem level open, to play in any order)
-  if (L.mode === 'mess' && owned() && !isLocked(i)) return null;   // wreck-its: open once the game's bought
   if (!worldOpen(L.world)) return { stars: WORLD_NEED[L.world], w: L.world };
+  if (store.d.stars[L.id]) return null;
+  if (L.mode === 'mess' && owned() && !isLocked(i)) return null;   // bought bonuses open with their world, never before it
   if (LEVELS.findIndex(x => x.world === L.world && x.mode !== 'mess') === i) return null;   // a world's first level opens with the world: stars, not the last level won, so one stuck level never walls u in
   for (let k = i - 1; k >= 0; k--) if (LEVELS[k].mode !== 'mess') return store.d.stars[LEVELS[k].id] ? null : { after: k };
   return null;
@@ -8261,8 +8382,36 @@ function showLevelsNow() {
   syncToggles(); showScreen('scrLevels');
   // (it always opened at the top: back from moon 5, its card was 2,600 px down)
   const here = LEVELS[levelIdx] && levelIdx >= 0 ? levelIdx : LEVELS.findIndex((L, k) => !store.d.stars[L.id] && !isLocked(k) && !gate(k));
+  lvlNavBuild();
   const card = here >= 0 && $('lvl-' + LEVELS[here].id); if (card) card.scrollIntoView({ block: 'center' });
+  lvlNavSync();
 }
+// The level list's nav bar (Adam, Nov 11: "in the levels screen keep some navigation help at the top of the screen. Right now once
+// you scroll down you have to scroll way up to navigate out of the levels screen"): it sticks to the top while the list scrolls
+// under it. A chip per world jumps to that world (the one on screen is lit), and the gear jumps to the settings at the list's end.
+const WORLD_CHIP = { kitchen: 'kitchen', bath: 'bath', building: 'window', park: 'park', warehouse: 'boxes', space: 'space', moon: 'moon' };
+const lvlJump = el => { Snd.init(); Snd.fx('pop'); if (el) el.scrollIntoView({ block: 'start', behavior: reduceMotion ? 'auto' : 'smooth' }); };
+function lvlNavBuild() {
+  const box = $('lvlWorlds'); box.innerHTML = ''; box._lit = null;
+  for (const w of [...new Set(LEVELS.map(L => L.world).filter(Boolean))]) {
+    const b = document.createElement('button'); b.className = 'lvl-chip'; b.dataset.w = w; b.textContent = WORLD_CHIP[w] || w; b.setAttribute('aria-label', WORLD_NAMES[w] || w);
+    b.addEventListener('click', () => lvlJump($('wh-' + w)));
+    box.appendChild(b);
+  }
+}
+function lvlNavSync() {
+  const scr = $('scrLevels'), nav = $('lvlNav'), box = $('lvlWorlds'); if (scr.hidden) return;
+  const nr = nav.getBoundingClientRect(); nav.classList.toggle('stuck', nr.top <= scr.getBoundingClientRect().top + 0.5);
+  let cur = null; for (const h of scr.querySelectorAll('.world-head')) { if (cur && h.getBoundingClientRect().top > nr.bottom + 28) break; if (!cur || h.getBoundingClientRect().top <= nr.bottom + 28) cur = h.id.slice(3); }
+  const edges = () => { box.classList.toggle('more', box.scrollLeft + box.clientWidth < box.scrollWidth - 2); box.classList.toggle('less', box.scrollLeft > 2); };
+  if (cur === box._lit) { edges(); return; } box._lit = cur;
+  for (const c of box.children) { const on = c.dataset.w === cur; c.classList.toggle('on', on); if (on) c.setAttribute('aria-current', 'true'); else c.removeAttribute('aria-current');
+    if (on) { if (c.offsetLeft < box.scrollLeft) box.scrollLeft = c.offsetLeft - 6; else if (c.offsetLeft + c.offsetWidth > box.scrollLeft + box.clientWidth) box.scrollLeft = c.offsetLeft + c.offsetWidth - box.clientWidth + 6; } }
+  edges();
+}
+{ let raf = 0; const tick = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; lvlNavSync(); }); };
+  $('scrLevels').addEventListener('scroll', tick, { passive: true }); $('lvlWorlds').addEventListener('scroll', tick, { passive: true }); window.addEventListener('resize', tick);
+  $('lvlSet').addEventListener('click', () => lvlJump($('scrLevels').querySelector('.toggles'))); }
 function showUnlock(i) {
   unlock.want = i; unlock.state = 'ready'; syncUnlock();
   // what buying adds, counted from the levels so it can't go stale (it said "65 moar levels" after the Nov 7 levels made it 100)
@@ -8305,7 +8454,7 @@ $('resetYes').addEventListener('click', () => {
   const d = store.d, keep = {};
   for (const k of ['sound', 'amb', 'haptics', 'aimFull', 'reviewAsks']) if (d[k] !== undefined) keep[k] = d[k];
   for (const k of Object.keys(d)) delete d[k];
-  Object.assign(d, { stars: {}, aimFull: false, sound: true, fails: {}, best: {}, bill: 0, wear: {}, billShown: 0, closetSeen: 0, owned: null, levelsV3: true, gates2: true, bathMoved: true }, keep);   // (bathMoved: a fresh game has no old doors to keep)
+  Object.assign(d, { stars: {}, aimFull: false, sound: true, fails: {}, best: {}, bill: 0, wear: {}, billShown: 0, closetSeen: 0, owned: null, levelsV3: true, gates2: true, bathMoved: true, bathDoor: true }, keep);   // (bathMoved: a fresh game has no old doors to keep)
   store.save();
   seenHint.clear(); ORBIT.cur = null; ORBIT.next = 0; firstShot = true;
   Snd.fx('whoosh'); buzz('bonk', 0.6);
@@ -9522,6 +9671,7 @@ function insideFront(p) {
   // in a full tub's water (bath tiem): drawn before its front, so a soaked cat (megachonk too) is IN the tub, head over the rim
   // (Adam, Nov 9: "mega chunk... goes into the bathtub but then you still see his full body and there's like no side to the bathtub")
   for (const f of sim.level.furniture) if (f.kind === 'bath' && p.x > f.x0 + 6 && p.x < f.x1 - 6 && p.y > f.top - 6 && p.y < FLOOR + 4) return true;
+  for (const f of sim.level.furniture) if (f.kind === 'sinkCounter' && p.x > f.basin.x0 && p.x < f.basin.x1 && p.y > f.top - 6 && p.y < f.top + f.basin.depth + 4) return true;
   return false;
 }
 function drawAim() {
@@ -9715,7 +9865,16 @@ function render(t, dt) {
     }
     const s = o.state === 'sit' ? o.spot : spotAround(o.body.position);
     o._inSpot = s;
-    if (!s) drawSimCat(o, t); else { ctx.save(); clipToSpot(s); drawSimCat(o, t); ctx.restore(); }
+    if (!s) {
+      // A non-scoring sink still hides the body; a resting cat peeks over its lip, just as in a scoring sink.
+      const p = o.body.position, sink = sim.level.world === 'bath' && sim.level.furniture.find(f => f.kind === 'sinkCounter' && p.x > f.basin.x0 && p.x < f.basin.x1 && p.y > f.top - 6 && p.y < f.top + f.basin.depth + 4);
+      ctx.save();
+      if (sink && !o.mochi && (o.state !== 'fly' || o.body.speed < 0.6)) {
+        const d = o.stray ? strayDef(o) : o.def, k = d.k * (RX(o).sv || 1), headOff = -POSE_PIN.sit[1] * k * (1 - STYLE.body) + 22 * k * STYLE.body;
+        ctx.translate(0, Math.min(0, sink.top - 21 * k * STYLE.head - 2 + headOff - (o.body.bounds.max.y - 22 * k)));
+      }
+      drawSimCat(o, t); ctx.restore();
+    } else { ctx.save(); clipToSpot(s); drawSimCat(o, t); ctx.restore(); }
     const rx = RX(o); if (rx.dizzy > 0 && !o.splat) dizzyStars(o.body.position.x, o.body.bounds.min.y - 8, t);
   };
   inside.forEach(drawOne);
@@ -9749,6 +9908,7 @@ function frame(now) {
     while (acc >= DT && n < 5) { if (attract) attractStep(); else hintTick(); sim.step(); acc -= DT; n++; drain(); }
     if (attract) attractTick(dt); else tallyBill();
     if (n === 5) acc = 0;
+    stepPaperTrails(dt);
     if (fx.hop) fx.hop.t += dt;
     if (fx.wob > 0) fx.wob = Math.max(0, fx.wob - dt * 2.2);
     if (fx.roll) {
@@ -10611,7 +10771,7 @@ const WM_SC = 3.4;   // each world's scene (s); after it, it idles under the car
 let WM = null, wmRaf = 0;
 function showWorldMoment(w, o = {}) {
   if (TESTPAGE && TEST_OPEN[w] && starsBefore(w) < (WORLD_NEED[w] || 0)) o = Object.assign({ test: true }, o);   // (the test page opened it without the stars: no star count)
-  else if (w === 'bath' && owned()) o = Object.assign({ bought: true }, o);   // (bath tiem is the purchase's, never the stars': no star count)
+  else if (w === 'bath' && owned() && starsBefore(w) < WORLD_NEED[w]) o = Object.assign({ bought: true }, o);   // (kept from a purchase made while buying opened it, migrateBathDoor: no star count)
   wmSave('worldsCheered')[w] = true; wmSave('worldNew')[w] = true; store.save();
   Snd.init(); Snd.purrStopAll(0.2); buzz('purrStopAll'); if (Snd.master) Snd.master.gain.value = 0.7;
   const from = o.from || (sim && sim.level && WM_WORLDS.includes(sim.level.world) && levelIdx >= 0 ? sim.level.world : WM_WORLDS[Math.max(0, WM_WORLDS.indexOf(w) - 1)]);
