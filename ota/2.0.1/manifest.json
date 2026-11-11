@@ -1,4 +1,4 @@
 {
- "manifest": "{\"native\":\"2.0.1\",\"seq\":202611102311,\"url\":\"https://maksidaa.github.io/if-i-fits-site/ota/2.0.1/202611102311.html\",\"sha256\":\"f555135b9feff293f0b53ecfc0e7e1a62f3fd2d81fc04a243e954356bcf77b7b\",\"size\":1997773,\"notes\":\"Level list menu bar stays at the top; bigger on iPad; top bar fits beside the notch\",\"commit\":\"54d7eb4\",\"created\":\"2026-11-11T05:11:54.767Z\"}",
- "signature": "5ZxFpDvtylfslhqxfr7cb+knDv5f1/D0XR3Ljsu6OOvaU/chazTvnI3m5qAPV+OXE8FYtvpMsvRJZxvVdsCyLg=="
+ "manifest": "{\"native\":\"2.0.1\",\"seq\":202611111316,\"url\":\"https://maksidaa.github.io/if-i-fits-site/ota/2.0.1/202611111316.html\",\"sha256\":\"32db9cba83bb54c7ed16d6a0fb06f72beb8282a8c648f72b2b452a08bd3769da\",\"size\":2001124,\"notes\":\"Bath fixes: wreckage keeps settling while you aim; bonus levels open with their world; sink fronts, falling paper; opened worlds stay open\",\"commit\":\"2fc41ad\",\"created\":\"2026-11-11T19:16:14.460Z\"}",
+ "signature": "qUSEIb+OlgmGj6eEhx2diyfnaJj34KRuI8EcnTquc0UQDiA5Pe6S+XhWUNbSaggctawqau/Sf4iHRSj2AuhuVQ=="
 }
