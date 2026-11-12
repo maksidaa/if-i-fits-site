@@ -53,3 +53,9 @@ article .updated { color: var(--muted); margin-top: 0; }
 details { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; margin: 10px 0; }
 summary { font-weight: 800; cursor: pointer; }
 footer { color: var(--muted); font-size: 14px; padding: 40px 20px 50px; text-align: center; }
+
+/* Language navigation and room for translated labels. */
+.languages { max-width: 760px; margin: 16px auto 0; padding: 0 20px; display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 14px; }
+.languages [aria-current="page"] { text-decoration: none; color: var(--ink); }
+html:not([lang="en"]) header, html:not([lang="en"]) header nav { flex-wrap: wrap; }
+:lang(ja), :lang(ko), :lang(zh-Hans) { word-break: normal; overflow-wrap: anywhere; }
