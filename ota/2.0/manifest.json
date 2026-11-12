@@ -1,4 +1,4 @@
 {
- "manifest": "{\"native\":\"2.0\",\"seq\":202611111316,\"url\":\"https://maksidaa.github.io/if-i-fits-site/ota/2.0/202611111316.html\",\"sha256\":\"32db9cba83bb54c7ed16d6a0fb06f72beb8282a8c648f72b2b452a08bd3769da\",\"size\":2001124,\"notes\":\"Bath fixes: wreckage keeps settling while you aim; bonus levels open with their world; sink fronts, falling paper; opened worlds stay open\",\"commit\":\"2fc41ad\",\"created\":\"2026-11-11T19:16:18.564Z\"}",
- "signature": "7soiq2lS0Hw2UUlk5jYiyt1nLBLR0WxXw4dmSkH7bwQLIjqLgbeP8/FEqPfy66135ucvcRh8+l/EO4b9zgXJUg=="
+ "manifest": "{\"native\":\"2.0\",\"seq\":202611121722,\"url\":\"https://maksidaa.github.io/if-i-fits-site/ota/2.0/202611121722.html\",\"sha256\":\"cd5ae4235ef3087da1eedf7073a33c0d6950ade5c5a2efdc1ac57f86b6674e5d\",\"size\":2125234,\"notes\":\"teh hooman's office: a new world, 13 levels, and tuna the bouncing kitten\",\"commit\":\"08693c2\",\"created\":\"2026-11-12T23:22:58.406Z\"}",
+ "signature": "/w3XjrGbO6tcibpgGz2da7gWIM0KYHsWPtaPc8dchBU0cjA1GvkbrAipSAcDMUCbQCsbhxyIFotRTxkxDNdD2Q=="
 }
